@@ -37,7 +37,7 @@ import {
   ChatMessage,
   GetChatMessageResponse
 } from '@azure/communication-chat';
-import { AzureCommunicationUserCredential } from '@azure/communication-common';
+import { AzureCommunicationUserCredential, RefreshOptions } from '@azure/communication-common';
 
 // This function sets up the user to chat with the thread
 const addUserToThread = (displayName: string, emoji: string) => async (dispatch: Dispatch, getState: () => State) => {
@@ -58,12 +58,25 @@ const addUserToThread = (displayName: string, emoji: string) => async (dispatch:
   // create our user
   let userToken = await getToken();
 
+  var test = await refreshTokenAsync(userToken.identity);
+
   if (userToken === undefined) {
     console.error('unable to get a token');
     return;
   }
 
-  let userAccessTokenCredentialNew = new AzureCommunicationUserCredential(userToken.token);
+ let options: RefreshOptions = {
+  initialToken: userToken.token,
+  tokenRefresher: async () : Promise<string> => { 
+    return new Promise( async (resolve, reject) => {
+      var token = await refreshTokenAsync(userToken.identity);
+      resolve(token);
+    })
+  },
+  refreshProactively: true
+ }
+
+  let userAccessTokenCredentialNew = new AzureCommunicationUserCredential(options);
   let chatClient = new ChatClient(environmentUrl, userAccessTokenCredentialNew);
 
   // set emoji for the user
@@ -632,6 +645,19 @@ const getToken = async () => {
     console.error('Failed at getting token, Error: ', error);
   }
 };
+
+const refreshTokenAsync = async (userMri: string) => {
+  try {
+    let refreshTokenRequestOptions = {
+      method: 'GET'
+    };
+
+    let getTokenResponse = await fetch('/refreshToken/'+ userMri, refreshTokenRequestOptions);
+    return getTokenResponse.text(); // this just gets us  back our token from our service
+  } catch (error) {
+    console.error('Failed at getting token, Error: ', error);
+  }
+}
 
 const setEmoji = async (userId: string, emoji: string) => {
   try {

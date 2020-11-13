@@ -1,5 +1,6 @@
 ﻿// © Microsoft Corporation. All rights reserved.
 
+using Azure.Communication;
 using Azure.Communication.Administration;
 using System;
 using System.Threading.Tasks;
@@ -21,6 +22,27 @@ namespace Chat
                 string token = tokenResponse.Value.Token;
                 DateTimeOffset expiresOn = tokenResponse.Value.ExpiresOn;
                 return (user.Id, token, expiresOn.Ticks);
+            }
+            catch (Azure.RequestFailedException ex)
+            {
+                Console.WriteLine($"Error occured while Generating Token: {ex}");
+                return (null, null, -1);
+            }
+        }
+
+        public async Task<(string userMri, string skypeToken, long expiresDateUtc)> RefreshTokenAsync(string resourceConnectionString, string identity)
+        {
+            try
+            {
+                CommunicationIdentityClient communicationIdentityClient = new CommunicationIdentityClient(resourceConnectionString);
+                CommunicationUser user = new CommunicationUser(identity);
+
+                Azure.Response<Azure.Communication.Administration.Models.CommunicationUserToken> tokenResponse =
+                    await communicationIdentityClient.IssueTokenAsync(user, scopes: new[] { CommunicationTokenScope.Chat });
+
+                string token = tokenResponse.Value.Token;
+                DateTimeOffset expiresOn = tokenResponse.Value.ExpiresOn;
+                return (identity, token, expiresOn.Ticks);
             }
             catch (Azure.RequestFailedException ex)
             {

@@ -45,6 +45,18 @@ namespace Chat
 		}
 
 		/// <summary>
+		/// Gets a refreshed token for the client
+		/// </summary>
+		/// <returns></returns>
+		[Route("refreshToken/{userMri}")]
+		[HttpGet]
+		public async Task<string> RefreshTokenAsync(string userMri)
+		{
+			var (identity, token, expiresIn) = await _userTokenManager.RefreshTokenAsync(_resourceConnectionString, userMri);
+			return token;
+		}
+
+		/// <summary>
 		/// Get the environment url
 		/// </summary>
 		/// <returns></returns>
