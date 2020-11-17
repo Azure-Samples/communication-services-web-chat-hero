@@ -65,12 +65,7 @@ const addUserToThread = (displayName: string, emoji: string) => async (dispatch:
 
  let options: RefreshOptions = {
   initialToken: userToken.token,
-  tokenRefresher:  async () : Promise<string> => { 
-    return new Promise( async (resolve, reject) => {
-      var response: any = await refreshTokenAsync(userToken.user.id);
-      resolve(response.token);
-    })
-  },
+  tokenRefresher:  () => refreshTokenAsync(userToken.user.id),
   refreshProactively: true
  }
 
@@ -644,16 +639,18 @@ const getToken = async () => {
   }
 };
 
-const refreshTokenAsync = async (userIdentity: string) => {
-  try {
-    let refreshTokenRequestOptions = {
-      method: 'GET'
-    };
-    let refreshTokenResponse = await fetch('/refreshToken/'+ userIdentity, refreshTokenRequestOptions);
-    return refreshTokenResponse.json().then((_responseJson) => _responseJson);
-  } catch (error) {
-    console.error('Failed at getting refresh token, Error: ', error);
-  }
+const refreshTokenAsync = async (userIdentity: string) : Promise<string>=> {
+  return new Promise<string>((resolve, reject) => {
+    return fetch('/refreshToken/'+ userIdentity).then(response => {
+      if (response.ok) {
+        resolve(response.json().then(json => json.token))
+      } else {
+        reject(new Error('error'))
+      }
+    }, error => {
+      reject(new Error(error.message))
+    })
+  })
 }
 
 const setEmoji = async (userId: string, emoji: string) => {
