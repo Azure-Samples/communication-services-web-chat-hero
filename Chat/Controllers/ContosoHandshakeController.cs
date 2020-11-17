@@ -2,6 +2,7 @@
 
 using Azure;
 using Azure.Communication;
+using Azure.Communication.Administration.Models;
 using Azure.Communication.Chat;
 using Azure.Communication.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +40,7 @@ namespace Chat
 		/// <returns></returns>
 		[Route("token")]
 		[HttpPost]
-		public async Task<ContosoChatTokenModel> GenerateAdhocUser()
+		public async Task<CommunicationUserToken> GenerateAdhocUser()
 		{
 			return await InternalGenerateAdhocUser();
 		}
@@ -48,12 +49,12 @@ namespace Chat
 		/// Gets a refreshed token for the client
 		/// </summary>
 		/// <returns></returns>
-		[Route("refreshToken/{userMri}")]
+		[Route("refreshToken/{userIdentity}")]
 		[HttpGet]
-		public async Task<string> RefreshTokenAsync(string userMri)
+		public async Task<CommunicationUserToken> RefreshTokenAsync(string userIdentity)
 		{
-			var (identity, token, expiresIn) = await _userTokenManager.RefreshTokenAsync(_resourceConnectionString, userMri);
-			return token;
+			var tokenResponse = await _userTokenManager.RefreshTokenAsync(_resourceConnectionString, userIdentity);
+			return  tokenResponse;
 		}
 
 		/// <summary>
@@ -106,7 +107,7 @@ namespace Chat
 			try
             {
 				var moderator = _store.Store[threadId];
-				var userCredential = new CommunicationUserCredential(moderator.token);
+				var userCredential = new CommunicationUserCredential(moderator.Token);
 				ChatClient chatClient = new ChatClient(new Uri(_chatGatewayUrl), userCredential);
 				ChatThread chatThread = chatClient.GetChatThread(threadId);
 				ChatThreadClient chatThreadClient = chatClient.GetChatThreadClient(threadId);
@@ -136,26 +137,20 @@ namespace Chat
 			return Ok();
 		}
 
-		private async Task<ContosoChatTokenModel> InternalGenerateAdhocUser()
+		private async Task<CommunicationUserToken> InternalGenerateAdhocUser()
 		{
-			var (userMri, token, expiresIn) = await _userTokenManager.GenerateTokenAsync(_resourceConnectionString);
-			ContosoChatTokenModel model = new ContosoChatTokenModel
-			{
-				identity = userMri,
-				token = token,
-				expiresIn = expiresIn
-			};
-			return model;
+
+			return await _userTokenManager.GenerateTokenAsync(_resourceConnectionString);
 		}
 
 		private async Task<string> InternalGenerateNewModeratorAndThread()
 		{
 			var moderator = await InternalGenerateAdhocUser();
-			var userCredential = new CommunicationUserCredential(moderator.token);
+			var userCredential = new CommunicationUserCredential(moderator.Token);
 			ChatClient chatClient = new ChatClient(new Uri(_chatGatewayUrl), userCredential);
 			List<ChatThreadMember> chatThreadMembers = new List<ChatThreadMember>
 			{
-				new ChatThreadMember(new CommunicationUser(moderator.identity))
+				new ChatThreadMember(new CommunicationUser(moderator.User.Id))
 			};
 			ChatThreadClient chatThreadClient = await chatClient.CreateChatThreadAsync(GUID_FOR_INITIAL_TOPIC_NAME, chatThreadMembers);
 

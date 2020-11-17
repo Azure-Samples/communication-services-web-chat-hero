@@ -58,8 +58,6 @@ const addUserToThread = (displayName: string, emoji: string) => async (dispatch:
   // create our user
   let userToken = await getToken();
 
-  var test = await refreshTokenAsync(userToken.identity);
-
   if (userToken === undefined) {
     console.error('unable to get a token');
     return;
@@ -67,10 +65,10 @@ const addUserToThread = (displayName: string, emoji: string) => async (dispatch:
 
  let options: RefreshOptions = {
   initialToken: userToken.token,
-  tokenRefresher: async () : Promise<string> => { 
+  tokenRefresher:  async () : Promise<string> => { 
     return new Promise( async (resolve, reject) => {
-      var token = await refreshTokenAsync(userToken.identity);
-      resolve(token);
+      var response: any = await refreshTokenAsync(userToken.user.id);
+      resolve(response.token);
     })
   },
   refreshProactively: true
@@ -80,7 +78,7 @@ const addUserToThread = (displayName: string, emoji: string) => async (dispatch:
   let chatClient = new ChatClient(environmentUrl, userAccessTokenCredentialNew);
 
   // set emoji for the user
-  setEmoji(userToken.identity, emoji);
+  setEmoji(userToken.user.id, emoji);
 
   // subscribe for message, typing indicator, and read receipt
   let chatThreadClient = await chatClient.getChatThreadClient(threadId);
@@ -89,13 +87,13 @@ const addUserToThread = (displayName: string, emoji: string) => async (dispatch:
   subscribeForReadReceipt(chatClient, chatThreadClient, dispatch, getState);
 
   dispatch(setThreadId(threadId));
-  dispatch(setContosoUser(userToken.identity, userToken.token, displayName));
+  dispatch(setContosoUser(userToken.user.id, userToken.token, displayName));
   dispatch(setChatClient(chatClient));
 
   await addThreadMemberHelper(
     threadId,
     {
-      identity: userToken.identity,
+      identity: userToken.user.id,
       token: userToken.token,
       displayName: displayName,
       memberRole: 'User'
@@ -646,16 +644,15 @@ const getToken = async () => {
   }
 };
 
-const refreshTokenAsync = async (userMri: string) => {
+const refreshTokenAsync = async (userIdentity: string) => {
   try {
     let refreshTokenRequestOptions = {
       method: 'GET'
     };
-
-    let getTokenResponse = await fetch('/refreshToken/'+ userMri, refreshTokenRequestOptions);
-    return getTokenResponse.text(); // this just gets us  back our token from our service
+    let refreshTokenResponse = await fetch('/refreshToken/'+ userIdentity, refreshTokenRequestOptions);
+    return refreshTokenResponse.json().then((_responseJson) => _responseJson);
   } catch (error) {
-    console.error('Failed at getting token, Error: ', error);
+    console.error('Failed at getting refresh token, Error: ', error);
   }
 }
 
