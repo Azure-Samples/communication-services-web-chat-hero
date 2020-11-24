@@ -37,7 +37,7 @@ import {
   ChatMessage,
   GetChatMessageResponse
 } from '@azure/communication-chat';
-import { AzureCommunicationUserCredential } from '@azure/communication-common';
+import { AzureCommunicationUserCredential, RefreshOptions } from '@azure/communication-common';
 
 // This function sets up the user to chat with the thread
 const addUserToThread = (displayName: string, emoji: string) => async (dispatch: Dispatch, getState: () => State) => {
@@ -63,11 +63,17 @@ const addUserToThread = (displayName: string, emoji: string) => async (dispatch:
     return;
   }
 
-  let userAccessTokenCredentialNew = new AzureCommunicationUserCredential(userToken.token);
+ let options: RefreshOptions = {
+  initialToken: userToken.token,
+  tokenRefresher:  () => refreshTokenAsync(userToken.user.id),
+  refreshProactively: true
+ }
+
+  let userAccessTokenCredentialNew = new AzureCommunicationUserCredential(options);
   let chatClient = new ChatClient(environmentUrl, userAccessTokenCredentialNew);
 
   // set emoji for the user
-  setEmoji(userToken.identity, emoji);
+  setEmoji(userToken.user.id, emoji);
 
   // subscribe for message, typing indicator, and read receipt
   let chatThreadClient = await chatClient.getChatThreadClient(threadId);
@@ -76,13 +82,13 @@ const addUserToThread = (displayName: string, emoji: string) => async (dispatch:
   subscribeForReadReceipt(chatClient, chatThreadClient, dispatch, getState);
 
   dispatch(setThreadId(threadId));
-  dispatch(setContosoUser(userToken.identity, userToken.token, displayName));
+  dispatch(setContosoUser(userToken.user.id, userToken.token, displayName));
   dispatch(setChatClient(chatClient));
 
   await addThreadMemberHelper(
     threadId,
     {
-      identity: userToken.identity,
+      identity: userToken.user.id,
       token: userToken.token,
       displayName: displayName,
       memberRole: 'User'
@@ -632,6 +638,20 @@ const getToken = async () => {
     console.error('Failed at getting token, Error: ', error);
   }
 };
+
+const refreshTokenAsync = async (userIdentity: string) : Promise<string>=> {
+  return new Promise<string>((resolve, reject) => {
+    return fetch('/refreshToken/'+ userIdentity).then(response => {
+      if (response.ok) {
+        resolve(response.json().then(json => json.token))
+      } else {
+        reject(new Error('error'))
+      }
+    }, error => {
+      reject(new Error(error.message))
+    })
+  })
+}
 
 const setEmoji = async (userId: string, emoji: string) => {
   try {

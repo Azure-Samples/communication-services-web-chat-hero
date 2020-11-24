@@ -1,12 +1,13 @@
 ﻿// © Microsoft Corporation. All rights reserved.
 
+using Azure.Communication.Administration.Models;
 using System.Collections.Generic;
 
 namespace Chat
 {
 	public class InMemoryChatAdminThreadStore : IChatAdminThreadStore
 	{
-		public Dictionary<string, ContosoChatTokenModel> Store { get; }
+		public Dictionary<string, CommunicationUserToken> Store { get; }
 
 		public Dictionary<string, ContosoUserConfigModel> UseConfigStore { get; }
 
@@ -15,7 +16,7 @@ namespace Chat
 		/// </summary>
 		public InMemoryChatAdminThreadStore()
 		{
-			Store = new Dictionary<string, ContosoChatTokenModel>();
+			Store = new Dictionary<string, CommunicationUserToken>();
 			UseConfigStore = new Dictionary<string, ContosoUserConfigModel>();
 		}
 	}
