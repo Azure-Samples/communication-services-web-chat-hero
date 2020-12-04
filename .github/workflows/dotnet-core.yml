@@ -23,7 +23,7 @@ jobs:
         shell: bash
         run: |
           tag=$(git describe --tags --abbrev=0)
-          release_name=Chat-$tag
+          release_name=ChatHero-$tag
           unset CI
           # Build everything
           dotnet publish ./Chat -c Release -o "$release_name"
@@ -36,6 +36,6 @@ jobs:
       - name: Publish
         uses: softprops/action-gh-release@v1
         with:
-          files: "Chat-*"
+          files: "ChatHero-*"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
