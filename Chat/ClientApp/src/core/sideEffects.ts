@@ -37,7 +37,7 @@ import {
   ChatMessage,
   GetChatMessageResponse
 } from '@azure/communication-chat';
-import { AzureCommunicationUserCredential, RefreshOptions } from '@azure/communication-common';
+import { AzureCommunicationTokenCredential, CommunicationTokenRefreshOptions } from '@azure/communication-common';
 
 // This function sets up the user to chat with the thread
 const addUserToThread = (displayName: string, emoji: string) => async (dispatch: Dispatch, getState: () => State) => {
@@ -63,13 +63,13 @@ const addUserToThread = (displayName: string, emoji: string) => async (dispatch:
     return;
   }
 
- let options: RefreshOptions = {
-  initialToken: userToken.token,
+ let options: CommunicationTokenRefreshOptions = {
+  token: userToken.token,
   tokenRefresher:  () => refreshTokenAsync(userToken.user.id),
   refreshProactively: true
  }
 
-  let userAccessTokenCredentialNew = new AzureCommunicationUserCredential(options);
+  let userAccessTokenCredentialNew = new AzureCommunicationTokenCredential(options);
   let chatClient = new ChatClient(environmentUrl, userAccessTokenCredentialNew);
 
   // set emoji for the user
@@ -433,7 +433,7 @@ const addThreadMemberHelper = async (threadId: string, user: User, dispatch: Dis
       body: JSON.stringify(body)
     };
     let response = await fetch('/addUser/' + threadId, addMemberRequestOptions);
-    dispatch(setAddThreadMemberError(response.status !== MULTI_STATUS));
+    dispatch(setAddThreadMemberError(response.status !== OK));
   } catch (error) {
     console.error('Failed at adding thread member, Error: ', error);
   }
