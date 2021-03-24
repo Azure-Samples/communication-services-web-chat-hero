@@ -112,7 +112,7 @@ export default (props: HomeScreenProps): JSX.Element => {
           />
         </Stack>
         <div className={moreInfoStyle}>
-          <a href="https://docs.microsoft.com/en-us/azure/communication-services/">Learn more about this sample</a>
+          <a href="https://docs.microsoft.com/en-us/azure/communication-services/samples/chat-hero-sample">Learn more about this sample</a>
         </div>
       </div>
     );

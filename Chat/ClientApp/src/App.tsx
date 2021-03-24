@@ -13,7 +13,7 @@ import { reducer } from './core/reducers/index';
 import { getBuildTime, getChatSDKVersion, getThreadId } from './utils/utils';
 
 console.info(
-  `Thread chat sample using @azure/communication-chat : ${getChatSDKVersion()}`
+  `Azure Communication Services chat sample using @azure/communication-chat : ${getChatSDKVersion()}`
 );
 console.info(`Build Date : ${getBuildTime()}`);
 
