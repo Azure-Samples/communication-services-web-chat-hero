@@ -31,7 +31,8 @@ const noReadReceiptStyle = mergeStyles({
 const chatStyle: ComponentSlotStyle = {
   backgroundColor: 'white',
   border: 'none',
-  overflow: 'auto'
+  overflow: 'auto',
+  height: '100%'
 };
 
 const chatMessageStyle = (mine: boolean): ComponentSlotStyle => ({

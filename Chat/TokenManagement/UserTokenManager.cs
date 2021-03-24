@@ -9,12 +9,12 @@ namespace Chat
 {
     public class UserTokenManager : IUserTokenManager
     {
-        public async Task<(CommunicationUserIdentifier, AccessToken)> GenerateTokenAsync(string resourceConnectionString)
+        public async Task<CommunicationUserIdentifierAndToken> GenerateTokenAsync(string resourceConnectionString)
         {
             try
             {
                 var communicationIdentityClient = new CommunicationIdentityClient(resourceConnectionString);
-                var userResponse = await communicationIdentityClient.CreateUserWithTokenAsync(scopes: new[] { CommunicationTokenScope.Chat });
+                var userResponse = await communicationIdentityClient.CreateUserAndTokenAsync(scopes: new[] { CommunicationTokenScope.Chat });
                 return userResponse.Value;
             }
             catch
@@ -28,7 +28,7 @@ namespace Chat
             try
             {
                 var communicationIdentityClient = new CommunicationIdentityClient(resourceConnectionString);
-                var userResponse = await communicationIdentityClient.IssueTokenAsync(new CommunicationUserIdentifier(identity), scopes: new[] { CommunicationTokenScope.Chat });
+                var userResponse = await communicationIdentityClient.GetTokenAsync(new CommunicationUserIdentifier(identity), scopes: new[] { CommunicationTokenScope.Chat });
                 return userResponse.Value;
             }
             catch
@@ -43,7 +43,7 @@ namespace Chat
             {
                 var communicationIdentityClient = new CommunicationIdentityClient(resourceConnectionString);
                 var user = new CommunicationUserIdentifier(identity);
-                var tokenResponse = await communicationIdentityClient.IssueTokenAsync(user, scopes: new[] { CommunicationTokenScope.Chat });
+                var tokenResponse = await communicationIdentityClient.GetTokenAsync(user, scopes: new[] { CommunicationTokenScope.Chat });
                 return tokenResponse;
             }
             catch

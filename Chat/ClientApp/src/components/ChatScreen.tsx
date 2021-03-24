@@ -38,13 +38,8 @@ export default (props: ChatScreenProps): JSX.Element => {
   }, [errorHandler, threadMembersError]);
 
   useEffect(() => {
-    let listener: NodeJS.Timeout = setInterval(() => {
-      getThread();
-    }, 2000);
+    getThread();
     document.getElementById('sendbox')?.focus();
-    return () => {
-      clearInterval(listener);
-    };
   }, [getThread]);
 
   return (

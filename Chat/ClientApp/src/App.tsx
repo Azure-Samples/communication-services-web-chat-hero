@@ -31,43 +31,19 @@ export default (): JSX.Element => {
     } else if (page === 'configuration') {
       return (
         <ConfigurationScreen
-          joinChatHandler={() => {
-            setPage('chat');
-          }}
-        />
+          endChatHandler={() => setPage('error')}
+          joinChatHandler={() => setPage('chat')} />
       );
     } else if (page === 'chat') {
-      return (
-        <ChatScreen
-          endChatHandler={() => {
-            setPage('end');
-            // Send up signal that the user wants to leave the chat
-            // Move to to next screen on success
-          }}
-          errorHandler={() => {
-            setPage('error');
-          }}
-        />
-      );
+      return <ChatScreen
+          endChatHandler={() => setPage('end')}
+          errorHandler={() => setPage('error')} />
     } else if (page === 'end') {
-      return (
-        <EndScreen
-          rejoinHandler={() => {
-            setPage('configuration'); // use store information to attempt to rejoin the chat thread
-          }}
-          homeHandler={() => {
-            window.location.href = window.location.origin;
-          }}
-        />
-      );
+      return <EndScreen
+          rejoinHandler={() => setPage('configuration')}
+          homeHandler={() => window.location.href = window.location.origin} />
     } else if (page === 'error') {
-      return (
-        <ErrorScreen
-          homeHandler={() => {
-            window.location.href = window.location.origin;
-          }}
-        />
-      );
+      return <ErrorScreen homeHandler={() => window.location.href = window.location.origin} />
     }
   };
 

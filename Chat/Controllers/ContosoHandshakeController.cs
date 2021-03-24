@@ -45,9 +45,11 @@ namespace Chat
 
 			var clientResponse = new
 			{
-				user = response.Item1,
-				token = response.Item2.Token,
-				expiresOn = response.Item2.ExpiresOn
+				user = new {
+					communicationUserId = response.User.Id
+				},
+				token = response.AccessToken.Token,
+				expiresOn = response.AccessToken.ExpiresOn
 			};
 
 			return this.Ok(clientResponse);
@@ -151,8 +153,8 @@ namespace Chat
 		{
 			var moderator = await _userTokenManager.GenerateTokenAsync(_resourceConnectionString);
 
-			var moderatorId = moderator.Item1.Id;
-			var moderatorToken = moderator.Item2.Token;
+			var moderatorId = moderator.User.Id;
+			var moderatorToken = moderator.AccessToken.Token;
 
 			ChatClient chatClient = new ChatClient(
 				new Uri(_chatGatewayUrl),

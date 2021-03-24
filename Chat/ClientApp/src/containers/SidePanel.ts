@@ -1,32 +1,50 @@
 import { connect } from 'react-redux';
 
 import { GUID_FOR_INITIAL_TOPIC_NAME } from '../../src/constants';
-import { setContosoUsers } from '../core/actions/ContosoClientAction';
+import { setContosoUsers, SetContosoUsersAction } from '../core/actions/ContosoClientAction';
 import { setThreadMembers, setRemoveThreadMemberError } from '../core/actions/ThreadMembersAction';
 import SidePanel from '../components/SidePanel';
 import { State } from '../core/reducers/index';
 import React from 'react';
 import { updateThreadTopicName, removeThreadMemberByUserId } from '../core/sideEffects';
+import { ChatParticipant, ChatThread } from '@azure/communication-chat';
 
-const mapStateToProps = (state: State) => ({
+export type SidePanelProps = {
+  identity: string,
+  chatParticipants: ChatParticipant[],
+  users: any
+  thread: ChatThread | undefined,
+  existsTopicName: boolean,
+  removeChatParticipantError: boolean
+  
+}
+const mapStateToProps = (state: State): SidePanelProps => ({
   identity: state.contosoClient.user.identity,
-  threadMembers: state.threadMembers.threadMembers,
+  chatParticipants: state.threadMembers.threadMembers,
   users: state.contosoClient.users,
   thread: state.thread.thread,
-  existsTopicName: state.thread.thread && state.thread.thread.topic !== GUID_FOR_INITIAL_TOPIC_NAME,
-  removeThreadMemberError: state.threadMembers.removeThreadMemberError!
+  existsTopicName: state.thread.thread !== undefined && state.thread.thread.topic !== GUID_FOR_INITIAL_TOPIC_NAME,
+  removeChatParticipantError: state.threadMembers.removeThreadMemberError!
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  clearThreadMembers: dispatch(setThreadMembers([])),
+export type SidePanelDispatchProps = {
+  clearChatParticipants: () => void,
+  setContosoUsers: (users: any) => SetContosoUsersAction,
+  updateThreadTopicName: (topicName: string, setIsSavingTopicName: React.Dispatch<boolean>) => void,
+  removeChatParticipantById: (userId: string) => void,
+  setRemoveChatParticipantError: (removeError: boolean) => void
+}
+
+const mapDispatchToProps = (dispatch: any): SidePanelDispatchProps => ({
+  clearChatParticipants: dispatch(setThreadMembers([])),
   setContosoUsers: (users: any) => setContosoUsers(users),
   updateThreadTopicName: (topicName: string, setIsSavingTopicName: React.Dispatch<boolean>) => {
     dispatch(updateThreadTopicName(topicName, setIsSavingTopicName));
   },
-  removeThreadMemberByUserId: async (userId: string) => {
+  removeChatParticipantById: async (userId: string) => {
     dispatch(removeThreadMemberByUserId(userId));
   },
-  setRemoveThreadMemberError: async (removeError: boolean) => {
+  setRemoveChatParticipantError: async (removeError: boolean) => {
     dispatch(setRemoveThreadMemberError(removeError));
   }
 });

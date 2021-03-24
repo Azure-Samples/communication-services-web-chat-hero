@@ -25,7 +25,8 @@ import {
   DownIconStyle,
 } from './styles/ChatThread.styles';
 import { User } from '../core/reducers/ContosoClientReducers';
-import { ChatMessageWithClientMessageId } from '../core/reducers/MessagesReducer';
+import { ClientChatMessage } from '../core/reducers/MessagesReducer';
+import { isUserMatchingIdentity } from '../utils/utils';
 
 interface ChatThreadProps {
   isYourLatestMessage(clientMessageId: string, messages: any[]): boolean;
@@ -36,15 +37,16 @@ interface ChatThreadProps {
   isLargeParticipantsGroup(): boolean;
   isMessageSeen(clientMessageId: string, messages: any[]): boolean;
   sendReadReceipt(messages: any[], userId: string): void;
-  messages: ChatMessageWithClientMessageId[];
+  messages: ClientChatMessage[];
   user: User;
   users: any;
   failedMessages: string[];
 }
 
 // Reference: https://stackoverflow.com/questions/33235890/react-replace-links-in-a-text
-const renderHyperlink = (text: string) =>
-  text.split(' ').map((part) =>
+
+const renderHyperlink = (text: string) => {
+  return text.split(' ').map((part) =>
     URL_REGEX.test(part) ? (
       <a href={part} target="_blank" rel="noopener noreferrer">
         {part}{' '}
@@ -53,6 +55,7 @@ const renderHyperlink = (text: string) =>
       part + ' '
     )
   );
+}
 
 let createdRef: any = createRef();
 let chatThreadRef: any = createRef();
@@ -107,11 +110,8 @@ export default (props: ChatThreadProps): JSX.Element => {
   }, [numberOfMessagesToRender]);
 
   useEffect(() => {
-    if (
-      props.messages.length > 0 &&
-      props.messages[props.messages.length - 1].sender?.communicationUserId ===
-        props.user.identity
-    ) {
+    const user = props.messages && props.messages[props.messages.length - 1] && props.messages[props.messages.length - 1].sender;
+    if (props.messages.length > 0 && user && isUserMatchingIdentity(user, props.user.identity)) {
       // after sending a message, scroll to bottom
       scrollToBottom();
       updateIndexOfTheFirstMessage();

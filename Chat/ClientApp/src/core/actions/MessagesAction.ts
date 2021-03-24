@@ -1,4 +1,5 @@
-import { ChatMessageWithClientMessageId } from '../reducers/MessagesReducer';
+import { ChatMessage, ChatParticipant } from '@azure/communication-chat';
+import { ClientChatMessage } from '../reducers/MessagesReducer';
 
 export const SET_MESSAGES = 'SET_MESSAGES';
 export const SET_TYPING_NOTIFICATIONS = 'SET_TYPING_NOTIFICATIONS';
@@ -7,42 +8,49 @@ export const SET_FAILED_MESSAGES = 'SET_FAILED_MESSAGES';
 
 export interface SetMessagesAction {
   type: typeof SET_MESSAGES;
-  messages: ChatMessageWithClientMessageId[];
+  messages: ClientChatMessage[];
+}
+
+export type TypingNotification = {
+  recipientId: string, // the user that is sending a message
+  originalArrivalTime: number // when the message was last sent
+  threadId: string,
+  version: string
 }
 
 export interface SetTypingNotificationsAction {
   type: typeof SET_TYPING_NOTIFICATIONS;
-  id: string;
-  typingNotification: any;
+  id: string,
+  latestTypingNotification: TypingNotification;
 }
 
 export interface SetTypingUsersAction {
   type: typeof SET_TYPING_USERS;
-  typingUsers: any;
+  typingUsers: ChatParticipant[];
 }
 
 export interface SetFailedMessagesAction {
   type: typeof SET_FAILED_MESSAGES;
-  failedMessages: any;
+  failedMessages: string[];
 }
 
-export const setMessages = (messages: ChatMessageWithClientMessageId[]): SetMessagesAction => ({
+export const setMessages = (messages: ClientChatMessage[]): SetMessagesAction => ({
   type: SET_MESSAGES,
   messages
 });
 
-export const setTypingNotifications = (id: string, typingNotification: any): SetTypingNotificationsAction => ({
+export const setTypingNotifications = (id: string, latestTypingNotification: TypingNotification): SetTypingNotificationsAction => ({
   type: SET_TYPING_NOTIFICATIONS,
   id,
-  typingNotification
+  latestTypingNotification
 });
 
-export const setTypingUsers = (typingUsers: any): SetTypingUsersAction => ({
+export const setTypingUsers = (typingUsers: ChatParticipant[]): SetTypingUsersAction => ({
   type: SET_TYPING_USERS,
   typingUsers
 });
 
-export const setFailedMessages = (failedMessages: any): SetFailedMessagesAction => ({
+export const setFailedMessages = (failedMessages: string[]): SetFailedMessagesAction => ({
   type: SET_FAILED_MESSAGES,
   failedMessages
 });

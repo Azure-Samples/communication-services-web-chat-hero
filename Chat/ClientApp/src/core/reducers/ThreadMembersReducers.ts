@@ -1,4 +1,4 @@
-import { ChatThreadMember } from '@azure/communication-chat';
+import { ChatParticipant } from '@azure/communication-chat';
 
 import {
   SET_THREAD_MEMBERS,
@@ -9,7 +9,7 @@ import {
 } from '../actions/ThreadMembersAction';
 
 export interface ThreadMembersState {
-  threadMembers: ChatThreadMember[];
+  threadMembers: ChatParticipant[];
   error?: boolean;
   removeThreadMemberError?: boolean;
   addThreadMemberError?: boolean | undefined;

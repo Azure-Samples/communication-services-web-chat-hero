@@ -1,4 +1,4 @@
-import { ChatThreadMember } from '@azure/communication-chat';
+import { ChatParticipant } from "@azure/communication-chat";
 
 export const SET_THREAD_MEMBERS = 'SET_THREAD_MEMBERS';
 export const SET_THREAD_MEMBERS_ERROR = 'SET_THREAD_MEMBERS_ERROR';
@@ -7,7 +7,7 @@ export const SET_ADD_THREAD_MEMBER_ERROR = 'SET_ADD_THREAD_MEMBER_ERROR';
 
 export interface SetThreadMembersAction {
   type: typeof SET_THREAD_MEMBERS;
-  threadMembers: ChatThreadMember[];
+  threadMembers: ChatParticipant[];
 }
 
 export interface SetThreadMembersErrorAction {
@@ -24,7 +24,7 @@ export interface SetAddThreadMemberErrorAction {
   addThreadMemberError?: boolean;
 }
 
-export const setThreadMembers = (threadMembers: ChatThreadMember[]): SetThreadMembersAction => ({
+export const setThreadMembers = (threadMembers: ChatParticipant[]): SetThreadMembersAction => ({
   type: SET_THREAD_MEMBERS,
   threadMembers
 });

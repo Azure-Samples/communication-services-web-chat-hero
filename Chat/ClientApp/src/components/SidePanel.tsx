@@ -11,8 +11,6 @@ import {
   FocusZoneDirection,
 } from 'office-ui-fabric-react/lib/FocusZone';
 
-import { ChatThread, ChatThreadMember } from '@azure/communication-chat';
-
 import { ENTER_KEY, MAXIMUM_LENGTH_OF_TOPIC } from '../../src/constants';
 import { getEmoji } from '../core/sideEffects';
 import InviteFooter from './InviteFooter';
@@ -29,21 +27,8 @@ import {
   emptyWarningStyle,
   saveButtonTextStyle, groupNameStyle, groupNameInputBoxStyle, groupNameInputBoxWarningStyle
 } from './styles/SidePanel.styles';
-
-interface SidePanelProps {
-  setContosoUsers(users: any): void;
-  updateThreadTopicName(topicName: string, setIsSavingTopicName: React.Dispatch<boolean>): void;
-  users: any;
-  threadMembers: ChatThreadMember[];
-  identity: string;
-  selectedPane: SidePanelTypes;
-  setSelectedPane: Dispatch<SidePanelTypes>;
-  existsTopicName: boolean;
-  thread: ChatThread;
-  removeThreadMemberByUserId(obj: any): void;
-  removeThreadMemberError: boolean;
-  setRemoveThreadMemberError(removeError: boolean): void;
-}
+import { SidePanelDispatchProps, SidePanelProps } from '../containers/SidePanel';
+import { CommunicationUserIdentifier } from '@azure/communication-common';
 
 export enum SidePanelTypes {
   None = 'none',
@@ -51,21 +36,26 @@ export enum SidePanelTypes {
   Settings = 'Settings',
 }
 
-export default (props: SidePanelProps): JSX.Element => {
+type ChatSidePaneProps = {
+  selectedPane: SidePanelTypes;
+  setSelectedPane: Dispatch<SidePanelTypes>;
+}
+
+export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePaneProps): JSX.Element => {
   const {
     users,
-    threadMembers,
+    chatParticipants,
     setContosoUsers,
-    removeThreadMemberError,
-    setRemoveThreadMemberError,
+    removeChatParticipantError,
+    setRemoveChatParticipantError,
   } = props;
 
   useEffect(() => {
     const fetchData = async () => {
       var needToSet = false;
-      for (var i = 0; i < threadMembers.length; i++) {
-        var threadMember = threadMembers[i];
-        var identity = threadMember.user.communicationUserId;
+      for (var i = 0; i < chatParticipants.length; i++) {
+        var threadMember = chatParticipants[i];
+        var identity = (threadMember.id as CommunicationUserIdentifier).communicationUserId;
         var user = users[identity];
         if (user == null) {
           needToSet = true;
@@ -80,16 +70,16 @@ export default (props: SidePanelProps): JSX.Element => {
       }
     };
     fetchData();
-  }, [users, threadMembers, setContosoUsers]);
+  }, [users, chatParticipants, setContosoUsers]);
 
   useEffect(() => {
-    if (removeThreadMemberError) {
+    if (removeChatParticipantError) {
       alert(
         "You can't remove participant at this time. Please wait at least 60 seconds to try again."
       );
-      setRemoveThreadMemberError(false);
+      setRemoveChatParticipantError(false);
     }
-  }, [removeThreadMemberError, setRemoveThreadMemberError]);
+  }, [removeChatParticipantError, setRemoveChatParticipantError]);
 
   const [topicName, setTopicName] = useState('');
   const [isEditingTopicName, setIsEditingTopicName] = useState(false);
@@ -129,22 +119,17 @@ export default (props: SidePanelProps): JSX.Element => {
         {/* Member list */}
         <StackItem className={memberListStyle}>
           <FocusZone direction={FocusZoneDirection.vertical}>
-            {props.threadMembers.map((person, index) => (
-              <MemberItem
-                key={person.user.communicationUserId}
-                userId={person.user.communicationUserId}
-                avatar={
-                  props.users[person.user.communicationUserId] === undefined
-                    ? ''
-                    : props.users[person.user.communicationUserId].emoji
-                }
+            {props.chatParticipants.map((person) => {
+              const id = (person.id as CommunicationUserIdentifier).communicationUserId;
+              return <MemberItem
+                key={id}
+                userId={id}
+                avatar={props.users[id] === undefined ? '': props.users[id].emoji}
                 name={person.displayName as string}
-                isYou={
-                  person.user.communicationUserId === (props.identity as string)
-                }
-                removeThreadMemberByUserId={props.removeThreadMemberByUserId}
+                isYou={id === (props.identity as string)}
+                removeThreadMemberByUserId={props.removeChatParticipantById}
               />
-            ))}
+            })}
           </FocusZone>
         </StackItem>
         {/* Invite link footer */}
@@ -162,7 +147,6 @@ export default (props: SidePanelProps): JSX.Element => {
           {/* Change Chat Name */}
           <div className={groupNameStyle}>Group Name</div>
           <TextField
-            key={props.thread.topic}
             className={
               isTopicNameOverflow
                 ? groupNameInputBoxWarningStyle : groupNameInputBoxStyle
@@ -172,7 +156,7 @@ export default (props: SidePanelProps): JSX.Element => {
             defaultValue={
               isEditingTopicName
                 ? topicName
-                : props.existsTopicName
+                : props.existsTopicName && props.thread !== undefined
                   ? props.thread.topic
                   : undefined
             }

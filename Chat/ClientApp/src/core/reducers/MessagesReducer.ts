@@ -1,4 +1,6 @@
-import { ChatMessage } from '@azure/communication-chat';
+import { ChatMessage, ChatParticipant } from '@azure/communication-chat';
+import { CommunicationIdentifierKind } from '@azure/communication-common';
+import { CommunicationUserIdentifier } from '@azure/communication-signaling';
 
 import {
   MessagesActionTypes,
@@ -8,15 +10,22 @@ import {
   SET_FAILED_MESSAGES
 } from '../actions/MessagesAction';
 
-export interface ChatMessageWithClientMessageId extends ChatMessage {
-  clientMessageId?: string;
+export interface MessagesState {
+  messages: ClientChatMessage[];
+  typingNotifications: any;
+  typingUsers: ChatParticipant[];
+  failedMessages: string[];
 }
 
-export interface MessagesState {
-  messages: ChatMessageWithClientMessageId[];
-  typingNotifications: any;
-  typingUsers: any;
-  failedMessages: string[];
+// model that allows us to track a message before its replicated on the server
+// it also allows us to maintain state if the message was properly sent or not
+export interface ClientChatMessage {
+  clientMessageId?: string
+  sender?: CommunicationIdentifierKind,
+  senderDisplayName?: string,
+  content?: string,
+  createdOn: Date,
+  id?: string
 }
 
 const initMessagesState: MessagesState = {
@@ -38,7 +47,7 @@ export const MessagesReducer = (state = initMessagesState, action: MessagesActio
         ...state,
         typingNotifications: {
           ...state.typingNotifications,
-          [action.id]: action.typingNotification
+          [action.id]: action.latestTypingNotification
         }
       };
     case SET_TYPING_USERS:

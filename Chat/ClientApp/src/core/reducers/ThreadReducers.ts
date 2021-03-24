@@ -2,12 +2,12 @@ import { ChatThread } from '@azure/communication-chat';
 import { SET_THREAD, SET_THREAD_TOPIC_NAME, SET_THREAD_ID, ThreadActionTypes } from '../actions/ThreadAction';
 
 export interface ThreadState {
-  thread: ChatThread;
+  thread: ChatThread | undefined;
   threadId: string | undefined;
 }
 
 const initThreadState: ThreadState = {
-  thread: {},
+  thread: undefined,
   threadId: undefined
 };
 
