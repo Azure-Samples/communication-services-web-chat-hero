@@ -5,6 +5,12 @@ export const SET_CURRENT_USER = 'SET_CURRENT_USER';
 export const SET_CURRENT_USER_COOL_PERIOD = 'SET_CURRENT_USER_COOL_PERIOD';
 export const SET_USERS = 'SET_USERS';
 
+export type UserConfiguration = {
+  emoji: string
+}
+
+export type Users = Record<string, UserConfiguration>;
+
 export interface SetChatClientAction {
   type: typeof SET_CHAT_CLIENT;
   chatClient: ChatClient;
@@ -25,7 +31,7 @@ export interface SetContosoUserCoolPeriodAction {
 
 export interface SetContosoUsersAction {
   type: typeof SET_USERS;
-  users: any;
+  users: Users;
 }
 
 export const setChatClient = (chatClient: ChatClient): SetChatClientAction => ({
@@ -45,7 +51,7 @@ export const setContosoUserCoolPeriod = (coolPeriod: Date): SetContosoUserCoolPe
   coolPeriod
 });
 
-export const setContosoUsers = (users: any): SetContosoUsersAction => ({
+export const setContosoUsers = (users: Users): SetContosoUsersAction => ({
   type: SET_USERS,
   users
 });

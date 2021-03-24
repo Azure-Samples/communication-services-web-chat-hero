@@ -43,34 +43,9 @@ type ChatSidePaneProps = {
 
 export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePaneProps): JSX.Element => {
   const {
-    users,
-    chatParticipants,
-    setContosoUsers,
     removeChatParticipantError,
     setRemoveChatParticipantError,
   } = props;
-
-  useEffect(() => {
-    const fetchData = async () => {
-      var needToSet = false;
-      for (var i = 0; i < chatParticipants.length; i++) {
-        var threadMember = chatParticipants[i];
-        var identity = (threadMember.id as CommunicationUserIdentifier).communicationUserId;
-        var user = users[identity];
-        if (user == null) {
-          needToSet = true;
-          var serverUser = await getEmoji(identity);
-          if (serverUser !== undefined) {
-            users[identity] = { emoji: serverUser.emoji };
-          }
-        }
-      }
-      if (needToSet) {
-        setContosoUsers(users);
-      }
-    };
-    fetchData();
-  }, [users, chatParticipants, setContosoUsers]);
 
   useEffect(() => {
     if (removeChatParticipantError) {

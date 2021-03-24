@@ -9,7 +9,7 @@ import {
   MAXIMUM_RETRY_COUNT,
   OK
 } from '../constants';
-import { setChatClient, setContosoUser } from './actions/ContosoClientAction';
+import { setChatClient, setContosoUser, setContosoUsers } from './actions/ContosoClientAction';
 import { setReceipts } from './actions/ConversationsAction';
 import { setMessages, setTypingNotifications, setTypingUsers, setFailedMessages } from './actions/MessagesAction';
 import { setThreadId, setThread } from './actions/ThreadAction';
@@ -170,12 +170,27 @@ const subscribeForChatParticipants = async (chatClient: ChatClient, identity: st
     const state = getState();
     let participants: ChatParticipant[] = [...state.threadMembers.threadMembers];
 
-    const modifiedParticipants = event.participantsAdded.map(chatParticipant => { return {id: chatParticipant.user, displayName: chatParticipant.displayName, shareHistoryTime: new Date(chatParticipant?.shareHistoryTime || new Date()) }})
+    const addedParticipants = event.participantsAdded.map(chatParticipant => { return {id: chatParticipant.user, displayName: chatParticipant.displayName, shareHistoryTime: new Date(chatParticipant?.shareHistoryTime || new Date()) }})
 
-    for(var i  = 0; i < modifiedParticipants.length; i++) {
-      participants.push(modifiedParticipants[i])
+    for(var i  = 0; i < addedParticipants.length; i++) {
+      participants.push(addedParticipants[i])
     }
 
+    // also make sure we get the emojis for the new participants
+    let users = state.contosoClient.users;
+    for (var i = 0; i < addedParticipants.length; i++) {
+      var threadMember = addedParticipants[i];
+      var identity = (threadMember.id as CommunicationUserIdentifier).communicationUserId;
+      var user = users[identity];
+      if (user == null) {
+        var serverUser = await getEmoji(identity);
+        if (serverUser !== undefined) {
+          users[identity] = { emoji: serverUser.emoji };
+        }
+      }
+    }
+  
+    dispatch(setContosoUsers(users))
     dispatch(setThreadMembers(participants))
   })
 };
@@ -438,6 +453,22 @@ const getThread = () => async (dispatch: Dispatch, getState: () => State) => {
 
   // remove undefined display name chat participants
   const validChatParticipants = chatParticipants.filter(chatParticipant => chatParticipant.displayName !== undefined && chatParticipant.id !== undefined)
+
+  // get the emojis for the new participants
+  let users = state.contosoClient.users;
+  for (var i = 0; i < chatParticipants.length; i++) {
+    var threadMember = chatParticipants[i];
+    var identity = (threadMember.id as CommunicationUserIdentifier).communicationUserId;
+    var user = users[identity];
+    if (user == null) {
+      var serverUser = await getEmoji(identity);
+      if (serverUser !== undefined) {
+        users[identity] = { emoji: serverUser.emoji };
+      }
+    }
+  }
+
+  dispatch(setContosoUsers(users))
   dispatch(setThreadMembers(validChatParticipants));
   dispatch(setThread(thread));
 };

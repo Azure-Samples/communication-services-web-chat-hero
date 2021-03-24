@@ -5,7 +5,8 @@ import {
   SET_CHAT_CLIENT,
   SET_CURRENT_USER,
   SET_USERS,
-  SET_CURRENT_USER_COOL_PERIOD
+  SET_CURRENT_USER_COOL_PERIOD,
+  Users
 } from '../actions/ContosoClientAction';
 
 export interface User {
@@ -19,13 +20,13 @@ export interface User {
 export interface ContosoState {
   chatClient: ChatClient | undefined;
   user: User;
-  users: any;
+  users: Users;
 }
 
 const initContosoState: ContosoState = {
   chatClient: undefined,
   user: { identity: '', token: '', displayName: '', memberRole: '' },
-  users: new Map()
+  users: {}
 };
 
 export const ContosoReducer = (state = initContosoState, action: ContosoActionTypes) => {
@@ -59,7 +60,7 @@ export const ContosoReducer = (state = initContosoState, action: ContosoActionTy
     case SET_USERS:
       return {
         ...state,
-        users: [...action.users]
+        users: Object.assign({}, action.users)
       };
     default:
       return state;
