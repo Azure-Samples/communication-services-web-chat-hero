@@ -106,13 +106,13 @@ export default (props: HomeScreenProps): JSX.Element => {
           </Stack>
           <Image
             styles={imageStyleProps}
-            alt="Welcome to the ACS Chat sample app"
+            alt="Welcome to the Azure Communication Services Chat sample app"
             className={imgStyle}
             {...imageProps}
           />
         </Stack>
         <div className={moreInfoStyle}>
-          <a href="https://aka.ms/spooldocs">Learn more about this sample</a>
+          <a href="https://docs.microsoft.com/en-us/azure/communication-services/">Learn more about this sample</a>
         </div>
       </div>
     );

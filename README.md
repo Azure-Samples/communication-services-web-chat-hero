@@ -26,7 +26,7 @@ Additional documentation for this sample can be found on [Microsoft Docs](https:
     - ./Chat/ClientApp/src/Containers : Connects the redux functionality to the React components
     - ./Chat/ClientApp/src/Core : Containers a redux wrapper around the Chat SDK
     - ./Chat/ClientApp/src/index.js : Entry point for the client app
-- ./Chat/Controllers : Server app core logic for client app to get a token to use with the ACS Web Chat SDK
+- ./Chat/Controllers : Server app core logic for client app to get a token to use with the Azure Communication Services Web Chat SDK
 - ./Chat/Program.cs : Server app program logic
 - ./Chat/Startup.cs: Server app startup logic
 
