@@ -7,13 +7,13 @@ import SidePanel from '../components/SidePanel';
 import { State } from '../core/reducers/index';
 import React from 'react';
 import { updateThreadTopicName, removeThreadMemberByUserId } from '../core/sideEffects';
-import { ChatParticipant, ChatThread } from '@azure/communication-chat';
+import { ChatParticipant, ChatThreadItem } from '@azure/communication-chat';
 
 export type SidePanelProps = {
   identity: string,
   chatParticipants: ChatParticipant[],
   users: any
-  thread: ChatThread | undefined,
+  thread: ChatThreadItem | undefined,
   existsTopicName: boolean,
   removeChatParticipantError: boolean
   

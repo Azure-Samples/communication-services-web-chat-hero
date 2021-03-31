@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import { ChatParticipant, ChatThread } from '@azure/communication-chat';
+import { ChatParticipant, ChatThreadItem } from '@azure/communication-chat';
 
 import { GUID_FOR_INITIAL_TOPIC_NAME } from '../../src/constants';
 import ChatHeader from '../components/ChatHeader';
@@ -9,7 +9,7 @@ import { removeThreadMemberByUserId } from '../core/sideEffects';
 import { isUserMatchingIdentity } from '../utils/utils';
 
 export type ChatHeaderProps = {
-  thread: ChatThread | undefined,
+  thread: ChatThreadItem | undefined,
   userId: string,
   existsTopicName: boolean,
   generateHeaderMessage: () => string

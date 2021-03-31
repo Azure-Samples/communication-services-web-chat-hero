@@ -33,7 +33,7 @@ import {
   ChatParticipant,
 } from '@azure/communication-chat';
 import { AzureCommunicationTokenCredential, CommunicationTokenRefreshOptions, CommunicationUserIdentifier } from '@azure/communication-common';
-import { ChatThreadPropertiesUpdatedEvent, ParticipantsAddedEvent, ParticipantsRemovedEvent } from '@azure/communication-signaling';
+import { ChatThreadPropertiesUpdatedEvent, CommunicationUserKind, ParticipantsAddedEvent, ParticipantsRemovedEvent } from '@azure/communication-signaling';
 
 // This function sets up the user to chat with the thread
 const addUserToThread = (displayName: string, emoji: string, endChatHandler: () => void) => async (dispatch: Dispatch, getState: () => State) => {
@@ -99,12 +99,11 @@ const addUserToThread = (displayName: string, emoji: string, endChatHandler: () 
 const subscribeForTypingIndicator = async (chatClient: ChatClient, dispatch: Dispatch) => {
   await chatClient.startRealtimeNotifications();
   chatClient.on('typingIndicatorReceived', async (event) => {
-    const fromId = event.sender.user.communicationUserId;
-
+    const fromId = (event.sender as CommunicationUserKind).communicationUserId
     const typingNotification = {
       from: fromId,
-      originalArrivalTime: Date.parse(event.receivedOn),
-      recipientId: event.recipient.communicationUserId,
+      originalArrivalTime: event.receivedOn,
+      recipientId: (event.recipient as CommunicationUserKind).communicationUserId,
       threadId: event.threadId,
       version: event.version
     }
@@ -117,7 +116,7 @@ const subscribeForMessage = async (chatClient: ChatClient, dispatch: Dispatch, g
   chatClient.on('chatMessageReceived', async (event) => {
     let state: State = getState();
     let messages: any = state.chat.messages !== undefined ? state.chat.messages : [];
-    if (!isUserMatchingIdentity(event.sender.user, state.contosoClient.user.identity)) {
+    if (!isUserMatchingIdentity(event.sender, state.contosoClient.user.identity)) {
       // not user's own message
       messages.push(event);
       dispatch(setMessages(messages.sort(compareMessages)));
@@ -148,8 +147,7 @@ const subscribeForChatParticipants = async (chatClient: ChatClient, identity: st
     let participants: ChatParticipant[] = [];
     for(let chatParticipant of event.participantsRemoved) {
       // if you are in the list, remove yourself from the chat
-      if(isUserMatchingIdentity(chatParticipant.user, identity)) {
-        setThreadMembersError(true);
+      if(isUserMatchingIdentity(chatParticipant.id, identity)) {
         endChatHandler();
         return;
       }
@@ -158,7 +156,7 @@ const subscribeForChatParticipants = async (chatClient: ChatClient, identity: st
     const originalParticipants = state.threadMembers.threadMembers;
     for(var i = 0; i < originalParticipants.length; i++) {
       if (event.participantsRemoved.filter(
-        chatParticipant => (chatParticipant.user as CommunicationUserIdentifier).communicationUserId === (originalParticipants[i].id as CommunicationUserIdentifier).communicationUserId).length === 0) {
+        chatParticipant => (chatParticipant.id as CommunicationUserIdentifier).communicationUserId === (originalParticipants[i].id as CommunicationUserIdentifier).communicationUserId).length === 0) {
         participants.push(originalParticipants[i]);
       }
     }
@@ -170,7 +168,13 @@ const subscribeForChatParticipants = async (chatClient: ChatClient, identity: st
     const state = getState();
     let participants: ChatParticipant[] = [...state.threadMembers.threadMembers];
 
-    const addedParticipants = event.participantsAdded.map(chatParticipant => { return {id: chatParticipant.user, displayName: chatParticipant.displayName, shareHistoryTime: new Date(chatParticipant?.shareHistoryTime || new Date()) }})
+    const addedParticipants = event.participantsAdded.map(chatParticipant =>
+      { return {
+        id: chatParticipant.id,
+        displayName: chatParticipant.displayName,
+        shareHistoryTime: new Date(chatParticipant?.shareHistoryTime || new Date())
+      }
+    })
 
     for(var i  = 0; i < addedParticipants.length; i++) {
       participants.push(addedParticipants[i])
@@ -425,21 +429,37 @@ const getThread = () => async (dispatch: Dispatch, getState: () => State) => {
 
   let thread;
   let chatThreadClient;
-  let iteratableParticipants
+  let iteratableParticipants;
+  let iteratableThreads;
+
   try {
-    thread = await chatClient.getChatThread(threadId);
     chatThreadClient = chatClient.getChatThreadClient(threadId);
+    iteratableThreads = chatClient.listChatThreads();
     iteratableParticipants = chatThreadClient.listParticipants()
   }
   catch(error) {
+    console.error(error);
     dispatch(setThreadMembersError(true));
   }
 
+  if (!iteratableThreads) {
+    return; // really we need to alert that there was an error?
+  }
+
+  for await (const threadItem of iteratableThreads) {
+    if (threadItem.id === threadId) {
+      thread = threadItem;
+    }
+  }
+
+  if (!thread) {
+    return; // we were unable to match the thread we were expecting and we should throw
+  }
 
   let chatParticipants = [];
   // This is just to get all of the members in a chat. This is not performance as we're not using paging
   if (!iteratableParticipants) {
-    return;
+    return;  // really we need to alert that there was an error?
   }
 
   for await (const chatParticipant of iteratableParticipants) {
@@ -583,24 +603,10 @@ const sendMessageHelper = async (
       }
     }
   } catch (error) {
-    if (retryCount >= MAXIMUM_RETRY_COUNT) {
-      console.error('Failed at sending message and reached max retry count');
-      failedMessages.push(clientMessageId);
-      setFailedMessages(failedMessages);
-      return;
-    }
-    setTimeout(() => {
-      sendMessageHelper(
-        chatThreadClient,
-        threadId,
-        messageContent,
-        displayName,
-        clientMessageId,
-        dispatch,
-        retryCount + 1,
-        getState
-      );
-    }, 200);
+    console.error(error);
+    failedMessages.push(clientMessageId);
+    setFailedMessages(failedMessages);
+    return;
   }
 };
 

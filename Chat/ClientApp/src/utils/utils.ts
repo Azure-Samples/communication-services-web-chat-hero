@@ -82,7 +82,7 @@ export function getChatSDKVersion() {
   return require('../../package.json')['dependencies']['@azure/communication-chat'];
 }
 
-export const compareMessages = (firstMessage: any, secondMessage: any) => {
+export const compareMessages = (firstMessage: ClientChatMessage, secondMessage: ClientChatMessage) => {
   if (firstMessage.createdOn === undefined) return 1;
   if (secondMessage.createdOn === undefined) return -1;
   const firstDate = new Date(firstMessage.createdOn).getTime();

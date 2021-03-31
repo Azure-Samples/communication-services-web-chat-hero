@@ -13,7 +13,7 @@ export interface SetMessagesAction {
 
 export type TypingNotification = {
   recipientId: string, // the user that is sending a message
-  originalArrivalTime: number // when the message was last sent
+  originalArrivalTime: Date // when the message was last sent
   threadId: string,
   version: string
 }

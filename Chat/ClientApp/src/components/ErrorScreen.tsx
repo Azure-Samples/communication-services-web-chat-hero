@@ -16,7 +16,7 @@ export interface ErrorEndCallProps {
 }
 
 export default (props: ErrorEndCallProps): JSX.Element => {
-  const leftCall = 'Oops! You are no longer a participant for the chat thread.';
+  const leftCall = 'You are no longer a participant for the chat thread.';
   const goHomePage = 'Go to homepage';
 
   return (

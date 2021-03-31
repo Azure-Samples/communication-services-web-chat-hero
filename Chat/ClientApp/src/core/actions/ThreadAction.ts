@@ -1,4 +1,4 @@
-import { ChatThread } from "@azure/communication-chat";
+import { ChatThreadItem } from "@azure/communication-chat";
 
 export const SET_THREAD = 'SET_THREAD';
 export const SET_THREAD_TOPIC_NAME = 'SET_THREAD_TOPIC_NAME';
@@ -6,7 +6,7 @@ export const SET_THREAD_ID = 'SET_THREAD_ID';
 
 export interface SetThreadAction {
   type: typeof SET_THREAD;
-  thread: ChatThread;
+  thread: ChatThreadItem;
 }
 
 export interface SetThreadTopicNameAction {

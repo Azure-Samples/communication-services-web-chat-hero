@@ -6,12 +6,6 @@ import { PARTICIPANTS_THRESHOLD, MAXIMUM_LENGTH_OF_TYPING_USERS } from '../const
 import { ChatParticipant } from '@azure/communication-chat';
 import { CommunicationUserIdentifier } from '@azure/communication-common';
 
-type TypingUser = {
-  id: string,
-  emoji: string,
-  displayName: string
-}
-
 const mapStateToProps = (state: State) => ({
   generateTypingIndicatorList: () => {
     let typingUsersFromStore = state.chat.typingUsers;

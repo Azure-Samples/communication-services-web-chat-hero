@@ -1,8 +1,8 @@
-import { ChatThread } from '@azure/communication-chat';
+import { ChatThreadItem } from '@azure/communication-chat';
 import { SET_THREAD, SET_THREAD_TOPIC_NAME, SET_THREAD_ID, ThreadActionTypes } from '../actions/ThreadAction';
 
 export interface ThreadState {
-  thread: ChatThread | undefined;
+  thread: ChatThreadItem | undefined;
   threadId: string | undefined;
 }
 
