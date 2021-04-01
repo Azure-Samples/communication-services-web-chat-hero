@@ -31,18 +31,17 @@ export default (): JSX.Element => {
     } else if (page === 'configuration') {
       return (
         <ConfigurationScreen
-          endChatHandler={() => setPage('error')}
+          kickedHandler={() => setPage('kicked')}
           joinChatHandler={() => setPage('chat')} />
       );
     } else if (page === 'chat') {
       return <ChatScreen
-          endChatHandler={() => setPage('end')}
-          errorHandler={() => setPage('error')} />
+          leaveChatHandler={() => setPage('end')} />
     } else if (page === 'end') {
       return <EndScreen
           rejoinHandler={() => setPage('configuration')}
           homeHandler={() => window.location.href = window.location.origin} />
-    } else if (page === 'error') {
+    } else if (page === 'kicked') {
       return <ErrorScreen homeHandler={() => window.location.href = window.location.origin} />
     }
   };

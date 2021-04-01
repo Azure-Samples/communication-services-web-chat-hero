@@ -1,6 +1,5 @@
-import { ChatMessage, ChatParticipant } from '@azure/communication-chat';
+import { ChatParticipant } from '@azure/communication-chat';
 import { CommunicationIdentifierKind } from '@azure/communication-common';
-import { CommunicationUserIdentifier } from '@azure/communication-signaling';
 
 import {
   MessagesActionTypes,
@@ -23,9 +22,10 @@ export interface ClientChatMessage {
   clientMessageId?: string
   sender?: CommunicationIdentifierKind,
   senderDisplayName?: string,
-  content?: string,
+  content?: { message? : string },
   createdOn: Date,
-  id?: string
+  id?: string,
+  failed?: boolean
 }
 
 const initMessagesState: MessagesState = {
@@ -47,7 +47,7 @@ export const MessagesReducer = (state = initMessagesState, action: MessagesActio
         ...state,
         typingNotifications: {
           ...state.typingNotifications,
-          [action.id]: action.latestTypingNotification
+          [action.id]: action.typingNotification
         }
       };
     case SET_TYPING_USERS:

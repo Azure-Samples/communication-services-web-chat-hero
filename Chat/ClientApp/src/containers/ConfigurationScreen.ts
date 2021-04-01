@@ -10,8 +10,8 @@ const mapStateToProps = (state: State) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  setup: async (displayName: string, emoji: string, endChatHandler: () => void) => {
-    await dispatch(addUserToThread(displayName, emoji, endChatHandler));
+  setup: async (displayName: string, emoji: string, kickedHandler: () => void) => {
+    await dispatch(addUserToThread(displayName, emoji, kickedHandler));
   },
   isValidThread: async (threadId: string) => dispatch(isValidThread(threadId)),
   setAddThreadMemberError: async (addThreadMemberError: boolean | undefined) => {

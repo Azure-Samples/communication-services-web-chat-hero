@@ -11,10 +11,7 @@ import {
 import { SidePanelTypes } from './SidePanel';
 
 interface ChatScreenProps {
-  threadMembersError: boolean;
-  endChatHandler(): void;
-  errorHandler(): void;
-  getThreadMembers(): void;
+  leaveChatHandler(): void;
   getThread(): void;
   getMessages(): void;
 }
@@ -25,32 +22,22 @@ export default (props: ChatScreenProps): JSX.Element => {
     window.innerWidth > 600 ? SidePanelTypes.People : SidePanelTypes.None
   );
 
-  const { errorHandler, threadMembersError, getThread } = props;
-
-  useEffect(() => {
-    props.getMessages();
-  }, []);
-
-  useEffect(() => {
-    if (threadMembersError) {
-      errorHandler();
-    }
-  }, [errorHandler, threadMembersError]);
-
+  const { getThread, getMessages, leaveChatHandler } = props;
   useEffect(() => {
     getThread();
+    getMessages();
     document.getElementById('sendbox')?.focus();
-  }, [getThread]);
+  }, [getThread, getMessages]);
 
   return (
     <Stack className={chatScreenContainerStyle}>
       <ChatHeader
-        endChatHandler={props.endChatHandler}
+        leaveChatHandler={leaveChatHandler}
         selectedPane={selectedPane}
         setSelectedPane={setSelectedPane}
       />
       <Stack className={chatScreenBottomContainerStyle} horizontal={true}>
-        <ChatArea endChatHandler={props.endChatHandler} />
+      <ChatArea/>
         <Stack.Item grow disableShrink>
           <SidePanel
             selectedPane={selectedPane}

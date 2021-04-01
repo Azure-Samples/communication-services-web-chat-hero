@@ -28,7 +28,7 @@ import { GUID_FOR_INITIAL_TOPIC_NAME } from '../constants';
 type ChatHeaderPaneProps = {
   selectedPane: SidePanelTypes;
   setSelectedPane: Dispatch<SidePanelTypes>;
-  endChatHandler: () => void;
+  leaveChatHandler: () => void;
 }
 
 export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPaneProps): JSX.Element => {
@@ -133,7 +133,7 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
                 iconProps={leaveIcon}
                 className={greyIconButtonStyle}
                 onClick={() => {
-                  props.endChatHandler();
+                  props.leaveChatHandler();
                 }}
               />
             </div>
@@ -142,7 +142,7 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
                 className={leaveButtonStyle}
                 onClick={() => {
                   props.removeChatParticipantById(props.userId);
-                  props.endChatHandler();
+                  props.leaveChatHandler();
                 }}
               >
                 <Icon iconName="Leave" className={copyIconStyle} />

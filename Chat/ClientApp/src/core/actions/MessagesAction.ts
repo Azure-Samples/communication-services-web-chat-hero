@@ -1,4 +1,4 @@
-import { ChatMessage, ChatParticipant } from '@azure/communication-chat';
+import { ChatParticipant } from '@azure/communication-chat';
 import { ClientChatMessage } from '../reducers/MessagesReducer';
 
 export const SET_MESSAGES = 'SET_MESSAGES';
@@ -21,7 +21,7 @@ export type TypingNotification = {
 export interface SetTypingNotificationsAction {
   type: typeof SET_TYPING_NOTIFICATIONS;
   id: string,
-  latestTypingNotification: TypingNotification;
+  typingNotification: TypingNotification;
 }
 
 export interface SetTypingUsersAction {
@@ -39,10 +39,10 @@ export const setMessages = (messages: ClientChatMessage[]): SetMessagesAction =>
   messages
 });
 
-export const setTypingNotifications = (id: string, latestTypingNotification: TypingNotification): SetTypingNotificationsAction => ({
+export const setTypingNotifications = (id: string, typingNotification: TypingNotification): SetTypingNotificationsAction => ({
   type: SET_TYPING_NOTIFICATIONS,
   id,
-  latestTypingNotification
+  typingNotification
 });
 
 export const setTypingUsers = (typingUsers: ChatParticipant[]): SetTypingUsersAction => ({

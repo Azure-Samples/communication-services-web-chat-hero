@@ -96,7 +96,7 @@ export const isUserMatchingIdentity = (user: CommunicationIdentifier, communicat
 
 export const convertToClientChatMessage = (chatMessage: ChatMessage, clientMessageId?: string): ClientChatMessage => {
   return {
-    content: chatMessage.content?.message,
+    content: { message: chatMessage.content?.message },
     clientMessageId: clientMessageId,
     sender: chatMessage.sender,
     senderDisplayName: chatMessage.senderDisplayName,
@@ -107,7 +107,7 @@ export const convertToClientChatMessage = (chatMessage: ChatMessage, clientMessa
 
 export const createNewClientChatMessage =  (userId: string, displayName: string, clientMessageId: string, message: string): ClientChatMessage => {
   return {
-    content: message,
+    content: { message: message },
     clientMessageId: clientMessageId,
     sender: { communicationUserId: userId, kind: 'communicationUser' },
     senderDisplayName: displayName,

@@ -110,7 +110,9 @@ export default (props: ChatThreadProps): JSX.Element => {
   }, [numberOfMessagesToRender]);
 
   useEffect(() => {
+    // get the sender of the most recent message
     const user = props.messages && props.messages[props.messages.length - 1] && props.messages[props.messages.length - 1].sender;
+    // if you are the person that sent the most recent message
     if (props.messages.length > 0 && user && isUserMatchingIdentity(user, props.user.identity)) {
       // after sending a message, scroll to bottom
       scrollToBottom();
@@ -163,7 +165,7 @@ export default (props: ChatThreadProps): JSX.Element => {
 
   const readReceiptIcon = (message: any) => {
     // message is pending send or is failed to be sent
-    if (message.createdOn === undefined) {
+    if (message.failed) {
       let messageFailed: boolean =
         props.failedMessages.find(
           (failedMessage: string) => failedMessage === message.clientMessageId
@@ -332,7 +334,7 @@ export default (props: ChatThreadProps): JSX.Element => {
                       }`}
                       aria-live="polite"
                     />
-                    {renderHyperlink(message.content)}
+                    {renderHyperlink(message.content.message)}
                   </div>
                 );
                 return {

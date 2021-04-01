@@ -37,8 +37,8 @@ import { MAXIMUM_LENGTH_OF_NAME } from '../constants';
 
 export interface ConfigurationScreenProps {
   joinChatHandler(): void;
-  endChatHandler(): void;
-  setup(displayName: string, emoji: string, endChatHandler: () => void): void;
+  kickedHandler(): void;
+  setup(displayName: string, emoji: string, kickedHandler: () => void): void;
   isValidThread(threadId: string | null): any;
   addThreadMemberError: boolean | undefined;
   setAddThreadMemberError(addThreadMemberError: boolean | undefined): void;
@@ -79,7 +79,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
       setEmptyWarning(false);
       setNameLengthExceedLimit(false);
       if (!isJoining) {
-        props.setup(name, selectedAvatar, props.endChatHandler);
+        props.setup(name, selectedAvatar, props.kickedHandler);
         setIsJoining(true);
       }
     }
