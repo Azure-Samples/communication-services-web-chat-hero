@@ -114,38 +114,31 @@ namespace Chat
 		[HttpPost]
 		public async Task<ActionResult> TryAddUserToThread(string threadId, ContosoMemberModel user)
 		{
+			var moderatorId = _store.Store[threadId];
+
+			AccessToken moderatorToken = await _userTokenManager.GenerateTokenAsync(_resourceConnectionString, moderatorId);
+
+			ChatClient chatClient = new ChatClient(
+				new Uri(_chatGatewayUrl),
+				new CommunicationTokenCredential(moderatorToken.Token));
+
+			ChatThreadClient chatThreadClient = chatClient.GetChatThreadClient(threadId);
+
+			var threadProperties = await chatThreadClient.GetPropertiesAsync();
+			var chatParticipant = new ChatParticipant(new CommunicationUserIdentifier(user.Id));
+			chatParticipant.DisplayName = user.DisplayName;
+			chatParticipant.ShareHistoryTime = threadProperties.Value.CreatedOn;
+
 			try
 			{
-				var moderatorId = _store.Store[threadId];
-
-				AccessToken moderatorToken = await _userTokenManager.GenerateTokenAsync(_resourceConnectionString, moderatorId);
-
-				ChatClient chatClient = new ChatClient(
-					new Uri(_chatGatewayUrl),
-					new CommunicationTokenCredential(moderatorToken.Token));
-
-				ChatThread chatThread = chatClient.GetChatThread(threadId);
-				ChatThreadClient chatThreadClient = chatClient.GetChatThreadClient(threadId);
-
-				var chatParticipant = new ChatParticipant(new CommunicationUserIdentifier(user.Id));
-				chatParticipant.DisplayName = user.DisplayName;
-				chatParticipant.ShareHistoryTime = chatThread.CreatedOn;
-
-				Response<AddChatParticipantsResult> response = await chatThreadClient.AddParticipantAsync(chatParticipant);
-				AddChatParticipantsResult result = response.Value;
-
-				if (result.Errors != null)
-				{
-					foreach(var error in result.Errors.InvalidParticipants)
-					{
-						Console.WriteLine($"Unexpected error occurred while adding user from thread: {error.Message}");
-					}
-				}
-			} 
-			catch (Exception e)
+				Response response = await chatThreadClient.AddParticipantAsync(chatParticipant);
+				return Ok();
+			}
+			catch(Exception e)
 			{
 				Console.WriteLine($"Unexpected error occurred while adding user from thread: {e}");
 			}
+
 			return Ok();
 		}
 
@@ -166,10 +159,11 @@ namespace Chat
 			};
 
 			Response<CreateChatThreadResult> result = await chatClient.CreateChatThreadAsync(GUID_FOR_INITIAL_TOPIC_NAME, chatParticipants);
-			ChatThread chatThreadClient = result.Value.ChatThread;
-			
-			_store.Store.Add(chatThreadClient.Id, moderatorId);
-			return chatThreadClient.Id;
+
+			var threadId = result.Value.ChatThread.Id;
+
+			_store.Store.Add(threadId, moderatorId);
+			return threadId;
 		}
 	}
 }

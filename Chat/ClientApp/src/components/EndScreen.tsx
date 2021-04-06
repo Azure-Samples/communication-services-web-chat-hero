@@ -16,7 +16,6 @@ import {
 
 export interface EndCallProps {
   rejoinHandler(): void;
-  rejoinThread(): Promise<void>;
   homeHandler(): void;
 }
 
@@ -31,7 +30,6 @@ export default (props: EndCallProps): JSX.Element => {
   const rejoinThread = async () => {
     if (!isRejoiningThread) {
       setIsRejoiningThread(true);
-      await props.rejoinThread();
       props.rejoinHandler();
     }
   };

@@ -1,13 +1,5 @@
-import { ChatThreadItem } from "@azure/communication-chat";
-
-export const SET_THREAD = 'SET_THREAD';
 export const SET_THREAD_TOPIC_NAME = 'SET_THREAD_TOPIC_NAME';
 export const SET_THREAD_ID = 'SET_THREAD_ID';
-
-export interface SetThreadAction {
-  type: typeof SET_THREAD;
-  thread: ChatThreadItem;
-}
 
 export interface SetThreadTopicNameAction {
   type: typeof SET_THREAD_TOPIC_NAME;
@@ -19,11 +11,6 @@ export interface SetThreadIdAction {
   threadId: string;
 }
 
-export const setThread = (thread: any): SetThreadAction => ({
-  type: SET_THREAD,
-  thread
-});
-
 export const setThreadTopicName = (topicName: string): SetThreadTopicNameAction => ({
   type: SET_THREAD_TOPIC_NAME,
   topicName
@@ -34,4 +21,4 @@ export const setThreadId = (threadId: string): SetThreadIdAction => ({
   threadId
 });
 
-export type ThreadActionTypes = SetThreadAction | SetThreadTopicNameAction | SetThreadIdAction;
+export type ThreadActionTypes = SetThreadTopicNameAction | SetThreadIdAction;

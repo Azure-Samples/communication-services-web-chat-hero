@@ -12,7 +12,7 @@ export type Users = Record<string, UserConfiguration>;
 
 export interface SetChatClientAction {
   type: typeof SET_CHAT_CLIENT;
-  chatClient: ChatClient;
+  chatClient: ChatClient | undefined;
 }
 
 export interface SetContosoUserAction {
@@ -28,7 +28,7 @@ export interface SetContosoUsersAction {
   users: Users;
 }
 
-export const setChatClient = (chatClient: ChatClient): SetChatClientAction => ({
+export const setChatClient = (chatClient: ChatClient | undefined): SetChatClientAction => ({
   type: SET_CHAT_CLIENT,
   chatClient
 });

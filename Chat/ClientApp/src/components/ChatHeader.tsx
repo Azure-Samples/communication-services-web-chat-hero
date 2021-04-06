@@ -62,9 +62,11 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
 
   const leaveString = 'Leave';
 
+  const {topic, generateHeaderMessage, leaveChatHandler, removeChatParticipantById, userId} = props;
+
   useEffect(() => {
-    setHeader(props.topic && props.topic !== GUID_FOR_INITIAL_TOPIC_NAME ? props.topic : props.generateHeaderMessage());
-  }, [props.threadMembers, props.topic])
+    setHeader(topic && topic !== GUID_FOR_INITIAL_TOPIC_NAME ? topic : generateHeaderMessage())
+  }, [topic, generateHeaderMessage])
 
   return (
     <Stack
@@ -130,19 +132,22 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
           <Stack.Item align="center">
             <div className={iconButtonContainerStyle}>
               <IconButton
+                id="leave"
                 iconProps={leaveIcon}
                 className={greyIconButtonStyle}
                 onClick={() => {
-                  props.leaveChatHandler();
+                  leaveChatHandler();
+                  removeChatParticipantById(userId);
                 }}
               />
             </div>
             <div className={largeButtonContainerStyle}>
               <DefaultButton
+                id="leave"
                 className={leaveButtonStyle}
                 onClick={() => {
-                  props.removeChatParticipantById(props.userId);
-                  props.leaveChatHandler();
+                  leaveChatHandler();
+                  removeChatParticipantById(userId);
                 }}
               >
                 <Icon iconName="Leave" className={copyIconStyle} />

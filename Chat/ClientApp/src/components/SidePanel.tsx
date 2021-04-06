@@ -12,7 +12,6 @@ import {
 } from 'office-ui-fabric-react/lib/FocusZone';
 
 import { ENTER_KEY, MAXIMUM_LENGTH_OF_TOPIC } from '../../src/constants';
-import { getEmoji } from '../core/sideEffects';
 import InviteFooter from './InviteFooter';
 import MemberItem from './MemberItem';
 import { inputBoxTextStyle } from './styles/ConfigurationScreen.styles';
@@ -42,24 +41,12 @@ type ChatSidePaneProps = {
 }
 
 export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePaneProps): JSX.Element => {
-  const {
-    removeChatParticipantError,
-    setRemoveChatParticipantError,
-  } = props;
-
-  useEffect(() => {
-    if (removeChatParticipantError) {
-      alert(
-        "You can't remove participant at this time. Please wait at least 60 seconds to try again."
-      );
-      setRemoveChatParticipantError(false);
-    }
-  }, [removeChatParticipantError, setRemoveChatParticipantError]);
-
   const [topicName, setTopicName] = useState('');
   const [isEditingTopicName, setIsEditingTopicName] = useState(false);
   const [isTopicNameOverflow, setTopicNameOverflow] = useState(false);
   const [isSavingTopicName, setIsSavingTopicName] = useState(false);
+
+  const { chatClient, threadId } = props;
 
   const onTopicNameTextChange = (event: any) => {
     setIsEditingTopicName(true);
@@ -73,7 +60,9 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
 
   const onTopicNameSubmit = () => {
     if (topicName.length > MAXIMUM_LENGTH_OF_TOPIC) return;
-    props.updateThreadTopicName(topicName, setIsSavingTopicName);
+    if (!chatClient) return;
+    if (!threadId) return;
+    props.updateThreadTopicName(chatClient, threadId, topicName, setIsSavingTopicName);
     setIsSavingTopicName(true);
     setIsEditingTopicName(false);
     setTimeout(() => {
@@ -131,9 +120,7 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
             defaultValue={
               isEditingTopicName
                 ? topicName
-                : props.existsTopicName && props.thread !== undefined
-                  ? props.thread.topic
-                  : undefined
+                : props.topic
             }
             placeholder={
               props.existsTopicName ? undefined : 'Type a group name'

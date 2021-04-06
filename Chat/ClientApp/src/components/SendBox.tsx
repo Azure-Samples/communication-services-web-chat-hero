@@ -5,7 +5,6 @@ import React, { useState, Dispatch } from 'react';
 import {
   ENTER_KEY,
   EMPTY_MESSAGE_REGEX,
-  COOL_PERIOD_THRESHOLD,
   MAXIMUM_LENGTH_OF_MESSAGE,
 } from '../../src/constants';
 import {
@@ -76,6 +75,7 @@ export default (props: SendboxProps): JSX.Element => {
         <SendIcon
           outline
           className={sendIconStyle}
+          id="sendmessage"
           onClick={() => {
             if (!textValueOverflow) {
               addMessage();

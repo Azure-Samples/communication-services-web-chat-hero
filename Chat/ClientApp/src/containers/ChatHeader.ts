@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import { ChatParticipant, ChatThreadItem } from '@azure/communication-chat';
+import { ChatParticipant } from '@azure/communication-chat';
 
 import { GUID_FOR_INITIAL_TOPIC_NAME } from '../../src/constants';
 import ChatHeader from '../components/ChatHeader';
@@ -9,12 +9,11 @@ import { removeThreadMemberByUserId } from '../core/sideEffects';
 import { isUserMatchingIdentity } from '../utils/utils';
 
 export type ChatHeaderProps = {
-  thread: ChatThreadItem | undefined,
   userId: string,
   existsTopicName: boolean,
   generateHeaderMessage: () => string
   threadMembers: ChatParticipant[]
-  topic: string | undefined
+  topic: string
 }
 
 export type ChatHeaderDispatchProps = {
@@ -22,11 +21,10 @@ export type ChatHeaderDispatchProps = {
 }
 
 const mapStateToProps = (state: State): ChatHeaderProps => ({
-  thread: state.thread.thread,
   threadMembers: state.threadMembers.threadMembers,
-  topic: state.thread.thread?.topic,
+  topic: state.thread.topic,
   userId: state.contosoClient.user.identity,
-  existsTopicName: state.thread.thread !== undefined && state.thread.thread.topic !== GUID_FOR_INITIAL_TOPIC_NAME,
+  existsTopicName: state.thread.topic !== GUID_FOR_INITIAL_TOPIC_NAME,
   generateHeaderMessage: () => {
     let header = 'Chat with ';
 

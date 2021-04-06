@@ -1,17 +1,10 @@
 import { connect } from 'react-redux';
 
 import ChatScreen from '../components/ChatScreen';
-import { getThread, getThreadMembers, getMessages } from '../core/sideEffects';
 import { State } from '../core/reducers';
 
 const mapStateToProps = (state: State) => ({
-  threadMembersError: state.threadMembers.error!
+  isRemoved: state.threadMembers.isRemoved
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  getThreadMembers: () => dispatch(getThreadMembers()),
-  getThread: () => dispatch(getThread()),
-  getMessages: () => dispatch(getMessages())
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ChatScreen);
+export default connect(mapStateToProps)(ChatScreen);

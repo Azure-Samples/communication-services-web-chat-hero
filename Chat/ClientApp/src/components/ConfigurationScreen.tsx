@@ -37,11 +37,8 @@ import { MAXIMUM_LENGTH_OF_NAME } from '../constants';
 
 export interface ConfigurationScreenProps {
   joinChatHandler(): void;
-  kickedHandler(): void;
-  setup(displayName: string, emoji: string, kickedHandler: () => void): void;
+  setup(displayName: string, emoji: string): void;
   isValidThread(threadId: string | null): any;
-  addThreadMemberError: boolean | undefined;
-  setAddThreadMemberError(addThreadMemberError: boolean | undefined): void;
 }
 
 export default (props: ConfigurationScreenProps): JSX.Element => {
@@ -62,7 +59,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
     undefined
   );
 
-  const { addThreadMemberError } = props;
+  const { joinChatHandler, setup } = props;
 
   const onAvatarChange = (newAvatar: string) => {
     setSelectedAvatar(newAvatar);
@@ -79,25 +76,13 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
       setEmptyWarning(false);
       setNameLengthExceedLimit(false);
       if (!isJoining) {
-        props.setup(name, selectedAvatar, props.kickedHandler);
+        setup(name, selectedAvatar);
         setIsJoining(true);
       }
     }
   };
 
   const isValidThreadProp = props.isValidThread;
-
-  useEffect(() => {
-    if (addThreadMemberError) {
-      alert(
-        "You can't be added at this moment. Please wait at least 60 seconds to try again."
-      );
-      props.setAddThreadMemberError(undefined);
-      setIsJoining(false);
-    } else if (addThreadMemberError === false) {
-      props.joinChatHandler();
-    }
-  }, [addThreadMemberError]);
 
   useEffect(() => {
     const isValidThread = async () => {
@@ -192,7 +177,12 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
               isNameLengthExceedLimit={isNameLengthExceedLimit}
             />
             <div>
-              <PrimaryButton className={buttonStyle} onClick={validateName}>
+              <PrimaryButton id="join" className={buttonStyle} onClick={() => {
+                validateName();
+                if(emptyWarning === false && isNameLengthExceedLimit === false) {
+                  joinChatHandler();
+                }
+                }}>
                 <ChatIcon className={chatIconStyle} size="medium" />
                 <div className={startChatButtonTextStyle}>Join chat</div>
               </PrimaryButton>

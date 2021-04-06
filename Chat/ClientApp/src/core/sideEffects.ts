@@ -6,18 +6,16 @@ import {
   MAXIMUM_INT64,
   PAGE_SIZE,
   INITIAL_MESSAGES_SIZE,
-  MAXIMUM_RETRY_COUNT,
   OK
 } from '../constants';
 import { setChatClient, setContosoUser, setContosoUsers } from './actions/ContosoClientAction';
 import { setReceipts } from './actions/ConversationsAction';
 import { setMessages, setTypingNotifications, setTypingUsers, setFailedMessages } from './actions/MessagesAction';
-import { setThreadId, setThread } from './actions/ThreadAction';
+import { setThreadId, setThreadTopicName } from './actions/ThreadAction';
 import {
   setThreadMembers,
   setThreadMembersError,
-  setRemoveThreadMemberError,
-  setAddThreadMemberError
+  setRemovedFromThread
 } from './actions/ThreadMembersAction';
 import { User } from './reducers/ContosoClientReducers';
 import { State } from './reducers/index';
@@ -36,7 +34,7 @@ import { AzureCommunicationTokenCredential, CommunicationTokenRefreshOptions, Co
 import { ChatThreadPropertiesUpdatedEvent, CommunicationUserKind, ParticipantsAddedEvent, ParticipantsRemovedEvent } from '@azure/communication-signaling';
 
 // This function sets up the user to chat with the thread
-const addUserToThread = (displayName: string, emoji: string, kickedHandler: () => void) => async (dispatch: Dispatch, getState: () => State) => {
+const addUserToThread = (displayName: string, emoji: string) => async (dispatch: Dispatch, getState: () => State) => {
   let state: State = getState();
   if (state.thread.threadId === undefined) {
     console.error('Thread Id not created yet');
@@ -78,7 +76,7 @@ const addUserToThread = (displayName: string, emoji: string, kickedHandler: () =
   subscribeForMessage(chatClient, dispatch, getState);
   subscribeForTypingIndicator(chatClient, dispatch);
   subscribeForReadReceipt(chatClient, chatThreadClient, dispatch);
-  subscribeForChatParticipants(chatClient, user.communicationUserId, kickedHandler, dispatch, getState);
+  subscribeForChatParticipants(chatClient, user.communicationUserId, dispatch, getState);
   subscribeForTopicUpdated(chatClient, dispatch, getState);
   dispatch(setThreadId(threadId));
   dispatch(setContosoUser(user.communicationUserId, userToken.token, displayName));
@@ -94,6 +92,9 @@ const addUserToThread = (displayName: string, emoji: string, kickedHandler: () =
     },
     dispatch
   );
+
+  await getThreadInformation(chatClient, dispatch, getState);
+  await getMessages(chatClient, dispatch, getState);
 };
 
 const subscribeForTypingIndicator = async (chatClient: ChatClient, dispatch: Dispatch) => {
@@ -149,14 +150,14 @@ const subscribeForReadReceipt = async (
   });
 };
 
-const subscribeForChatParticipants = async (chatClient: ChatClient, identity: string, kickedHandler: ()=> void, dispatch: Dispatch, getState: () => State) => {
+const subscribeForChatParticipants = async (chatClient: ChatClient, identity: string, dispatch: Dispatch, getState: () => State) => {
   chatClient.on('participantsRemoved', async (event: ParticipantsRemovedEvent) => {
     const state = getState();
     let participants: ChatParticipant[] = [];
     for(let chatParticipant of event.participantsRemoved) {
       // if you are in the list, remove yourself from the chat
       if(isUserMatchingIdentity(chatParticipant.id, identity)) {
-        kickedHandler();
+        dispatch(setRemovedFromThread(true))
         return;
       }
     }
@@ -176,7 +177,9 @@ const subscribeForChatParticipants = async (chatClient: ChatClient, identity: st
     const state = getState();
     let participants: ChatParticipant[] = [...state.threadMembers.threadMembers];
 
-    const addedParticipants = event.participantsAdded.map(chatParticipant =>
+    // there is a chance that the participant added is you and so there is a chance that you can come in as a 
+    // new participant as well
+    const addedParticipants = event.participantsAdded.map((chatParticipant: ChatParticipant) =>
       { return {
         id: chatParticipant.id,
         displayName: chatParticipant.displayName,
@@ -184,8 +187,13 @@ const subscribeForChatParticipants = async (chatClient: ChatClient, identity: st
       }
     })
 
-    for(var i  = 0; i < addedParticipants.length; i++) {
-      participants.push(addedParticipants[i])
+    // add participants not in the list
+    for(var j = 0; j < event.participantsAdded.length; j++) {
+      const addedParticipant = event.participantsAdded[j];
+      const id = (addedParticipant.id as CommunicationUserIdentifier).communicationUserId;
+      if(participants.filter((participant: ChatParticipant) => isUserMatchingIdentity(participant.id, id)).length === 0) {
+        participants.push(addedParticipant);
+      }
     }
 
     // also make sure we get the emojis for the new participants
@@ -201,7 +209,7 @@ const subscribeForChatParticipants = async (chatClient: ChatClient, identity: st
         }
       }
     }
-  
+
     dispatch(setContosoUsers(users))
     dispatch(setThreadMembers(participants))
   })
@@ -210,15 +218,14 @@ const subscribeForChatParticipants = async (chatClient: ChatClient, identity: st
 const subscribeForTopicUpdated = async (chatClient: ChatClient, dispatch: Dispatch, getState: () => State) => {
   chatClient.on('chatThreadPropertiesUpdated', async(e: ChatThreadPropertiesUpdatedEvent) => {
     const state = getState();
-    let thread = state.thread.thread;
+    let threadId = state.thread.threadId;
 
-    if (!thread) {
+    if (!threadId) {
+      console.error('no threadId set')
       return;
     }
-
-    thread.topic = e.properties.topic;
   
-    dispatch(setThread(thread))
+    dispatch(setThreadTopicName(e.properties.topic))
   })
 }
 
@@ -313,9 +320,8 @@ const isValidThread = (threadId: string) => async (dispatch: Dispatch) => {
   }
 };
 
-const getMessages = () => async (dispatch: Dispatch, getState: () => State) => {
+const getMessages = async (chatClient: ChatClient, dispatch: Dispatch, getState: () => State) => {
   let state: State = getState();
-  let chatClient = state.contosoClient.chatClient;
   if (chatClient === undefined) {
     console.error('Chat Client not created yet');
     return;
@@ -380,14 +386,12 @@ const removeThreadMemberByUserId = (userId: string) => async (dispatch: Dispatch
   }
   let chatThreadClient = await chatClient.getChatThreadClient(threadId);
   try {
-    let response = await chatThreadClient.removeParticipant({
+    await chatThreadClient.removeParticipant({
       communicationUserId: userId
     });
   }
   catch(error) {
-    // TOO_MANY_REQUESTS_STATUS_CODE
     console.log(error);
-    dispatch(setRemoveThreadMemberError(true));
   }
 };
 
@@ -419,9 +423,8 @@ const getThreadMembers = () => async (dispatch: Dispatch, getState: () => State)
   }
 };
 
-const getThread = () => async (dispatch: Dispatch, getState: () => State) => {
+const getThreadInformation = async (chatClient: ChatClient, dispatch:Dispatch, getState: () => State) => {
   let state: State = getState();
-  let chatClient = state.contosoClient.chatClient;
   if (chatClient === undefined) {
     console.error('Chat Client not created yet');
     return;
@@ -435,11 +438,9 @@ const getThread = () => async (dispatch: Dispatch, getState: () => State) => {
   let thread;
   let chatThreadClient;
   let iteratableParticipants;
-  let iteratableThreads;
 
   try {
     chatThreadClient = chatClient.getChatThreadClient(threadId);
-    iteratableThreads = chatClient.listChatThreads();
     iteratableParticipants = chatThreadClient.listParticipants()
   }
   catch(error) {
@@ -447,31 +448,20 @@ const getThread = () => async (dispatch: Dispatch, getState: () => State) => {
     dispatch(setThreadMembersError(true));
   }
 
-  if (!iteratableThreads) {
-    return; // really we need to alert that there was an error?
-  }
-
-  for await (const threadItem of iteratableThreads) {
-    if (threadItem.id === threadId) {
-      thread = threadItem;
-    }
-  }
-
-  if (!thread) {
-    return; // we were unable to match the thread we were expecting and we should throw
-  }
-
   let chatParticipants = [];
   // This is just to get all of the members in a chat. This is not performance as we're not using paging
   if (!iteratableParticipants) {
+    console.error('unable to resolve chat participant iterator')
     return;  // really we need to alert that there was an error?
   }
 
-  for await (const chatParticipant of iteratableParticipants) {
-    chatParticipants.push(chatParticipant);
+  for await (const page of iteratableParticipants.byPage()) {
+    for (const chatParticipant of page) {
+      chatParticipants.push(chatParticipant);
+    }
   }
 
-  if (chatParticipants.length == 0) {
+  if (chatParticipants.length === 0) {
     console.error('unable to get members in the thread');
     return;
   }
@@ -495,25 +485,12 @@ const getThread = () => async (dispatch: Dispatch, getState: () => State) => {
 
   dispatch(setContosoUsers(users))
   dispatch(setThreadMembers(validChatParticipants));
-  dispatch(setThread(thread));
+  dispatch(setThreadId(threadId));
 };
 
-const updateThreadTopicName = (topicName: string, setIsSavingTopicName: React.Dispatch<boolean>) => async (
-  dispatch: Dispatch,
-  getState: () => State
-) => {
-  let state: State = getState();
-  let chatClient = state.contosoClient.chatClient;
-  if (chatClient === undefined) {
-    console.error('Chat Client not created yet');
-    return;
-  }
-  let threadId = state.thread.threadId;
-  if (threadId === undefined) {
-    console.error('Thread Id not created yet');
-    return;
-  }
-  updateThreadTopicNameHelper(await chatClient.getChatThreadClient(threadId), topicName, setIsSavingTopicName);
+const updateThreadTopicName = async (chatClient: ChatClient, threadId: string, topicName: string, setIsSavingTopicName: React.Dispatch<boolean>) => {
+  const chatThreadClient = await chatClient.getChatThreadClient(threadId);
+  updateThreadTopicNameHelper(chatThreadClient, topicName, setIsSavingTopicName);
 };
 
 // Thread Helper
@@ -553,8 +530,7 @@ const addThreadMemberHelper = async (threadId: string, user: User, dispatch: Dis
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     };
-    let response = await fetch('/addUser/' + threadId, addMemberRequestOptions);
-    dispatch(setAddThreadMemberError(response.status !== OK));
+    await fetch('/addUser/' + threadId, addMemberRequestOptions);
   } catch (error) {
     console.error('Failed at adding thread member, Error: ', error);
   }
@@ -752,6 +728,5 @@ export {
   sendTypingNotification,
   updateTypingUsers,
   isValidThread,
-  updateThreadTopicName,
-  getThread
+  updateThreadTopicName
 };

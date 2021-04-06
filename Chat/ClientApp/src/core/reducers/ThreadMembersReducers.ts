@@ -3,23 +3,20 @@ import { ChatParticipant } from '@azure/communication-chat';
 import {
   SET_THREAD_MEMBERS,
   SET_THREAD_MEMBERS_ERROR,
-  SET_REMOVE_THREAD_MEMBER_ERROR,
   ThreadMembersActionTypes,
-  SET_ADD_THREAD_MEMBER_ERROR
+  SET_REMOVED_FROM_THREAD
 } from '../actions/ThreadMembersAction';
 
 export interface ThreadMembersState {
   threadMembers: ChatParticipant[];
   error?: boolean;
-  removeThreadMemberError?: boolean;
-  addThreadMemberError?: boolean | undefined;
+  isRemoved: boolean;
 }
 
 const initState: ThreadMembersState = {
   threadMembers: [],
   error: false,
-  removeThreadMemberError: false,
-  addThreadMemberError: undefined
+  isRemoved: false
 };
 
 export const ThreadMembersReducer = (state = initState, action: ThreadMembersActionTypes) => {
@@ -34,16 +31,11 @@ export const ThreadMembersReducer = (state = initState, action: ThreadMembersAct
         ...state,
         error: true
       };
-    case SET_REMOVE_THREAD_MEMBER_ERROR:
+    case SET_REMOVED_FROM_THREAD:
       return {
         ...state,
-        removeThreadMemberError: action.removeThreadMemberError
-      };
-    case SET_ADD_THREAD_MEMBER_ERROR:
-      return {
-        ...state,
-        addThreadMemberError: action.addThreadMemberError
-      };
+        isRemoved: action.isRemoved
+      }
     default:
       return state;
   }
