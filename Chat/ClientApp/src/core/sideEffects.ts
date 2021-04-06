@@ -423,6 +423,8 @@ const getThreadMembers = () => async (dispatch: Dispatch, getState: () => State)
   }
 };
 
+// We want to grab everything about the chat thread that has occured before we register for events.
+// We care about pre-existing messages, the chat topic, and the participants in this chat
 const getThreadInformation = async (chatClient: ChatClient, dispatch:Dispatch, getState: () => State) => {
   let state: State = getState();
   if (chatClient === undefined) {
@@ -435,9 +437,9 @@ const getThreadInformation = async (chatClient: ChatClient, dispatch:Dispatch, g
     return;
   }
 
-  let thread;
   let chatThreadClient;
   let iteratableParticipants;
+  let topic;
 
   try {
     chatThreadClient = chatClient.getChatThreadClient(threadId);
@@ -483,9 +485,17 @@ const getThreadInformation = async (chatClient: ChatClient, dispatch:Dispatch, g
     }
   }
 
+  const properties = await chatThreadClient?.getProperties();
+
+  if (!properties) {
+    console.error('no chat thread properties')
+    return;
+  }
+
+  dispatch(setThreadId(threadId));
+  dispatch(setThreadTopicName(properties.topic));
   dispatch(setContosoUsers(users))
   dispatch(setThreadMembers(validChatParticipants));
-  dispatch(setThreadId(threadId));
 };
 
 const updateThreadTopicName = async (chatClient: ChatClient, threadId: string, topicName: string, setIsSavingTopicName: React.Dispatch<boolean>) => {

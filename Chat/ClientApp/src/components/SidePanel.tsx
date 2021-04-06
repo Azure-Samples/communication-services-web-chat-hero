@@ -11,7 +11,7 @@ import {
   FocusZoneDirection,
 } from 'office-ui-fabric-react/lib/FocusZone';
 
-import { ENTER_KEY, MAXIMUM_LENGTH_OF_TOPIC } from '../../src/constants';
+import { ENTER_KEY, GUID_FOR_INITIAL_TOPIC_NAME, MAXIMUM_LENGTH_OF_TOPIC } from '../../src/constants';
 import InviteFooter from './InviteFooter';
 import MemberItem from './MemberItem';
 import { inputBoxTextStyle } from './styles/ConfigurationScreen.styles';
@@ -118,8 +118,8 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
             inputClassName={inputBoxTextStyle}
             borderless={true}
             defaultValue={
-              isEditingTopicName
-                ? topicName
+              props.topic === GUID_FOR_INITIAL_TOPIC_NAME
+                ? ''
                 : props.topic
             }
             placeholder={
