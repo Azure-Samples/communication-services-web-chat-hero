@@ -5,7 +5,6 @@ import React, { useState, Dispatch } from 'react';
 import {
   ENTER_KEY,
   EMPTY_MESSAGE_REGEX,
-  COOL_PERIOD_THRESHOLD,
   MAXIMUM_LENGTH_OF_MESSAGE,
 } from '../../src/constants';
 import {
@@ -15,7 +14,6 @@ import {
   TextFieldStyleProps
 } from './styles/SendBox.styles';
 import { User } from '../core/reducers/ContosoClientReducers';
-import ChatSystemMessage from '../containers/ChatSystemMessage';
 
 interface SendboxProps {
   onSendMessage(messageContent: string): void;
@@ -35,12 +33,6 @@ export default (props: SendboxProps): JSX.Element => {
   ] = useState(0);
 
   const addMessage = () => {
-    if (props.user.coolPeriod !== undefined) {
-      let waitTime = new Date().getTime() - props.user.coolPeriod.getTime();
-      if (waitTime < COOL_PERIOD_THRESHOLD) {
-        return;
-      }
-    }
     // we dont want to send empty messages including spaces, newlines, tabs
     if (!EMPTY_MESSAGE_REGEX.test(textValue)) {
       props.onSendMessage(textValue);
@@ -83,6 +75,7 @@ export default (props: SendboxProps): JSX.Element => {
         <SendIcon
           outline
           className={sendIconStyle}
+          id="sendmessage"
           onClick={() => {
             if (!textValueOverflow) {
               addMessage();
@@ -90,7 +83,6 @@ export default (props: SendboxProps): JSX.Element => {
           }}
         />
       </Stack>
-      <ChatSystemMessage textValueOverflow={textValueOverflow} />
     </div>
   );
 };

@@ -7,7 +7,6 @@ import TypingIndicator from '../containers/TypingIndicator';
 import { chatAreaContainerStyle } from './styles/ChatArea.styles';
 
 interface ChatAreaProps {
-  endChatHandler(): void;
   onUpdateTypingUsers(): void;
   typingNotifications: any;
 }

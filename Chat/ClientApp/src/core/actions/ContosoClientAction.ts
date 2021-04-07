@@ -2,12 +2,17 @@ import { ChatClient } from '@azure/communication-chat';
 
 export const SET_CHAT_CLIENT = 'SET_CHAT_CLIENT';
 export const SET_CURRENT_USER = 'SET_CURRENT_USER';
-export const SET_CURRENT_USER_COOL_PERIOD = 'SET_CURRENT_USER_COOL_PERIOD';
 export const SET_USERS = 'SET_USERS';
+
+export type UserConfiguration = {
+  emoji: string
+}
+
+export type Users = Record<string, UserConfiguration>;
 
 export interface SetChatClientAction {
   type: typeof SET_CHAT_CLIENT;
-  chatClient: ChatClient;
+  chatClient: ChatClient | undefined;
 }
 
 export interface SetContosoUserAction {
@@ -18,17 +23,12 @@ export interface SetContosoUserAction {
   memberRole?: string;
 }
 
-export interface SetContosoUserCoolPeriodAction {
-  type: typeof SET_CURRENT_USER_COOL_PERIOD;
-  coolPeriod: Date;
-}
-
 export interface SetContosoUsersAction {
   type: typeof SET_USERS;
-  users: any;
+  users: Users;
 }
 
-export const setChatClient = (chatClient: ChatClient): SetChatClientAction => ({
+export const setChatClient = (chatClient: ChatClient | undefined): SetChatClientAction => ({
   type: SET_CHAT_CLIENT,
   chatClient
 });
@@ -40,12 +40,7 @@ export const setContosoUser = (identity: string, token: string, displayName: str
   displayName
 });
 
-export const setContosoUserCoolPeriod = (coolPeriod: Date): SetContosoUserCoolPeriodAction => ({
-  type: SET_CURRENT_USER_COOL_PERIOD,
-  coolPeriod
-});
-
-export const setContosoUsers = (users: any): SetContosoUsersAction => ({
+export const setContosoUsers = (users: Users): SetContosoUsersAction => ({
   type: SET_USERS,
   users
 });
@@ -53,5 +48,4 @@ export const setContosoUsers = (users: any): SetContosoUsersAction => ({
 export type ContosoActionTypes =
   | SetChatClientAction
   | SetContosoUserAction
-  | SetContosoUserCoolPeriodAction
   | SetContosoUsersAction;

@@ -1,13 +1,14 @@
-import { ChatThreadMember } from '@azure/communication-chat';
+import { ChatParticipant } from "@azure/communication-chat";
 
 export const SET_THREAD_MEMBERS = 'SET_THREAD_MEMBERS';
 export const SET_THREAD_MEMBERS_ERROR = 'SET_THREAD_MEMBERS_ERROR';
 export const SET_REMOVE_THREAD_MEMBER_ERROR = 'SET_REMOVE_THREAD_MEMBER_ERROR';
 export const SET_ADD_THREAD_MEMBER_ERROR = 'SET_ADD_THREAD_MEMBER_ERROR';
+export const SET_REMOVED_FROM_THREAD = 'SET_REMOVED_FROM_THREAD';
 
 export interface SetThreadMembersAction {
   type: typeof SET_THREAD_MEMBERS;
-  threadMembers: ChatThreadMember[];
+  threadMembers: ChatParticipant[];
 }
 
 export interface SetThreadMembersErrorAction {
@@ -15,16 +16,12 @@ export interface SetThreadMembersErrorAction {
   error?: boolean;
 }
 
-export interface SetRemoveThreadMemberErrorAction {
-  type: typeof SET_REMOVE_THREAD_MEMBER_ERROR;
-  removeThreadMemberError?: boolean;
-}
-export interface SetAddThreadMemberErrorAction {
-  type: typeof SET_ADD_THREAD_MEMBER_ERROR;
-  addThreadMemberError?: boolean;
+export interface SetRemovedFromThreadAction {
+  type: typeof SET_REMOVED_FROM_THREAD;
+  isRemoved: boolean;
 }
 
-export const setThreadMembers = (threadMembers: ChatThreadMember[]): SetThreadMembersAction => ({
+export const setThreadMembers = (threadMembers: ChatParticipant[]): SetThreadMembersAction => ({
   type: SET_THREAD_MEMBERS,
   threadMembers
 });
@@ -34,18 +31,12 @@ export const setThreadMembersError = (error: boolean): SetThreadMembersErrorActi
   error
 });
 
-export const setRemoveThreadMemberError = (removeThreadMemberError: boolean): SetRemoveThreadMemberErrorAction => ({
-  type: SET_REMOVE_THREAD_MEMBER_ERROR,
-  removeThreadMemberError
-});
-
-export const setAddThreadMemberError = (addThreadMemberError: boolean | undefined): SetAddThreadMemberErrorAction => ({
-  type: SET_ADD_THREAD_MEMBER_ERROR,
-  addThreadMemberError
-});
+export const setRemovedFromThread = (isRemoved: boolean): SetRemovedFromThreadAction => ({
+  type: SET_REMOVED_FROM_THREAD,
+  isRemoved
+})
 
 export type ThreadMembersActionTypes =
   | SetThreadMembersAction
   | SetThreadMembersErrorAction
-  | SetRemoveThreadMemberErrorAction
-  | SetAddThreadMemberErrorAction;
+  | SetRemovedFromThreadAction;

@@ -6,8 +6,8 @@ import thunk from 'redux-thunk';
 
 import ChatScreen from './containers/ChatScreen';
 import ConfigurationScreen from './containers/ConfigurationScreen';
-import EndScreen from './containers/EndScreen';
-import ErrorScreen from './components/ErrorScreen';
+import EndScreen from './components/EndScreen';
+import RemovedFromThreadScreen from './components/RemovedFromThreadScreen';
 import HomeScreen from './containers/HomeScreen';
 import { reducer } from './core/reducers/index';
 import { getBuildTime, getChatSDKVersion, getThreadId } from './utils/utils';
@@ -31,43 +31,18 @@ export default (): JSX.Element => {
     } else if (page === 'configuration') {
       return (
         <ConfigurationScreen
-          joinChatHandler={() => {
-            setPage('chat');
-          }}
-        />
+          joinChatHandler={() => setPage('chat')} />
       );
     } else if (page === 'chat') {
-      return (
-        <ChatScreen
-          endChatHandler={() => {
-            setPage('end');
-            // Send up signal that the user wants to leave the chat
-            // Move to to next screen on success
-          }}
-          errorHandler={() => {
-            setPage('error');
-          }}
-        />
-      );
+      return <ChatScreen
+          removedFromThreadHandler={() => setPage('removedFromThread')}
+          leaveChatHandler={() => setPage('end')} />
     } else if (page === 'end') {
-      return (
-        <EndScreen
-          rejoinHandler={() => {
-            setPage('chat'); // use store information to attempt to rejoin the chat thread
-          }}
-          homeHandler={() => {
-            window.location.href = window.location.origin;
-          }}
-        />
-      );
-    } else if (page === 'error') {
-      return (
-        <ErrorScreen
-          homeHandler={() => {
-            window.location.href = window.location.origin;
-          }}
-        />
-      );
+      return <EndScreen
+          rejoinHandler={() => { window.location.href = window.location.href}}
+          homeHandler={() => window.location.href = window.location.origin} />
+    } else if (page === 'removedFromThread') {
+      return <RemovedFromThreadScreen homeHandler={() => window.location.href = window.location.origin} />
     }
   };
 

@@ -2,9 +2,8 @@
 
 using Azure;
 using Azure.Communication;
-using Azure.Communication.Administration.Models;
 using Azure.Communication.Chat;
-using Azure.Communication.Identity;
+using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -40,9 +39,20 @@ namespace Chat
 		/// <returns></returns>
 		[Route("token")]
 		[HttpPost]
-		public async Task<CommunicationUserToken> GenerateAdhocUser()
+		public async Task<IActionResult> GetTokenAsync()
 		{
-			return await InternalGenerateAdhocUser();
+			var response = await _userTokenManager.GenerateTokenAsync(_resourceConnectionString);
+
+			var clientResponse = new
+			{
+				user = new {
+					communicationUserId = response.User.Id
+				},
+				token = response.AccessToken.Token,
+				expiresOn = response.AccessToken.ExpiresOn
+			};
+
+			return this.Ok(clientResponse);
 		}
 
 		/// <summary>
@@ -51,7 +61,7 @@ namespace Chat
 		/// <returns></returns>
 		[Route("refreshToken/{userIdentity}")]
 		[HttpGet]
-		public async Task<CommunicationUserToken> RefreshTokenAsync(string userIdentity)
+		public async Task<AccessToken> RefreshTokenAsync(string userIdentity)
 		{
 			var tokenResponse = await _userTokenManager.RefreshTokenAsync(_resourceConnectionString, userIdentity);
 			return  tokenResponse;
@@ -87,11 +97,11 @@ namespace Chat
 		[HttpGet]
 		public ActionResult IsValidThread(string threadId)
 		{
-            if (!_store.Store.ContainsKey(threadId))
-            {
-                return NotFound();
-            }
-            return Ok();
+			if (!_store.Store.ContainsKey(threadId))
+			{
+				return NotFound();
+			}
+			return Ok();
 		}
 
 		/// <summary>
@@ -104,58 +114,56 @@ namespace Chat
 		[HttpPost]
 		public async Task<ActionResult> TryAddUserToThread(string threadId, ContosoMemberModel user)
 		{
+			var moderatorId = _store.Store[threadId];
+
+			AccessToken moderatorToken = await _userTokenManager.GenerateTokenAsync(_resourceConnectionString, moderatorId);
+
+			ChatClient chatClient = new ChatClient(
+				new Uri(_chatGatewayUrl),
+				new CommunicationTokenCredential(moderatorToken.Token));
+
+			ChatThreadClient chatThreadClient = chatClient.GetChatThreadClient(threadId);
+
+			var threadProperties = await chatThreadClient.GetPropertiesAsync();
+			var chatParticipant = new ChatParticipant(new CommunicationUserIdentifier(user.Id));
+			chatParticipant.DisplayName = user.DisplayName;
+			chatParticipant.ShareHistoryTime = threadProperties.Value.CreatedOn;
+
 			try
-            {
-				var moderator = _store.Store[threadId];
-				var userCredential = new CommunicationUserCredential(moderator.Token);
-				ChatClient chatClient = new ChatClient(new Uri(_chatGatewayUrl), userCredential);
-				ChatThread chatThread = chatClient.GetChatThread(threadId);
-				ChatThreadClient chatThreadClient = chatClient.GetChatThreadClient(threadId);
-
-				var chatThreadMember = new ChatThreadMember(new CommunicationUser(user.Id));
-				chatThreadMember.DisplayName = user.DisplayName;
-				chatThreadMember.ShareHistoryTime = chatThread.CreatedOn;
-				List<ChatThreadMember> chatThreadMembers = new List<ChatThreadMember>
-				{
-					chatThreadMember
-				};
-				try
-				{
-					var response = await chatThreadClient.AddMembersAsync(chatThreadMembers);
-					return StatusCode(response.Status);
-				}
-				catch (RequestFailedException e)
-				{
-					Console.WriteLine($"Unexpected error occurred while adding user from thread: {e}");
-					return StatusCode(e.Status);
-				}
-			} 
-			catch (Exception e)
-            {
+			{
+				Response response = await chatThreadClient.AddParticipantAsync(chatParticipant);
+				return Ok();
+			}
+			catch(Exception e)
+			{
 				Console.WriteLine($"Unexpected error occurred while adding user from thread: {e}");
-            }
+			}
+
 			return Ok();
-		}
-
-		private async Task<CommunicationUserToken> InternalGenerateAdhocUser()
-		{
-
-			return await _userTokenManager.GenerateTokenAsync(_resourceConnectionString);
 		}
 
 		private async Task<string> InternalGenerateNewModeratorAndThread()
 		{
-			var moderator = await InternalGenerateAdhocUser();
-			var userCredential = new CommunicationUserCredential(moderator.Token);
-			ChatClient chatClient = new ChatClient(new Uri(_chatGatewayUrl), userCredential);
-			List<ChatThreadMember> chatThreadMembers = new List<ChatThreadMember>
-			{
-				new ChatThreadMember(new CommunicationUser(moderator.User.Id))
-			};
-			ChatThreadClient chatThreadClient = await chatClient.CreateChatThreadAsync(GUID_FOR_INITIAL_TOPIC_NAME, chatThreadMembers);
+			var moderator = await _userTokenManager.GenerateTokenAsync(_resourceConnectionString);
 
-			_store.Store.Add(chatThreadClient.Id, moderator);
-			return chatThreadClient.Id;
+			var moderatorId = moderator.User.Id;
+			var moderatorToken = moderator.AccessToken.Token;
+
+			ChatClient chatClient = new ChatClient(
+				new Uri(_chatGatewayUrl),
+				new CommunicationTokenCredential(moderatorToken));
+
+			List<ChatParticipant> chatParticipants = new List<ChatParticipant>
+			{
+				new ChatParticipant(new CommunicationUserIdentifier(moderatorId))
+			};
+
+			Response<CreateChatThreadResult> result = await chatClient.CreateChatThreadAsync(GUID_FOR_INITIAL_TOPIC_NAME, chatParticipants);
+
+			var threadId = result.Value.ChatThread.Id;
+
+			_store.Store.Add(threadId, moderatorId);
+			return threadId;
 		}
 	}
 }

@@ -11,12 +11,12 @@ import {
   upperStackTokens,
 } from './styles/EndChat.styles';
 
-export interface ErrorEndCallProps {
+export interface RemovedFromThreadProps {
   homeHandler(): void;
 }
 
-export default (props: ErrorEndCallProps): JSX.Element => {
-  const leftCall = 'Oops! You are no longer a participant for the chat thread.';
+export default (props: RemovedFromThreadProps): JSX.Element => {
+  const leftCall = 'You are no longer a participant for the chat thread.';
   const goHomePage = 'Go to homepage';
 
   return (

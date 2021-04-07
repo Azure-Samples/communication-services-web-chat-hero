@@ -11,10 +11,7 @@ import {
   FocusZoneDirection,
 } from 'office-ui-fabric-react/lib/FocusZone';
 
-import { ChatThread, ChatThreadMember } from '@azure/communication-chat';
-
-import { ENTER_KEY, MAXIMUM_LENGTH_OF_TOPIC } from '../../src/constants';
-import { getEmoji } from '../core/sideEffects';
+import { ENTER_KEY, GUID_FOR_INITIAL_TOPIC_NAME, MAXIMUM_LENGTH_OF_TOPIC } from '../../src/constants';
 import InviteFooter from './InviteFooter';
 import MemberItem from './MemberItem';
 import { inputBoxTextStyle } from './styles/ConfigurationScreen.styles';
@@ -29,21 +26,8 @@ import {
   emptyWarningStyle,
   saveButtonTextStyle, groupNameStyle, groupNameInputBoxStyle, groupNameInputBoxWarningStyle
 } from './styles/SidePanel.styles';
-
-interface SidePanelProps {
-  setContosoUsers(users: any): void;
-  updateThreadTopicName(topicName: string, setIsSavingTopicName: React.Dispatch<boolean>): void;
-  users: any;
-  threadMembers: ChatThreadMember[];
-  identity: string;
-  selectedPane: SidePanelTypes;
-  setSelectedPane: Dispatch<SidePanelTypes>;
-  existsTopicName: boolean;
-  thread: ChatThread;
-  removeThreadMemberByUserId(obj: any): void;
-  removeThreadMemberError: boolean;
-  setRemoveThreadMemberError(removeError: boolean): void;
-}
+import { SidePanelDispatchProps, SidePanelProps } from '../containers/SidePanel';
+import { CommunicationUserIdentifier } from '@azure/communication-common';
 
 export enum SidePanelTypes {
   None = 'none',
@@ -51,50 +35,18 @@ export enum SidePanelTypes {
   Settings = 'Settings',
 }
 
-export default (props: SidePanelProps): JSX.Element => {
-  const {
-    users,
-    threadMembers,
-    setContosoUsers,
-    removeThreadMemberError,
-    setRemoveThreadMemberError,
-  } = props;
+type ChatSidePaneProps = {
+  selectedPane: SidePanelTypes;
+  setSelectedPane: Dispatch<SidePanelTypes>;
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      var needToSet = false;
-      for (var i = 0; i < threadMembers.length; i++) {
-        var threadMember = threadMembers[i];
-        var identity = threadMember.user.communicationUserId;
-        var user = users[identity];
-        if (user == null) {
-          needToSet = true;
-          var serverUser = await getEmoji(identity);
-          if (serverUser !== undefined) {
-            users[identity] = { emoji: serverUser.emoji };
-          }
-        }
-      }
-      if (needToSet) {
-        setContosoUsers(users);
-      }
-    };
-    fetchData();
-  }, [users, threadMembers, setContosoUsers]);
-
-  useEffect(() => {
-    if (removeThreadMemberError) {
-      alert(
-        "You can't remove participant at this time. Please wait at least 60 seconds to try again."
-      );
-      setRemoveThreadMemberError(false);
-    }
-  }, [removeThreadMemberError, setRemoveThreadMemberError]);
-
+export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePaneProps): JSX.Element => {
   const [topicName, setTopicName] = useState('');
   const [isEditingTopicName, setIsEditingTopicName] = useState(false);
   const [isTopicNameOverflow, setTopicNameOverflow] = useState(false);
   const [isSavingTopicName, setIsSavingTopicName] = useState(false);
+
+  const { chatClient, threadId } = props;
 
   const onTopicNameTextChange = (event: any) => {
     setIsEditingTopicName(true);
@@ -108,7 +60,9 @@ export default (props: SidePanelProps): JSX.Element => {
 
   const onTopicNameSubmit = () => {
     if (topicName.length > MAXIMUM_LENGTH_OF_TOPIC) return;
-    props.updateThreadTopicName(topicName, setIsSavingTopicName);
+    if (!chatClient) return;
+    if (!threadId) return;
+    props.updateThreadTopicName(chatClient, threadId, topicName, setIsSavingTopicName);
     setIsSavingTopicName(true);
     setIsEditingTopicName(false);
     setTimeout(() => {
@@ -129,22 +83,17 @@ export default (props: SidePanelProps): JSX.Element => {
         {/* Member list */}
         <StackItem className={memberListStyle}>
           <FocusZone direction={FocusZoneDirection.vertical}>
-            {props.threadMembers.map((person, index) => (
-              <MemberItem
-                key={person.user.communicationUserId}
-                userId={person.user.communicationUserId}
-                avatar={
-                  props.users[person.user.communicationUserId] === undefined
-                    ? ''
-                    : props.users[person.user.communicationUserId].emoji
-                }
+            {props.chatParticipants.map((person) => {
+              const id = (person.id as CommunicationUserIdentifier).communicationUserId;
+              return <MemberItem
+                key={id}
+                userId={id}
+                avatar={props.users[id] === undefined ? '': props.users[id].emoji}
                 name={person.displayName as string}
-                isYou={
-                  person.user.communicationUserId === (props.identity as string)
-                }
-                removeThreadMemberByUserId={props.removeThreadMemberByUserId}
+                isYou={id === (props.identity as string)}
+                removeThreadMemberByUserId={props.removeChatParticipantById}
               />
-            ))}
+            })}
           </FocusZone>
         </StackItem>
         {/* Invite link footer */}
@@ -162,7 +111,6 @@ export default (props: SidePanelProps): JSX.Element => {
           {/* Change Chat Name */}
           <div className={groupNameStyle}>Group Name</div>
           <TextField
-            key={props.thread.topic}
             className={
               isTopicNameOverflow
                 ? groupNameInputBoxWarningStyle : groupNameInputBoxStyle
@@ -170,11 +118,9 @@ export default (props: SidePanelProps): JSX.Element => {
             inputClassName={inputBoxTextStyle}
             borderless={true}
             defaultValue={
-              isEditingTopicName
-                ? topicName
-                : props.existsTopicName
-                  ? props.thread.topic
-                  : undefined
+              props.topic === GUID_FOR_INITIAL_TOPIC_NAME
+                ? ''
+                : props.topic
             }
             placeholder={
               props.existsTopicName ? undefined : 'Type a group name'

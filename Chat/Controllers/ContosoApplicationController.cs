@@ -38,7 +38,17 @@ namespace Chat
 		[HttpGet]
 		public ContosoUserConfigModel GetUserConfiguration(string userId)
 		{
-			return _store.UseConfigStore[userId];
+			try
+			{
+				return  _store.UseConfigStore[userId];
+			}
+			catch
+			{
+				return new ContosoUserConfigModel()
+				{
+					Emoji = "🐱"
+				};
+			}
 		}
 	}
 }

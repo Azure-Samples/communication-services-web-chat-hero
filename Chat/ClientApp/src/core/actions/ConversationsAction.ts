@@ -1,13 +1,13 @@
-import { ReadReceipt } from '@azure/communication-chat';
+import { ChatMessageReadReceipt } from '@azure/communication-chat';
 
 export const SET_RECEIPTS = 'SET_RECEIPTS';
 
 export interface SetReceiptsAction {
   type: typeof SET_RECEIPTS;
-  receipts: ReadReceipt[];
+  receipts: ChatMessageReadReceipt[];
 }
 
-export const setReceipts = (receipts: ReadReceipt[]): SetReceiptsAction => ({
+export const setReceipts = (receipts: ChatMessageReadReceipt[]): SetReceiptsAction => ({
   type: SET_RECEIPTS,
   receipts
 });

@@ -2,6 +2,7 @@ name: .NET Core
 
 on:
   release:
+    types: [created]
     name: Release
 
 jobs:
@@ -17,18 +18,15 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.101
-      - name: where are we
-        run: pwd
       - name: Build
         shell: bash
         run: |
-          tag=$(git describe --tags --abbrev=0)
-          release_name=ChatHero-$tag
+          release_name=Group-Chat
           unset CI
           # Build everything
           dotnet publish ./Chat -c Release -o "$release_name"
 
-          7z a -tzip "${release_name}.zip" "./${release_name}/*"
+          7z a -tzip "group-chat.zip" "./${release_name}/*"
 
           # Delete output directory
           rm -r "$release_name"
@@ -36,6 +34,6 @@ jobs:
       - name: Publish
         uses: softprops/action-gh-release@v1
         with:
-          files: "ChatHero-*"
+          files: "group-chat.zip"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

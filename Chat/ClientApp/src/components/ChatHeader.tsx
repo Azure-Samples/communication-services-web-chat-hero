@@ -7,9 +7,7 @@ import {
   Stack,
 } from '@fluentui/react';
 import { UserFriendsIcon, SettingsIcon } from '@fluentui/react-icons-northstar';
-import React, { Dispatch } from 'react';
-
-import { ChatThread } from '@azure/communication-chat';
+import React, { Dispatch, useEffect, useState } from 'react';
 
 import { copyIconStyle } from './styles/SidePanel.styles';
 import {
@@ -24,19 +22,18 @@ import {
   topicNameLabelStyle,
 } from './styles/ChatHeader.styles';
 import { SidePanelTypes } from './SidePanel';
+import { ChatHeaderDispatchProps, ChatHeaderProps } from '../containers/ChatHeader';
+import { GUID_FOR_INITIAL_TOPIC_NAME } from '../constants';
 
-interface ChatHeaderProps {
-  userId: string;
-  endChatHandler(): void;
-  generateHeaderMessage(): string;
-  existsTopicName: boolean;
-  thread: ChatThread;
+type ChatHeaderPaneProps = {
   selectedPane: SidePanelTypes;
   setSelectedPane: Dispatch<SidePanelTypes>;
-  removeThreadMemberByUserId(userId: string): void;
+  leaveChatHandler: () => void;
 }
 
-export default (props: ChatHeaderProps): JSX.Element => {
+export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPaneProps): JSX.Element => {
+  const [header, setHeader] = useState('');
+  
   const togglePivotItem = (item: PivotItem | undefined) => {
     if (!item) return;
     if (item.props.itemKey === SidePanelTypes.Settings)
@@ -65,6 +62,12 @@ export default (props: ChatHeaderProps): JSX.Element => {
 
   const leaveString = 'Leave';
 
+  const {topic, generateHeaderMessage, leaveChatHandler, removeChatParticipantById, userId} = props;
+
+  useEffect(() => {
+    setHeader(topic && topic !== GUID_FOR_INITIAL_TOPIC_NAME ? topic : generateHeaderMessage())
+  }, [topic, generateHeaderMessage])
+
   return (
     <Stack
       className={chatHeaderContainerStyle}
@@ -73,9 +76,7 @@ export default (props: ChatHeaderProps): JSX.Element => {
     >
       <Stack.Item align="center">
         <div className={topicNameLabelStyle}>
-          {props.existsTopicName
-            ? props.thread.topic
-            : props.generateHeaderMessage()}
+          {header}
         </div>
       </Stack.Item>
       <Stack.Item align="center">
@@ -131,19 +132,22 @@ export default (props: ChatHeaderProps): JSX.Element => {
           <Stack.Item align="center">
             <div className={iconButtonContainerStyle}>
               <IconButton
+                id="leave"
                 iconProps={leaveIcon}
                 className={greyIconButtonStyle}
                 onClick={() => {
-                  props.endChatHandler();
+                  leaveChatHandler();
+                  removeChatParticipantById(userId);
                 }}
               />
             </div>
             <div className={largeButtonContainerStyle}>
               <DefaultButton
+                id="leave"
                 className={leaveButtonStyle}
                 onClick={() => {
-                  props.removeThreadMemberByUserId(props.userId);
-                  props.endChatHandler();
+                  leaveChatHandler();
+                  removeChatParticipantById(userId);
                 }}
               >
                 <Icon iconName="Leave" className={copyIconStyle} />

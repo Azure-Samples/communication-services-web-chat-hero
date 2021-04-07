@@ -1,4 +1,7 @@
+import { ChatMessage } from '@azure/communication-chat';
+import { CommunicationIdentifier, isCommunicationUserIdentifier } from '@azure/communication-common';
 import preval from 'preval.macro';
+import { ClientChatMessage } from '../core/reducers/MessagesReducer';
 
 export const CAT = '🐱';
 export const MOUSE = '🐭';
@@ -79,10 +82,35 @@ export function getChatSDKVersion() {
   return require('../../package.json')['dependencies']['@azure/communication-chat'];
 }
 
-export const compareMessages = (firstMessage: any, secondMessage: any) => {
+export const compareMessages = (firstMessage: ClientChatMessage, secondMessage: ClientChatMessage) => {
   if (firstMessage.createdOn === undefined) return 1;
   if (secondMessage.createdOn === undefined) return -1;
   const firstDate = new Date(firstMessage.createdOn).getTime();
   const secondDate = new Date(secondMessage.createdOn).getTime();
   return firstDate - secondDate;
 };
+
+export const isUserMatchingIdentity = (user: CommunicationIdentifier, communicationUserId: string): boolean => {
+  return isCommunicationUserIdentifier(user) && user.communicationUserId === communicationUserId
+}
+
+export const convertToClientChatMessage = (chatMessage: ChatMessage, clientMessageId?: string): ClientChatMessage => {
+  return {
+    content: { message: chatMessage.content?.message },
+    clientMessageId: clientMessageId,
+    sender: chatMessage.sender,
+    senderDisplayName: chatMessage.senderDisplayName,
+    createdOn: chatMessage.createdOn,
+    id: chatMessage.id
+  }
+}
+
+export const createNewClientChatMessage =  (userId: string, displayName: string, clientMessageId: string, message: string): ClientChatMessage => {
+  return {
+    content: { message: message },
+    clientMessageId: clientMessageId,
+    sender: { communicationUserId: userId, kind: 'communicationUser' },
+    senderDisplayName: displayName,
+    createdOn: new Date()
+  };
+}

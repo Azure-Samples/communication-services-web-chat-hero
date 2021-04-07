@@ -1,13 +1,15 @@
 ﻿// © Microsoft Corporation. All rights reserved.
 
-using Azure.Communication.Administration.Models;
 using System.Collections.Generic;
 
 namespace Chat
 {
 	public interface IChatAdminThreadStore
 	{
-		Dictionary<string, CommunicationUserToken> Store { get; }
+		// [thread id -> moderator id] 
+		Dictionary<string, string> Store { get; }
+
+		// [mri -> emoji]
 		Dictionary<string, ContosoUserConfigModel> UseConfigStore { get; }
 	}
 }

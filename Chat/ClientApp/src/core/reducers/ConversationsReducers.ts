@@ -1,9 +1,9 @@
-import { ReadReceipt } from '@azure/communication-chat';
+import { ChatMessageReadReceipt } from '@azure/communication-chat';
 
 import { SET_RECEIPTS, ConversationsActionTypes } from '../actions/ConversationsAction';
 
 export interface ConversationsState {
-  receipts: ReadReceipt[];
+  receipts: ChatMessageReadReceipt[];
 }
 
 const initConversationsState: ConversationsState = {

@@ -1,4 +1,4 @@
-import { combineReducers, Reducer } from 'redux';
+import { combineReducers } from 'redux';
 
 import { ContosoActionTypes } from '../actions/ContosoClientAction';
 import { ConversationsActionTypes } from '../actions/ConversationsAction';
@@ -26,7 +26,7 @@ type TotalActions =
   | ThreadActionTypes
   | ThreadMembersActionTypes;
 
-export const reducer: Reducer<State, TotalActions> = combineReducers({
+export const reducer = combineReducers({
   chat: MessagesReducer,
   contosoClient: ContosoReducer,
   conversations: ConversationsReducer,

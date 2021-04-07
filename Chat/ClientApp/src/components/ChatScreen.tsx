@@ -11,12 +11,9 @@ import {
 import { SidePanelTypes } from './SidePanel';
 
 interface ChatScreenProps {
-  threadMembersError: boolean;
-  endChatHandler(): void;
-  errorHandler(): void;
-  getThreadMembers(): void;
-  getThread(): void;
-  getMessages(): void;
+  leaveChatHandler(): void;
+  removedFromThreadHandler(): void;
+  isRemoved: boolean;
 }
 
 export default (props: ChatScreenProps): JSX.Element => {
@@ -25,37 +22,30 @@ export default (props: ChatScreenProps): JSX.Element => {
     window.innerWidth > 600 ? SidePanelTypes.People : SidePanelTypes.None
   );
 
-  const { errorHandler, threadMembersError, getThread } = props;
+  const { leaveChatHandler, isRemoved, removedFromThreadHandler } = props;
 
+  // when the screen first loads we want to put focus on the sendbox
   useEffect(() => {
-    props.getMessages();
+    document.getElementById('sendbox')?.focus();
   }, []);
 
+  // if a user is on the chat screen and they are removed from the chat thread
+  // we want to move them to the removedFromThread screen
   useEffect(() => {
-    if (threadMembersError) {
-      errorHandler();
+    if (isRemoved) {
+      removedFromThreadHandler();
     }
-  }, [errorHandler, threadMembersError]);
-
-  useEffect(() => {
-    let listener: NodeJS.Timeout = setInterval(() => {
-      getThread();
-    }, 2000);
-    document.getElementById('sendbox')?.focus();
-    return () => {
-      clearInterval(listener);
-    };
-  }, [getThread]);
+  }, [isRemoved, removedFromThreadHandler])
 
   return (
     <Stack className={chatScreenContainerStyle}>
       <ChatHeader
-        endChatHandler={props.endChatHandler}
+        leaveChatHandler={leaveChatHandler}
         selectedPane={selectedPane}
         setSelectedPane={setSelectedPane}
       />
       <Stack className={chatScreenBottomContainerStyle} horizontal={true}>
-        <ChatArea endChatHandler={props.endChatHandler} />
+      <ChatArea/>
         <Stack.Item grow disableShrink>
           <SidePanel
             selectedPane={selectedPane}
