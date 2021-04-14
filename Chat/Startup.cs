@@ -12,8 +12,6 @@ namespace Chat
 {
 	public class Startup
     {
-        private const string AllowAnyOrigin = nameof(AllowAnyOrigin);
-
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
@@ -24,19 +22,7 @@ namespace Chat
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IUserTokenManager, UserTokenManager>();
-            services.AddSingleton<IChatAdminThreadStore, InMemoryChatAdminThreadStore>();
-
-            // Allow CORS as our client may be hosted on a different domain.
-            services.AddCors(options =>
-            {
-                options.AddPolicy(AllowAnyOrigin, builder =>
-                {
-                    builder.SetIsOriginAllowed(origin => true);
-                    builder.AllowAnyMethod();
-                    builder.AllowAnyHeader();
-                    builder.AllowCredentials();
-                });
-            });
+            services.AddSingleton<IChatAdminThreadStore, InMemoryChatAdminThreadStore>();            
 
             services.AddControllers();
 
@@ -53,11 +39,17 @@ namespace Chat
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
-            app.UseCors("CorsPolicy");
-
             app.UseRouting();
 
-            app.UseCors(AllowAnyOrigin);
+            // This sample app serves a Single Page Application that is not intended to be embedded into
+            // another site.
+            // If you want to instead build a widget off of this sample that is embedded in your own application,
+            // remove the following middleware.
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers.Add("X-Frame-Options", "DENY");
+                await next.Invoke();
+            });
 
             app.UseEndpoints(endpoints =>
             {

@@ -13,8 +13,8 @@ products:
 
 # Group Chat Sample
 
-This is a sample application to show how the Chat Web SDK can be used to build a single threaded chat experience. 
-The client-side application is a React based user interface which uses Redux for handling complex state while leveraging Microsoft Fluent UI. 
+This is a sample application to show how the Chat Web SDK can be used to build a single threaded chat experience.
+The client-side application is a React based user interface which uses Redux for handling complex state while leveraging Microsoft Fluent UI.
 Powering this front-end is a C# web application powered by ASP.NET Core to connect this application with Azure Communication Services.
 
 Additional documentation for this sample can be found on [Microsoft Docs](https://docs.microsoft.com/en-us/azure/communication-services/samples/chat-hero-sample).
@@ -64,6 +64,14 @@ Additional documentation for this sample can be found on [Microsoft Docs](https:
 1. Right click the `Chat` project and select Publish
 2. Create a new publish profile and select your app name, Azure subscription, resource group and etc.
 3. Before publish, add your connection string with `Edit App Service Settings`, and fill in `ResourceConnectionString` as key and connection string (copy from appsettings.json) as value
+
+## Building off of the sample
+
+If you would like to build off of this sample to add chat capabilities to your own awesome application, keep a few things in mind:
+
+- The sample serves a Single Page Application. This has a few implications.
+  - By default, the served app cannot be embedded in another frame (e.g. as a web widget). See ./Chat/Startup.cs for details on how to enable embedding.
+  - By default, the backend disables Cross-Origin Resource Sharing (CORS). If you'd like to serve the backend APIs from a different domain than the static content, you must enable (restricted) CORS. This can be done by configuring a middleware in the backend in ./Chat/Startup.cs, or by configuring your server framework to modify HTTP response headers.
 
 ## Additional Reading
 
