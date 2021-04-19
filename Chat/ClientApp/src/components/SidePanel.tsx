@@ -1,15 +1,6 @@
-import {
-  Stack,
-  TextField,
-  PrimaryButton,
-  Icon,
-  StackItem,
-} from '@fluentui/react';
+import { Stack, TextField, PrimaryButton, Icon, StackItem } from '@fluentui/react';
 import React, { useEffect, useState, Dispatch } from 'react';
-import {
-  FocusZone,
-  FocusZoneDirection,
-} from 'office-ui-fabric-react/lib/FocusZone';
+import { FocusZone, FocusZoneDirection } from 'office-ui-fabric-react/lib/FocusZone';
 
 import { ENTER_KEY, GUID_FOR_INITIAL_TOPIC_NAME, MAXIMUM_LENGTH_OF_TOPIC } from '../../src/constants';
 import InviteFooter from './InviteFooter';
@@ -24,7 +15,10 @@ import {
   titleStyle,
   topicWarningStyle,
   emptyWarningStyle,
-  saveButtonTextStyle, groupNameStyle, groupNameInputBoxStyle, groupNameInputBoxWarningStyle
+  saveButtonTextStyle,
+  groupNameStyle,
+  groupNameInputBoxStyle,
+  groupNameInputBoxWarningStyle
 } from './styles/SidePanel.styles';
 import { SidePanelDispatchProps, SidePanelProps } from '../containers/SidePanel';
 import { CommunicationUserIdentifier } from '@azure/communication-common';
@@ -32,13 +26,13 @@ import { CommunicationUserIdentifier } from '@azure/communication-common';
 export enum SidePanelTypes {
   None = 'none',
   People = 'People',
-  Settings = 'Settings',
+  Settings = 'Settings'
 }
 
 type ChatSidePaneProps = {
   selectedPane: SidePanelTypes;
   setSelectedPane: Dispatch<SidePanelTypes>;
-}
+};
 
 export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePaneProps): JSX.Element => {
   const [topicName, setTopicName] = useState('');
@@ -74,9 +68,7 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
     <>
       <Stack
         verticalAlign="space-between"
-        className={sidePanelContainerStyle(
-          props.selectedPane === SidePanelTypes.People
-        )}
+        className={sidePanelContainerStyle(props.selectedPane === SidePanelTypes.People)}
       >
         {/* Title */}
         <span className={titleStyle}>People</span>
@@ -85,14 +77,16 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
           <FocusZone direction={FocusZoneDirection.vertical}>
             {props.chatParticipants.map((person) => {
               const id = (person.id as CommunicationUserIdentifier).communicationUserId;
-              return <MemberItem
-                key={id}
-                userId={id}
-                avatar={props.users[id] === undefined ? '': props.users[id].emoji}
-                name={person.displayName as string}
-                isYou={id === (props.identity as string)}
-                removeThreadMemberByUserId={props.removeChatParticipantById}
-              />
+              return (
+                <MemberItem
+                  key={id}
+                  userId={id}
+                  avatar={props.users[id] === undefined ? '' : props.users[id].emoji}
+                  name={person.displayName as string}
+                  isYou={id === (props.identity as string)}
+                  removeThreadMemberByUserId={props.removeChatParticipantById}
+                />
+              );
             })}
           </FocusZone>
         </StackItem>
@@ -101,9 +95,7 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
       </Stack>
       <Stack
         verticalAlign="space-between"
-        className={sidePanelContainerStyle(
-          props.selectedPane === SidePanelTypes.Settings
-        )}
+        className={sidePanelContainerStyle(props.selectedPane === SidePanelTypes.Settings)}
       >
         {/* Title */}
         <div className={titleStyle}>Settings</div>
@@ -111,20 +103,11 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
           {/* Change Chat Name */}
           <div className={groupNameStyle}>Group Name</div>
           <TextField
-            className={
-              isTopicNameOverflow
-                ? groupNameInputBoxWarningStyle : groupNameInputBoxStyle
-            }
+            className={isTopicNameOverflow ? groupNameInputBoxWarningStyle : groupNameInputBoxStyle}
             inputClassName={inputBoxTextStyle}
             borderless={true}
-            defaultValue={
-              props.topic === GUID_FOR_INITIAL_TOPIC_NAME
-                ? ''
-                : props.topic
-            }
-            placeholder={
-              props.existsTopicName ? undefined : 'Type a group name'
-            }
+            defaultValue={props.topic === GUID_FOR_INITIAL_TOPIC_NAME ? '' : props.topic}
+            placeholder={props.existsTopicName ? undefined : 'Type a group name'}
             autoComplete="off"
             onSubmit={onTopicNameSubmit}
             onChange={onTopicNameTextChange}
@@ -134,12 +117,7 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
               }
             }}
           />
-          {(isTopicNameOverflow && (
-            <div className={topicWarningStyle}>
-              {' '}
-              Topic cannot be over 30 characters{' '}
-            </div>
-          )) ||
+          {(isTopicNameOverflow && <div className={topicWarningStyle}> Topic cannot be over 30 characters </div>) ||
             (!isTopicNameOverflow && <div className={emptyWarningStyle} />)}
           <PrimaryButton
             id="editThreadTopicButton"
@@ -148,7 +126,7 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
             disabled={isSavingTopicName}
           >
             <Icon iconName="Save" className={textFieldIconStyle} />
-            <div className={saveButtonTextStyle}>{isSavingTopicName ? "Saving..." : "Save"}</div>
+            <div className={saveButtonTextStyle}>{isSavingTopicName ? 'Saving...' : 'Save'}</div>
           </PrimaryButton>
         </div>
       </Stack>

@@ -13,14 +13,20 @@ const mapStateToProps = (state: State) => ({
     let currentContosoUser = state.contosoClient.user;
 
     let typingIndicator = '';
-    let typingUsers = typingUsersFromStore.filter((typingUser: ChatParticipant) => (typingUser.id as CommunicationUserIdentifier).communicationUserId !== currentContosoUser.identity);
+    let typingUsers = typingUsersFromStore.filter(
+      (typingUser: ChatParticipant) =>
+        (typingUser.id as CommunicationUserIdentifier).communicationUserId !== currentContosoUser.identity
+    );
     if (typingUsers.length === 0 || state.threadMembers.threadMembers.length >= PARTICIPANTS_THRESHOLD) {
       return typingIndicator;
     }
     // if we have at least one other participant we want to show names for the first 2
     if (typingUsers.length > 0) {
       typingIndicator += typingUsers
-        .filter((typingUser: ChatParticipant) => contosoUsers[(typingUser.id as CommunicationUserIdentifier).communicationUserId] !== undefined)
+        .filter(
+          (typingUser: ChatParticipant) =>
+            contosoUsers[(typingUser.id as CommunicationUserIdentifier).communicationUserId] !== undefined
+        )
         .slice(0, 2)
         .map(
           (typingUserWithEmoji: any) =>
@@ -44,7 +50,10 @@ const mapStateToProps = (state: State) => ({
     let currentContosoUser = state.contosoClient.user;
 
     let typingIndicatorVerb = '';
-    let typingUsers = typingUsersFromStore.filter((typingUser: ChatParticipant) => (typingUser.id as CommunicationUserIdentifier).communicationUserId !== currentContosoUser.identity);
+    let typingUsers = typingUsersFromStore.filter(
+      (typingUser: ChatParticipant) =>
+        (typingUser.id as CommunicationUserIdentifier).communicationUserId !== currentContosoUser.identity
+    );
     if (typingUsers.length === 0 || state.threadMembers.threadMembers.length >= PARTICIPANTS_THRESHOLD) {
       return typingIndicatorVerb;
     }

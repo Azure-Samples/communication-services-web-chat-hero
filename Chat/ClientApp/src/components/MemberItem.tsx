@@ -6,7 +6,7 @@ import {
   memberItemContainerStyle,
   memberItemIsYouStyle,
   memberItemNameStyle,
-  moreInforStyle,
+  moreInforStyle
 } from './styles/MemberItem.styles';
 
 interface MemberItemProps {
@@ -20,9 +20,7 @@ interface MemberItemProps {
 export default (props: MemberItemProps): JSX.Element => {
   return (
     <div className={memberItemContainerStyle}>
-      <div className={messageAvatarContainerStyle(props.avatar)}>
-        {props.avatar}
-      </div>
+      <div className={messageAvatarContainerStyle(props.avatar)}>{props.avatar}</div>
       <span className={memberItemNameStyle}>{props.name}</span>
       {props.isYou && <span className={memberItemIsYouStyle}>(you)</span>}
       {!props.isYou && (
@@ -38,9 +36,9 @@ export default (props: MemberItemProps): JSX.Element => {
                       name: 'Remove participant',
                       onClick: () => {
                         props.removeThreadMemberByUserId(props.userId);
-                      },
-                    },
-                  ],
+                      }
+                    }
+                  ]
             }}
           />
         </div>

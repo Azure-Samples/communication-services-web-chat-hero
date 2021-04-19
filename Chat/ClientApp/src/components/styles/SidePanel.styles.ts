@@ -196,7 +196,7 @@ const groupNameStyle = mergeStyles({
   fontSize: '0.875rem',
   fontWeight: 600,
   marginTop: '0.5rem',
-  marginLeft: '1rem',
+  marginLeft: '1rem'
 });
 
 const groupNameInputBoxStyle = mergeStyles({

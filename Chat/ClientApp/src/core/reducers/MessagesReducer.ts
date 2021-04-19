@@ -19,13 +19,13 @@ export interface MessagesState {
 // model that allows us to track a message before its replicated on the server
 // it also allows us to maintain state if the message was properly sent or not
 export interface ClientChatMessage {
-  clientMessageId?: string
-  sender?: CommunicationIdentifierKind,
-  senderDisplayName?: string,
-  content?: { message? : string },
-  createdOn: Date,
-  id?: string,
-  failed?: boolean
+  clientMessageId?: string;
+  sender?: CommunicationIdentifierKind;
+  senderDisplayName?: string;
+  content?: { message?: string };
+  createdOn: Date;
+  id?: string;
+  failed?: boolean;
 }
 
 const initMessagesState: MessagesState = {

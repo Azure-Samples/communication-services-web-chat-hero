@@ -7,7 +7,7 @@ import {
   Button,
   PresenceAvailableIcon,
   PresenceStrokeIcon,
-  RedbangIcon,
+  RedbangIcon
 } from '@fluentui/react-northstar';
 import React, { useEffect, useState, createRef, useRef } from 'react';
 import { LiveAnnouncer, LiveMessage } from 'react-aria-live';
@@ -22,7 +22,7 @@ import {
   newMessageButtonStyle,
   loadMoreMessageButtonStyle,
   readReceiptIconStyle,
-  DownIconStyle,
+  DownIconStyle
 } from './styles/ChatThread.styles';
 import { User } from '../core/reducers/ContosoClientReducers';
 import { ClientChatMessage } from '../core/reducers/MessagesReducer';
@@ -30,10 +30,7 @@ import { isUserMatchingIdentity } from '../utils/utils';
 
 interface ChatThreadProps {
   isYourLatestMessage(clientMessageId: string, messages: any[]): boolean;
-  isYourLatestSeenMessage(
-    clientMessageId: string,
-    MessagesWithSeen: any[]
-  ): boolean;
+  isYourLatestSeenMessage(clientMessageId: string, MessagesWithSeen: any[]): boolean;
   isLargeParticipantsGroup(): boolean;
   isMessageSeen(clientMessageId: string, messages: any[]): boolean;
   sendReadReceipt(messages: any[], userId: string): void;
@@ -55,7 +52,7 @@ const renderHyperlink = (text: string) => {
       part + ' '
     )
   );
-}
+};
 
 let createdRef: any = createRef();
 let chatThreadRef: any = createRef();
@@ -64,16 +61,11 @@ let chatThreadRef: any = createRef();
 //  We need to be smarter and figure out for the last N messages are they all of the same person or not?
 export default (props: ChatThreadProps): JSX.Element => {
   const [messagesWithAttached, setMessagesWithAttached] = useState<any[]>([]);
-  const [indexOfTheFirstMessage, setIndexOfTheFirstMessage] = useState(
-    props.messages.length
-  );
+  const [indexOfTheFirstMessage, setIndexOfTheFirstMessage] = useState(props.messages.length);
   const [isAtBottomOfScroll, setIsAtBottomOfScroll] = useState(true);
   const [isAtTopOfScroll, setIsAtTopOfScroll] = useState(false);
   const [existsNewMessage, setExistsNewMessage] = useState(false);
-  const [
-    shouldUpdateMessageWithAttached,
-    setShouldUpdateMessageWithAttached,
-  ] = useState(false);
+  const [shouldUpdateMessageWithAttached, setShouldUpdateMessageWithAttached] = useState(false);
   const [numberOfMessagesToRender, setNumberOfMessagesToRender] = useState(0);
   const existsNewMessageText = 'New Messages';
   const loadMoreText = 'click to load more messages...';
@@ -92,17 +84,13 @@ export default (props: ChatThreadProps): JSX.Element => {
   };
 
   const numberOfMessagesToRenderRef = useRef(numberOfMessagesToRender);
-  const setNumberOfMessagesToRenderRef = (
-    numberOfMessagesToRenderValue: number
-  ) => {
+  const setNumberOfMessagesToRenderRef = (numberOfMessagesToRenderValue: number) => {
     numberOfMessagesToRenderRef.current = numberOfMessagesToRenderValue;
     setNumberOfMessagesToRender(numberOfMessagesToRenderValue);
   };
 
   useEffect(() => {
-    setNumberOfMessagesToRenderRef(
-      Math.ceil(chatThreadRef.current.clientHeight / 34)
-    ); //34 px is the minimum height of the chat bubble
+    setNumberOfMessagesToRenderRef(Math.ceil(chatThreadRef.current.clientHeight / 34)); //34 px is the minimum height of the chat bubble
   }, [chatThreadRef.current?.clientHeight]);
 
   useEffect(() => {
@@ -111,7 +99,8 @@ export default (props: ChatThreadProps): JSX.Element => {
 
   useEffect(() => {
     // get the sender of the most recent message
-    const user = props.messages && props.messages[props.messages.length - 1] && props.messages[props.messages.length - 1].sender;
+    const user =
+      props.messages && props.messages[props.messages.length - 1] && props.messages[props.messages.length - 1].sender;
     // if you are the person that sent the most recent message
     if (props.messages.length > 0 && user && isUserMatchingIdentity(user, props.user.identity)) {
       // after sending a message, scroll to bottom
@@ -154,8 +143,7 @@ export default (props: ChatThreadProps): JSX.Element => {
   };
 
   const scrollToBottom = () => {
-    createdRef.current.scrollTop =
-      createdRef.current.scrollHeight - createdRef.current.clientHeight;
+    createdRef.current.scrollTop = createdRef.current.scrollHeight - createdRef.current.clientHeight;
     setExistsNewMessage(false);
   };
 
@@ -167,9 +155,7 @@ export default (props: ChatThreadProps): JSX.Element => {
     // message is pending send or is failed to be sent
     if (message.failed) {
       let messageFailed: boolean =
-        props.failedMessages.find(
-          (failedMessage: string) => failedMessage === message.clientMessageId
-        ) !== undefined;
+        props.failedMessages.find((failedMessage: string) => failedMessage === message.clientMessageId) !== undefined;
       return messageFailed ? (
         <TooltipHost content="failed to send">
           <RedbangIcon size="medium" styles={{ color: 'red' }} />{' '}
@@ -182,21 +168,11 @@ export default (props: ChatThreadProps): JSX.Element => {
     } else {
       // show read receipt if it's not a large participant group
       if (!props.isLargeParticipantsGroup()) {
-        let MessagesWithSeen = messagesWithAttached.map(
-          (messageWithAttached) => {
-            let isSeen = props.isMessageSeen(
-              messageWithAttached.clientMessageId,
-              messagesWithAttached
-            );
-            return { ...messageWithAttached, isSeen };
-          }
-        );
-        if (
-          props.isYourLatestSeenMessage(
-            message.clientMessageId,
-            MessagesWithSeen
-          )
-        ) {
+        let MessagesWithSeen = messagesWithAttached.map((messageWithAttached) => {
+          let isSeen = props.isMessageSeen(messageWithAttached.clientMessageId, messagesWithAttached);
+          return { ...messageWithAttached, isSeen };
+        });
+        if (props.isYourLatestSeenMessage(message.clientMessageId, MessagesWithSeen)) {
           return (
             <TooltipHost content="seen">
               <MessageSeenIcon size="medium" />
@@ -217,9 +193,7 @@ export default (props: ChatThreadProps): JSX.Element => {
   };
 
   const handleScroll = () => {
-    let atBottom =
-      createdRef.current.scrollTop >=
-      createdRef.current.scrollHeight - createdRef.current.clientHeight;
+    let atBottom = createdRef.current.scrollTop >= createdRef.current.scrollHeight - createdRef.current.clientHeight;
     let atTop = createdRef.current.scrollTop === 0;
     if (atBottom && !isAtBottomOfScrollRef.current) {
       loadNewMessages();
@@ -230,9 +204,7 @@ export default (props: ChatThreadProps): JSX.Element => {
 
   const updateIndexOfTheFirstMessageToLoadMore = () => {
     setIndexOfTheFirstMessage(
-      indexOfTheFirstMessage > NUMBER_OF_MESSAGES_TO_LOAD
-        ? indexOfTheFirstMessage - NUMBER_OF_MESSAGES_TO_LOAD
-        : 0
+      indexOfTheFirstMessage > NUMBER_OF_MESSAGES_TO_LOAD ? indexOfTheFirstMessage - NUMBER_OF_MESSAGES_TO_LOAD : 0
     );
     setShouldUpdateMessageWithAttached(true);
   };
@@ -248,34 +220,22 @@ export default (props: ChatThreadProps): JSX.Element => {
 
   const updateMessageWithAttached = () => {
     let newMessagesWithAttached: any[] = [];
-    let messagesToRender = props.messages.slice(
-      indexOfTheFirstMessage,
-      props.messages.length
-    );
+    let messagesToRender = props.messages.slice(indexOfTheFirstMessage, props.messages.length);
     messagesToRender.map((message: any, index: number, messagesList: any) => {
       let mine = message.sender.communicationUserId === props.user.identity;
       let attached: string | boolean = false;
       if (index === 0) {
         if (index !== messagesList.length - 1) {
           //the next message has the same sender
-          if (
-            messagesList[index].sender.communicationUserId ===
-            messagesList[index + 1].sender.communicationUserId
-          ) {
+          if (messagesList[index].sender.communicationUserId === messagesList[index + 1].sender.communicationUserId) {
             attached = 'top';
           }
         }
       } else {
-        if (
-          messagesList[index].sender.communicationUserId ===
-          messagesList[index - 1].sender.communicationUserId
-        ) {
+        if (messagesList[index].sender.communicationUserId === messagesList[index - 1].sender.communicationUserId) {
           //the previous message has the same sender
           if (index !== messagesList.length - 1) {
-            if (
-              messagesList[index].sender.communicationUserId ===
-              messagesList[index + 1].sender.communicationUserId
-            ) {
+            if (messagesList[index].sender.communicationUserId === messagesList[index + 1].sender.communicationUserId) {
               //the next message has the same sender
               attached = true;
             } else {
@@ -289,10 +249,7 @@ export default (props: ChatThreadProps): JSX.Element => {
         } else {
           //the previous message has a different sender
           if (index !== messagesList.length - 1) {
-            if (
-              messagesList[index].sender.communicationUserId ===
-              messagesList[index + 1].sender.communicationUserId
-            ) {
+            if (messagesList[index].sender.communicationUserId === messagesList[index + 1].sender.communicationUserId) {
               //the next message has the same sender
               attached = 'top';
             }
@@ -313,9 +270,7 @@ export default (props: ChatThreadProps): JSX.Element => {
             text
             fluid
             className={loadMoreMessageButtonStyle}
-            content={
-              indexOfTheFirstMessage === 0 ? unableToLoadMoreText : loadMoreText
-            }
+            content={indexOfTheFirstMessage === 0 ? unableToLoadMoreText : loadMoreText}
             disabled={indexOfTheFirstMessage === 0}
             onClick={loadMoreMessages}
           />
@@ -328,12 +283,7 @@ export default (props: ChatThreadProps): JSX.Element => {
                 const liveAuthor = `${message.senderDisplayName} says `;
                 const messageContentItem = (
                   <div>
-                    <LiveMessage
-                      message={`${message.mine ? '' : liveAuthor} ${
-                        message.content
-                      }`}
-                      aria-live="polite"
-                    />
+                    <LiveMessage message={`${message.mine ? '' : liveAuthor} ${message.content}`} aria-live="polite" />
                     {renderHyperlink(message.content.message)}
                   </div>
                 );
@@ -343,15 +293,12 @@ export default (props: ChatThreadProps): JSX.Element => {
                   ) : (
                     <div
                       className={messageAvatarContainerStyle(
-                        props.users[message.sender.communicationUserId] ===
-                          undefined
+                        props.users[message.sender.communicationUserId] === undefined
                           ? ''
-                          : props.users[message.sender.communicationUserId]
-                              .emoji
+                          : props.users[message.sender.communicationUserId].emoji
                       )}
                     >
-                      {props.users[message.sender.communicationUserId] ===
-                      undefined
+                      {props.users[message.sender.communicationUserId] === undefined
                         ? ''
                         : props.users[message.sender.communicationUserId].emoji}
                     </div>
@@ -366,12 +313,10 @@ export default (props: ChatThreadProps): JSX.Element => {
                         author={message.senderDisplayName}
                         mine={message.mine}
                       />
-                      <div className={readReceiptIconStyle(message.mine)}>
-                        {readReceiptIcon(message)}
-                      </div>
+                      <div className={readReceiptIconStyle(message.mine)}>{readReceiptIcon(message)}</div>
                     </Flex>
                   ),
-                  attached: message.attached,
+                  attached: message.attached
                 };
               })}
             />
@@ -379,10 +324,7 @@ export default (props: ChatThreadProps): JSX.Element => {
         </Ref>
         {existsNewMessage && (
           <div>
-            <PrimaryButton
-              className={newMessageButtonStyle}
-              onClick={loadNewMessages}
-            >
+            <PrimaryButton className={newMessageButtonStyle} onClick={loadNewMessages}>
               <Icon iconName="Down" className={DownIconStyle} />
               {existsNewMessageText}
             </PrimaryButton>

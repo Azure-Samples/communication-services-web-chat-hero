@@ -10,17 +10,17 @@ import './index.css';
 
 const iconTheme = {
   componentStyles: {
-    SvgIcon: svgIconStyles,
+    SvgIcon: svgIconStyles
   },
   componentVariables: {
-    SvgIcon: svgIconVariables,
+    SvgIcon: svgIconVariables
   },
-  siteVariables,
+  siteVariables
 };
 
 ReactDOM.render(
   <Provider theme={mergeThemes(iconTheme, teamsTheme)} className="wrapper">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
     <App />
   </Provider>,
   document.getElementById('root')

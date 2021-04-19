@@ -1,4 +1,4 @@
-import { ChatParticipant } from "@azure/communication-chat";
+import { ChatParticipant } from '@azure/communication-chat';
 
 export const SET_THREAD_MEMBERS = 'SET_THREAD_MEMBERS';
 export const SET_THREAD_MEMBERS_ERROR = 'SET_THREAD_MEMBERS_ERROR';
@@ -34,7 +34,7 @@ export const setThreadMembersError = (error: boolean): SetThreadMembersErrorActi
 export const setRemovedFromThread = (isRemoved: boolean): SetRemovedFromThreadAction => ({
   type: SET_REMOVED_FROM_THREAD,
   isRemoved
-})
+});
 
 export type ThreadMembersActionTypes =
   | SetThreadMembersAction

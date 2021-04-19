@@ -1,16 +1,9 @@
 import { PrimaryButton, Stack, Spinner } from '@fluentui/react';
 import { ChatIcon } from '@fluentui/react-icons-northstar';
 import React, { useEffect, useState } from 'react';
-import {
-  FocusZone,
-  FocusZoneDirection,
-} from 'office-ui-fabric-react/lib/FocusZone';
+import { FocusZone, FocusZoneDirection } from 'office-ui-fabric-react/lib/FocusZone';
 
-import {
-  buttonStyle,
-  chatIconStyle,
-  mainContainerStyle,
-} from './styles/ConfigurationScreen.styles';
+import { buttonStyle, chatIconStyle, mainContainerStyle } from './styles/ConfigurationScreen.styles';
 import {
   labelFontStyle,
   largeAvatarContainerStyle,
@@ -23,15 +16,7 @@ import {
   smallAvatarStyle,
   startChatButtonTextStyle
 } from './styles/ConfigurationScreen.styles';
-import {
-  CAT,
-  MOUSE,
-  KOALA,
-  OCTOPUS,
-  MONKEY,
-  FOX,
-  getThreadId,
-} from '../utils/utils';
+import { CAT, MOUSE, KOALA, OCTOPUS, MONKEY, FOX, getThreadId } from '../utils/utils';
 import DisplayNameField from './DisplayNameField';
 import { MAXIMUM_LENGTH_OF_NAME } from '../constants';
 
@@ -55,9 +40,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
 
   const [isJoining, setIsJoining] = useState(false);
 
-  const [isValidThread, setIsValidThread] = useState<boolean | undefined>(
-    undefined
-  );
+  const [isValidThread, setIsValidThread] = useState<boolean | undefined>(undefined);
 
   const { joinChatHandler, setup } = props;
 
@@ -105,20 +88,13 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
   };
 
   const joinChatLoading = () => {
-    return (
-      <Spinner label={spinnerLabel} ariaLive="assertive" labelPosition="top" />
-    );
+    return <Spinner label={spinnerLabel} ariaLive="assertive" labelPosition="top" />;
   };
 
   const joinChatArea = () => {
     return (
       <div>
-        <Stack
-          className={responsiveLayoutStyle}
-          horizontal={true}
-          horizontalAlign="center"
-          verticalAlign="center"
-        >
+        <Stack className={responsiveLayoutStyle} horizontal={true} horizontalAlign="center" verticalAlign="center">
           <Stack
             className={leftPreviewContainerStyle}
             horizontal={false}
@@ -129,26 +105,15 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
             <div className={largeAvatarContainerStyle(selectedAvatar)}>
               <div className={largeAvatarStyle}>{selectedAvatar}</div>
             </div>
-            <div
-              aria-label="Display name"
-              className={namePreviewStyle(name !== '')}
-            >
+            <div aria-label="Display name" className={namePreviewStyle(name !== '')}>
               {name !== '' ? name : 'Name'}
             </div>
           </Stack>
-          <Stack
-            className={rightInputContainerStyle}
-            horizontal={false}
-            tokens={{ childrenGap: 20 }}
-          >
+          <Stack className={rightInputContainerStyle} horizontal={false} tokens={{ childrenGap: 20 }}>
             <div>
               <div className={labelFontStyle}>Avatar</div>
               <FocusZone direction={FocusZoneDirection.horizontal}>
-                <Stack
-                  role="list"
-                  horizontal={true}
-                  tokens={{ childrenGap: 4 }}
-                >
+                <Stack role="list" horizontal={true} tokens={{ childrenGap: 4 }}>
                   {avatarsList.map((avatar, index) => (
                     <div
                       role="listitem"
@@ -156,10 +121,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
                       key={index}
                       tabIndex={0}
                       data-is-focusable={true}
-                      className={smallAvatarContainerStyle(
-                        avatar,
-                        selectedAvatar
-                      )}
+                      className={smallAvatarContainerStyle(avatar, selectedAvatar)}
                       onFocus={() => onAvatarChange(avatar)}
                     >
                       <div className={smallAvatarStyle}>{avatar}</div>
@@ -177,12 +139,16 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
               isNameLengthExceedLimit={isNameLengthExceedLimit}
             />
             <div>
-              <PrimaryButton id="join" className={buttonStyle} onClick={() => {
-                validateName();
-                if(emptyWarning === false && isNameLengthExceedLimit === false) {
-                  joinChatHandler();
-                }
-                }}>
+              <PrimaryButton
+                id="join"
+                className={buttonStyle}
+                onClick={() => {
+                  validateName();
+                  if (emptyWarning === false && isNameLengthExceedLimit === false) {
+                    joinChatHandler();
+                  }
+                }}
+              >
                 <ChatIcon className={chatIconStyle} size="medium" />
                 <div className={startChatButtonTextStyle}>Join chat</div>
               </PrimaryButton>
@@ -195,11 +161,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
 
   const configurationScreen = () => {
     return (
-      <Stack
-        className={mainContainerStyle}
-        horizontalAlign="center"
-        verticalAlign="center"
-      >
+      <Stack className={mainContainerStyle} horizontalAlign="center" verticalAlign="center">
         {isValidThread === false ? invalidChatThread() : joinChatArea()}
       </Stack>
     );

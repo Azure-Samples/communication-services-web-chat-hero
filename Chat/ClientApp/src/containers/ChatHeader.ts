@@ -9,16 +9,16 @@ import { removeThreadMemberByUserId } from '../core/sideEffects';
 import { isUserMatchingIdentity } from '../utils/utils';
 
 export type ChatHeaderProps = {
-  userId: string,
-  existsTopicName: boolean,
-  generateHeaderMessage: () => string
-  threadMembers: ChatParticipant[]
-  topic: string
-}
+  userId: string;
+  existsTopicName: boolean;
+  generateHeaderMessage: () => string;
+  threadMembers: ChatParticipant[];
+  topic: string;
+};
 
 export type ChatHeaderDispatchProps = {
-  removeChatParticipantById: (userId: string) => Promise<void>
-}
+  removeChatParticipantById: (userId: string) => Promise<void>;
+};
 
 const mapStateToProps = (state: State): ChatHeaderProps => ({
   threadMembers: state.threadMembers.threadMembers,

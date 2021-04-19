@@ -12,15 +12,15 @@ export interface SetMessagesAction {
 }
 
 export type TypingNotification = {
-  recipientId: string, // the user that is sending a message
-  originalArrivalTime: Date // when the message was last sent
-  threadId: string,
-  version: string
-}
+  recipientId: string; // the user that is sending a message
+  originalArrivalTime: Date; // when the message was last sent
+  threadId: string;
+  version: string;
+};
 
 export interface SetTypingNotificationsAction {
   type: typeof SET_TYPING_NOTIFICATIONS;
-  id: string,
+  id: string;
   typingNotification: TypingNotification;
 }
 
@@ -39,7 +39,10 @@ export const setMessages = (messages: ClientChatMessage[]): SetMessagesAction =>
   messages
 });
 
-export const setTypingNotifications = (id: string, typingNotification: TypingNotification): SetTypingNotificationsAction => ({
+export const setTypingNotifications = (
+  id: string,
+  typingNotification: TypingNotification
+): SetTypingNotificationsAction => ({
   type: SET_TYPING_NOTIFICATIONS,
   id,
   typingNotification

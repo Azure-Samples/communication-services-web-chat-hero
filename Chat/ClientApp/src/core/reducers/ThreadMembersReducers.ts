@@ -35,7 +35,7 @@ export const ThreadMembersReducer = (state = initState, action: ThreadMembersAct
       return {
         ...state,
         isRemoved: action.isRemoved
-      }
+      };
     default:
       return state;
   }

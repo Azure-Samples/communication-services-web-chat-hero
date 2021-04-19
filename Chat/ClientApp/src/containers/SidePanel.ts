@@ -9,20 +9,25 @@ import { updateThreadTopicName, removeThreadMemberByUserId } from '../core/sideE
 import { ChatClient, ChatParticipant } from '@azure/communication-chat';
 
 export type SidePanelProps = {
-  identity: string,
-  chatParticipants: ChatParticipant[],
-  users: any,
-  existsTopicName: boolean,
-  topic: string | undefined,
-  threadId: string | undefined,
-  chatClient: ChatClient | undefined,
-  updateThreadTopicName: (chatClient: ChatClient, threadId: string, topicName: string, setIsSavingTopicName: React.Dispatch<boolean>) => void
-}
+  identity: string;
+  chatParticipants: ChatParticipant[];
+  users: any;
+  existsTopicName: boolean;
+  topic: string | undefined;
+  threadId: string | undefined;
+  chatClient: ChatClient | undefined;
+  updateThreadTopicName: (
+    chatClient: ChatClient,
+    threadId: string,
+    topicName: string,
+    setIsSavingTopicName: React.Dispatch<boolean>
+  ) => void;
+};
 
 export type SidePanelDispatchProps = {
-  setContosoUsers: (users: any) => SetContosoUsersAction,
-  removeChatParticipantById: (userId: string) => void
-}
+  setContosoUsers: (users: any) => SetContosoUsersAction;
+  removeChatParticipantById: (userId: string) => void;
+};
 
 const mapStateToProps = (state: State): SidePanelProps => ({
   identity: state.contosoClient.user.identity,
@@ -32,7 +37,12 @@ const mapStateToProps = (state: State): SidePanelProps => ({
   topic: state.thread.topic,
   threadId: state.thread.threadId,
   chatClient: state.contosoClient.chatClient,
-  updateThreadTopicName: (chatClient: ChatClient, threadId: string, topicName: string, setIsSavingTopicName: React.Dispatch<boolean>) => {
+  updateThreadTopicName: (
+    chatClient: ChatClient,
+    threadId: string,
+    topicName: string,
+    setIsSavingTopicName: React.Dispatch<boolean>
+  ) => {
     updateThreadTopicName(chatClient, threadId, topicName, setIsSavingTopicName);
   }
 });

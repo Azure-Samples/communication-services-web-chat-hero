@@ -7,7 +7,7 @@ import {
   copyIconStyle,
   footerMainTextStyle,
   paneFooterTokens,
-  textFieldStyles,
+  textFieldStyles
 } from './styles/SidePanel.styles';
 import {
   inviteFooterStackContainerStyles,
@@ -16,9 +16,7 @@ import {
 } from './styles/SidePanel.styles';
 
 const copyJoinLink = () => {
-  const inputElement: HTMLInputElement = document.getElementById(
-    'inputText'
-  ) as HTMLInputElement;
+  const inputElement: HTMLInputElement = document.getElementById('inputText') as HTMLInputElement;
   inputElement.select();
   document.execCommand('copy');
   document.getElementById('copyLinkButton')?.focus();
@@ -29,11 +27,7 @@ export default (): JSX.Element => {
   const copyJoinInfoString = 'Copy invite link';
 
   return (
-    <Stack
-      styles={inviteFooterStackStyles}
-      className={inviteFooterStackContainerStyles}
-      tokens={paneFooterTokens}
-    >
+    <Stack styles={inviteFooterStackStyles} className={inviteFooterStackContainerStyles} tokens={paneFooterTokens}>
       <div className={footerMainTextStyle}>{invitePeopleString}</div>
       <TextField
         inputClassName={copyLinkTextStyle}
@@ -44,12 +38,7 @@ export default (): JSX.Element => {
         type="text"
         value={`${document.baseURI}`}
       ></TextField>
-      <PrimaryButton
-        tab-index="-1"
-        id="copyLinkButton"
-        className={copyLinkButtonStyle}
-        onClick={copyJoinLink}
-      >
+      <PrimaryButton tab-index="-1" id="copyLinkButton" className={copyLinkButtonStyle} onClick={copyJoinLink}>
         <Icon iconName="Copy" className={copyIconStyle} />
         <div className={saveButtonTextStyle}>{copyJoinInfoString}</div>
       </PrimaryButton>

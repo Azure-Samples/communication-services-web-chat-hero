@@ -7,7 +7,7 @@ import {
   TextFieldStyleProps,
   inputBoxWarningStyle,
   labelFontStyle,
-  warningStyle,
+  warningStyle
 } from './styles/ConfigurationScreen.styles';
 import { MAXIMUM_LENGTH_OF_NAME, ENTER_KEY } from '../constants';
 
@@ -41,11 +41,7 @@ export default (props: DisplayNameFieldProps): JSX.Element => {
         inputClassName={inputBoxTextStyle}
         ariaLabel="Choose your name"
         borderless={true}
-        className={
-          props.isEmpty || props.isNameLengthExceedLimit
-            ? inputBoxWarningStyle
-            : inputBoxStyle
-        }
+        className={props.isEmpty || props.isNameLengthExceedLimit ? inputBoxWarningStyle : inputBoxStyle}
         onChange={onNameTextChange}
         id="name"
         placeholder="Enter your name"

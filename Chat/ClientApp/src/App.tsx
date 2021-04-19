@@ -12,9 +12,7 @@ import HomeScreen from './containers/HomeScreen';
 import { reducer } from './core/reducers/index';
 import { getBuildTime, getChatSDKVersion, getThreadId } from './utils/utils';
 
-console.info(
-  `Azure Communication Services chat sample using @azure/communication-chat : ${getChatSDKVersion()}`
-);
+console.info(`Azure Communication Services chat sample using @azure/communication-chat : ${getChatSDKVersion()}`);
 console.info(`Build Date : ${getBuildTime()}`);
 
 loadTheme({});
@@ -29,20 +27,25 @@ export default (): JSX.Element => {
     if (page === 'home') {
       return <HomeScreen />;
     } else if (page === 'configuration') {
-      return (
-        <ConfigurationScreen
-          joinChatHandler={() => setPage('chat')} />
-      );
+      return <ConfigurationScreen joinChatHandler={() => setPage('chat')} />;
     } else if (page === 'chat') {
-      return <ChatScreen
+      return (
+        <ChatScreen
           removedFromThreadHandler={() => setPage('removedFromThread')}
-          leaveChatHandler={() => setPage('end')} />
+          leaveChatHandler={() => setPage('end')}
+        />
+      );
     } else if (page === 'end') {
-      return <EndScreen
-          rejoinHandler={() => { window.location.href = window.location.href}}
-          homeHandler={() => window.location.href = window.location.origin} />
+      return (
+        <EndScreen
+          rejoinHandler={() => {
+            window.location.href = window.location.href;
+          }}
+          homeHandler={() => (window.location.href = window.location.origin)}
+        />
+      );
     } else if (page === 'removedFromThread') {
-      return <RemovedFromThreadScreen homeHandler={() => window.location.href = window.location.origin} />
+      return <RemovedFromThreadScreen homeHandler={() => (window.location.href = window.location.origin)} />;
     }
   };
 
