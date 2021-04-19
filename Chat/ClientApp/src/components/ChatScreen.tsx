@@ -4,10 +4,7 @@ import React, { useEffect, useState } from 'react';
 import ChatArea from '../containers/ChatArea';
 import ChatHeader from '../containers/ChatHeader';
 import SidePanel from '../containers/SidePanel';
-import {
-  chatScreenBottomContainerStyle,
-  chatScreenContainerStyle,
-} from './styles/ChatScreen.styles';
+import { chatScreenBottomContainerStyle, chatScreenContainerStyle } from './styles/ChatScreen.styles';
 import { SidePanelTypes } from './SidePanel';
 
 interface ChatScreenProps {
@@ -35,22 +32,15 @@ export default (props: ChatScreenProps): JSX.Element => {
     if (isRemoved) {
       removedFromThreadHandler();
     }
-  }, [isRemoved, removedFromThreadHandler])
+  }, [isRemoved, removedFromThreadHandler]);
 
   return (
     <Stack className={chatScreenContainerStyle}>
-      <ChatHeader
-        leaveChatHandler={leaveChatHandler}
-        selectedPane={selectedPane}
-        setSelectedPane={setSelectedPane}
-      />
+      <ChatHeader leaveChatHandler={leaveChatHandler} selectedPane={selectedPane} setSelectedPane={setSelectedPane} />
       <Stack className={chatScreenBottomContainerStyle} horizontal={true}>
-      <ChatArea/>
+        <ChatArea />
         <Stack.Item grow disableShrink>
-          <SidePanel
-            selectedPane={selectedPane}
-            setSelectedPane={setSelectedPane}
-          />
+          <SidePanel selectedPane={selectedPane} setSelectedPane={setSelectedPane} />
         </Stack.Item>
       </Stack>
     </Stack>

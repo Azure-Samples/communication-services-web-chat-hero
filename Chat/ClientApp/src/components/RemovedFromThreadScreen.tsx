@@ -8,7 +8,7 @@ import {
   endCallContainerStyle,
   endCallTitleStyle,
   mainStackTokens,
-  upperStackTokens,
+  upperStackTokens
 } from './styles/EndChat.styles';
 
 export interface RemovedFromThreadProps {
@@ -20,11 +20,7 @@ export default (props: RemovedFromThreadProps): JSX.Element => {
   const goHomePage = 'Go to homepage';
 
   return (
-    <Stack
-      verticalAlign="center"
-      tokens={mainStackTokens}
-      className={endCallContainerStyle}
-    >
+    <Stack verticalAlign="center" tokens={mainStackTokens} className={endCallContainerStyle}>
       <Stack tokens={upperStackTokens}>
         <div tabIndex={0} className={endCallTitleStyle}>
           {leftCall}
@@ -36,9 +32,7 @@ export default (props: RemovedFromThreadProps): JSX.Element => {
         </Stack>
       </Stack>
       <div className={bottomStackFooterStyle}>
-        <a href="https://github.com/Azure/Communication/issues">
-          Give Feedback
-        </a>
+        <a href="https://github.com/Azure/Communication/issues">Give Feedback</a>
         &nbsp;on this sample app on Github
       </div>
     </Stack>

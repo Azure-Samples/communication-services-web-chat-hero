@@ -91,8 +91,8 @@ export const compareMessages = (firstMessage: ClientChatMessage, secondMessage: 
 };
 
 export const isUserMatchingIdentity = (user: CommunicationIdentifier, communicationUserId: string): boolean => {
-  return isCommunicationUserIdentifier(user) && user.communicationUserId === communicationUserId
-}
+  return isCommunicationUserIdentifier(user) && user.communicationUserId === communicationUserId;
+};
 
 export const convertToClientChatMessage = (chatMessage: ChatMessage, clientMessageId?: string): ClientChatMessage => {
   return {
@@ -102,10 +102,15 @@ export const convertToClientChatMessage = (chatMessage: ChatMessage, clientMessa
     senderDisplayName: chatMessage.senderDisplayName,
     createdOn: chatMessage.createdOn,
     id: chatMessage.id
-  }
-}
+  };
+};
 
-export const createNewClientChatMessage =  (userId: string, displayName: string, clientMessageId: string, message: string): ClientChatMessage => {
+export const createNewClientChatMessage = (
+  userId: string,
+  displayName: string,
+  clientMessageId: string,
+  message: string
+): ClientChatMessage => {
   return {
     content: { message: message },
     clientMessageId: clientMessageId,
@@ -113,4 +118,4 @@ export const createNewClientChatMessage =  (userId: string, displayName: string,
     senderDisplayName: displayName,
     createdOn: new Date()
   };
-}
+};

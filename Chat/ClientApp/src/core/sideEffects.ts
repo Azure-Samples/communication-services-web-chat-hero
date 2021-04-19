@@ -12,15 +12,16 @@ import { setChatClient, setContosoUser, setContosoUsers } from './actions/Contos
 import { setReceipts } from './actions/ConversationsAction';
 import { setMessages, setTypingNotifications, setTypingUsers, setFailedMessages } from './actions/MessagesAction';
 import { setThreadId, setThreadTopicName } from './actions/ThreadAction';
-import {
-  setThreadMembers,
-  setThreadMembersError,
-  setRemovedFromThread
-} from './actions/ThreadMembersAction';
+import { setThreadMembers, setThreadMembersError, setRemovedFromThread } from './actions/ThreadMembersAction';
 import { User } from './reducers/ContosoClientReducers';
 import { State } from './reducers/index';
 import { ClientChatMessage } from './reducers/MessagesReducer';
-import { compareMessages, convertToClientChatMessage, createNewClientChatMessage, isUserMatchingIdentity } from '../utils/utils';
+import {
+  compareMessages,
+  convertToClientChatMessage,
+  createNewClientChatMessage,
+  isUserMatchingIdentity
+} from '../utils/utils';
 
 import {
   ChatClient,
@@ -28,10 +29,19 @@ import {
   SendReadReceiptRequest,
   ChatMessageReadReceipt,
   ChatMessage,
-  ChatParticipant,
+  ChatParticipant
 } from '@azure/communication-chat';
-import { AzureCommunicationTokenCredential, CommunicationTokenRefreshOptions, CommunicationUserIdentifier } from '@azure/communication-common';
-import { ChatThreadPropertiesUpdatedEvent, CommunicationUserKind, ParticipantsAddedEvent, ParticipantsRemovedEvent } from '@azure/communication-signaling';
+import {
+  AzureCommunicationTokenCredential,
+  CommunicationTokenRefreshOptions,
+  CommunicationUserIdentifier
+} from '@azure/communication-common';
+import {
+  ChatThreadPropertiesUpdatedEvent,
+  CommunicationUserKind,
+  ParticipantsAddedEvent,
+  ParticipantsRemovedEvent
+} from '@azure/communication-signaling';
 
 // This function sets up the user to chat with the thread
 const addUserToThread = (displayName: string, emoji: string) => async (dispatch: Dispatch, getState: () => State) => {
@@ -59,11 +69,11 @@ const addUserToThread = (displayName: string, emoji: string) => async (dispatch:
 
   const user = userToken.user as CommunicationUserIdentifier;
 
- let options: CommunicationTokenRefreshOptions = {
-  token: userToken.token,
-  tokenRefresher:  () => refreshTokenAsync(user.communicationUserId),
-  refreshProactively: true
- }
+  let options: CommunicationTokenRefreshOptions = {
+    token: userToken.token,
+    tokenRefresher: () => refreshTokenAsync(user.communicationUserId),
+    refreshProactively: true
+  };
 
   let userAccessTokenCredentialNew = new AzureCommunicationTokenCredential(options);
   let chatClient = new ChatClient(environmentUrl, userAccessTokenCredentialNew);
@@ -100,14 +110,14 @@ const addUserToThread = (displayName: string, emoji: string) => async (dispatch:
 const subscribeForTypingIndicator = async (chatClient: ChatClient, dispatch: Dispatch) => {
   await chatClient.startRealtimeNotifications();
   chatClient.on('typingIndicatorReceived', async (event) => {
-    const fromId = (event.sender as CommunicationUserKind).communicationUserId
+    const fromId = (event.sender as CommunicationUserKind).communicationUserId;
     const typingNotification = {
       from: fromId,
       originalArrivalTime: event.receivedOn,
       recipientId: (event.recipient as CommunicationUserKind).communicationUserId,
       threadId: event.threadId,
       version: event.version
-    }
+    };
     dispatch(setTypingNotifications(fromId, typingNotification));
   });
 };
@@ -118,14 +128,13 @@ const subscribeForMessage = async (chatClient: ChatClient, dispatch: Dispatch, g
     let state: State = getState();
     let messages: ClientChatMessage[] = state.chat.messages !== undefined ? state.chat.messages : [];
     if (!isUserMatchingIdentity(event.sender, state.contosoClient.user.identity)) {
-
       const clientChatMessage = {
         sender: event.sender,
         id: event.id,
         senderDisplayName: event.senderDisplayName,
         createdOn: event.createdOn,
-        content: { message : event.message }
-      }
+        content: { message: event.message }
+      };
 
       messages.push(clientChatMessage);
       dispatch(setMessages(messages.sort(compareMessages)));
@@ -150,48 +159,58 @@ const subscribeForReadReceipt = async (
   });
 };
 
-const subscribeForChatParticipants = async (chatClient: ChatClient, identity: string, dispatch: Dispatch, getState: () => State) => {
+const subscribeForChatParticipants = async (
+  chatClient: ChatClient,
+  identity: string,
+  dispatch: Dispatch,
+  getState: () => State
+) => {
   chatClient.on('participantsRemoved', async (event: ParticipantsRemovedEvent) => {
     const state = getState();
     let participants: ChatParticipant[] = [];
-    for(let chatParticipant of event.participantsRemoved) {
+    for (let chatParticipant of event.participantsRemoved) {
       // if you are in the list, remove yourself from the chat
-      if(isUserMatchingIdentity(chatParticipant.id, identity)) {
-        dispatch(setRemovedFromThread(true))
+      if (isUserMatchingIdentity(chatParticipant.id, identity)) {
+        dispatch(setRemovedFromThread(true));
         return;
       }
     }
 
     const originalParticipants = state.threadMembers.threadMembers;
-    for(var i = 0; i < originalParticipants.length; i++) {
+    for (var i = 0; i < originalParticipants.length; i++) {
       const participantId = (originalParticipants[i].id as CommunicationUserIdentifier).communicationUserId;
-      if (event.participantsRemoved.filter(chatParticipant => (isUserMatchingIdentity(chatParticipant.id, participantId))).length === 0) {
+      if (
+        event.participantsRemoved.filter((chatParticipant) => isUserMatchingIdentity(chatParticipant.id, participantId))
+          .length === 0
+      ) {
         participants.push(originalParticipants[i]);
       }
     }
 
-    dispatch(setThreadMembers(participants))
+    dispatch(setThreadMembers(participants));
   });
 
   chatClient.on('participantsAdded', async (event: ParticipantsAddedEvent) => {
     const state = getState();
     let participants: ChatParticipant[] = [...state.threadMembers.threadMembers];
 
-    // there is a chance that the participant added is you and so there is a chance that you can come in as a 
+    // there is a chance that the participant added is you and so there is a chance that you can come in as a
     // new participant as well
-    const addedParticipants = event.participantsAdded.map((chatParticipant: ChatParticipant) =>
-      { return {
+    const addedParticipants = event.participantsAdded.map((chatParticipant: ChatParticipant) => {
+      return {
         id: chatParticipant.id,
         displayName: chatParticipant.displayName,
         shareHistoryTime: new Date(chatParticipant?.shareHistoryTime || new Date())
-      }
-    })
+      };
+    });
 
     // add participants not in the list
-    for(var j = 0; j < event.participantsAdded.length; j++) {
+    for (var j = 0; j < event.participantsAdded.length; j++) {
       const addedParticipant = event.participantsAdded[j];
       const id = (addedParticipant.id as CommunicationUserIdentifier).communicationUserId;
-      if(participants.filter((participant: ChatParticipant) => isUserMatchingIdentity(participant.id, id)).length === 0) {
+      if (
+        participants.filter((participant: ChatParticipant) => isUserMatchingIdentity(participant.id, id)).length === 0
+      ) {
         participants.push(addedParticipant);
       }
     }
@@ -210,24 +229,24 @@ const subscribeForChatParticipants = async (chatClient: ChatClient, identity: st
       }
     }
 
-    dispatch(setContosoUsers(users))
-    dispatch(setThreadMembers(participants))
-  })
+    dispatch(setContosoUsers(users));
+    dispatch(setThreadMembers(participants));
+  });
 };
 
 const subscribeForTopicUpdated = async (chatClient: ChatClient, dispatch: Dispatch, getState: () => State) => {
-  chatClient.on('chatThreadPropertiesUpdated', async(e: ChatThreadPropertiesUpdatedEvent) => {
+  chatClient.on('chatThreadPropertiesUpdated', async (e: ChatThreadPropertiesUpdatedEvent) => {
     const state = getState();
     let threadId = state.thread.threadId;
 
     if (!threadId) {
-      console.error('no threadId set')
+      console.error('no threadId set');
       return;
     }
-  
-    dispatch(setThreadTopicName(e.properties.topic))
-  })
-}
+
+    dispatch(setThreadTopicName(e.properties.topic));
+  });
+};
 
 const sendTypingNotification = () => async (dispatch: Dispatch, getState: () => State) => {
   let state: State = getState();
@@ -254,8 +273,8 @@ const updateTypingUsers = () => async (dispatch: Dispatch, getState: () => State
       continue;
     }
     if (shouldDisplayTyping(typingNotification.originalArrivalTime)) {
-      let threadMember = state.threadMembers.threadMembers.find(
-        (threadMember) => isUserMatchingIdentity(threadMember.id, id)
+      let threadMember = state.threadMembers.threadMembers.find((threadMember) =>
+        isUserMatchingIdentity(threadMember.id, id)
       );
       if (threadMember) {
         typingUsers.push(threadMember);
@@ -337,7 +356,9 @@ const getMessages = async (chatClient: ChatClient, dispatch: Dispatch, getState:
     return;
   }
 
-  const reversedClientChatMessages: ClientChatMessage[] = messages.map(message => convertToClientChatMessage(message)).reverse();
+  const reversedClientChatMessages: ClientChatMessage[] = messages
+    .map((message) => convertToClientChatMessage(message))
+    .reverse();
 
   return dispatch(setMessages(reversedClientChatMessages));
 };
@@ -389,8 +410,7 @@ const removeThreadMemberByUserId = (userId: string) => async (dispatch: Dispatch
     await chatThreadClient.removeParticipant({
       communicationUserId: userId
     });
-  }
-  catch(error) {
+  } catch (error) {
     console.log(error);
   }
 };
@@ -425,7 +445,7 @@ const getThreadMembers = () => async (dispatch: Dispatch, getState: () => State)
 
 // We want to grab everything about the chat thread that has occured before we register for events.
 // We care about pre-existing messages, the chat topic, and the participants in this chat
-const getThreadInformation = async (chatClient: ChatClient, dispatch:Dispatch, getState: () => State) => {
+const getThreadInformation = async (chatClient: ChatClient, dispatch: Dispatch, getState: () => State) => {
   let state: State = getState();
   if (chatClient === undefined) {
     console.error('Chat Client not created yet');
@@ -443,9 +463,8 @@ const getThreadInformation = async (chatClient: ChatClient, dispatch:Dispatch, g
 
   try {
     chatThreadClient = chatClient.getChatThreadClient(threadId);
-    iteratableParticipants = chatThreadClient.listParticipants()
-  }
-  catch(error) {
+    iteratableParticipants = chatThreadClient.listParticipants();
+  } catch (error) {
     console.error(error);
     dispatch(setThreadMembersError(true));
   }
@@ -453,8 +472,8 @@ const getThreadInformation = async (chatClient: ChatClient, dispatch:Dispatch, g
   let chatParticipants = [];
   // This is just to get all of the members in a chat. This is not performance as we're not using paging
   if (!iteratableParticipants) {
-    console.error('unable to resolve chat participant iterator')
-    return;  // really we need to alert that there was an error?
+    console.error('unable to resolve chat participant iterator');
+    return; // really we need to alert that there was an error?
   }
 
   for await (const page of iteratableParticipants.byPage()) {
@@ -469,7 +488,9 @@ const getThreadInformation = async (chatClient: ChatClient, dispatch:Dispatch, g
   }
 
   // remove undefined display name chat participants
-  const validChatParticipants = chatParticipants.filter(chatParticipant => chatParticipant.displayName !== undefined && chatParticipant.id !== undefined)
+  const validChatParticipants = chatParticipants.filter(
+    (chatParticipant) => chatParticipant.displayName !== undefined && chatParticipant.id !== undefined
+  );
 
   // get the emojis for the new participants
   let users = state.contosoClient.users;
@@ -488,17 +509,22 @@ const getThreadInformation = async (chatClient: ChatClient, dispatch:Dispatch, g
   const properties = await chatThreadClient?.getProperties();
 
   if (!properties) {
-    console.error('no chat thread properties')
+    console.error('no chat thread properties');
     return;
   }
 
   dispatch(setThreadId(threadId));
   dispatch(setThreadTopicName(properties.topic));
-  dispatch(setContosoUsers(users))
+  dispatch(setContosoUsers(users));
   dispatch(setThreadMembers(validChatParticipants));
 };
 
-const updateThreadTopicName = async (chatClient: ChatClient, threadId: string, topicName: string, setIsSavingTopicName: React.Dispatch<boolean>) => {
+const updateThreadTopicName = async (
+  chatClient: ChatClient,
+  threadId: string,
+  topicName: string,
+  setIsSavingTopicName: React.Dispatch<boolean>
+) => {
   const chatThreadClient = await chatClient.getChatThreadClient(threadId);
   updateThreadTopicNameHelper(chatThreadClient, topicName, setIsSavingTopicName);
 };
@@ -560,7 +586,10 @@ const sendMessageHelper = async (
   // 2. cache the message locally using the message.id
   // 3. when we get the server synced message we match with the message.id
   try {
-    const messageResult = await chatThreadClient.sendMessage({content: messageContent }, { senderDisplayName: displayName });
+    const messageResult = await chatThreadClient.sendMessage(
+      { content: messageContent },
+      { senderDisplayName: displayName }
+    );
     const message: ChatMessage = await chatThreadClient.getMessage(messageResult.id);
     updateMessagesArray(dispatch, getState, convertToClientChatMessage(message, clientMessageId));
   } catch (error) {
@@ -569,18 +598,14 @@ const sendMessageHelper = async (
     failedMessages.push(clientMessageId);
     setFailedMessages(failedMessages);
 
-    const message = getState().chat.messages.filter(message => message.clientMessageId === clientMessageId)[0];
+    const message = getState().chat.messages.filter((message) => message.clientMessageId === clientMessageId)[0];
     message.failed = true;
     updateMessagesArray(dispatch, getState, message);
   }
 };
 
 // Merge our local messages with server synced messages
-const updateMessagesArray = async (
-  dispatch: Dispatch,
-  getState: () => State,
-  newMessage: ClientChatMessage
-) => {
+const updateMessagesArray = async (dispatch: Dispatch, getState: () => State, newMessage: ClientChatMessage) => {
   let state: State = getState();
   let messages: ClientChatMessage[] = state.chat.messages !== undefined ? state.chat.messages : [];
 
@@ -592,7 +617,7 @@ const updateMessagesArray = async (
   dispatch(setMessages(messages.sort(compareMessages)));
 };
 
-const getMessagesHelper = async (chatThreadClient: ChatThreadClient): Promise<ChatMessage[] | undefined>=> {
+const getMessagesHelper = async (chatThreadClient: ChatThreadClient): Promise<ChatMessage[] | undefined> => {
   try {
     let messages: ChatMessage[] = [];
     let getMessagesResponse = await chatThreadClient.listMessages({
@@ -662,19 +687,22 @@ const getToken = async () => {
   }
 };
 
-const refreshTokenAsync = async (userIdentity: string) : Promise<string>=> {
+const refreshTokenAsync = async (userIdentity: string): Promise<string> => {
   return new Promise<string>((resolve, reject) => {
-    return fetch('/refreshToken/'+ userIdentity).then(response => {
-      if (response.ok) {
-        resolve(response.json().then(json => json.token))
-      } else {
-        reject(new Error('error'))
+    return fetch('/refreshToken/' + userIdentity).then(
+      (response) => {
+        if (response.ok) {
+          resolve(response.json().then((json) => json.token));
+        } else {
+          reject(new Error('error'));
+        }
+      },
+      (error) => {
+        reject(new Error(error.message));
       }
-    }, error => {
-      reject(new Error(error.message))
-    })
-  })
-}
+    );
+  });
+};
 
 const setEmoji = async (userId: string, emoji: string) => {
   try {

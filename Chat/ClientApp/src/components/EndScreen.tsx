@@ -35,11 +35,7 @@ export default (props: EndCallProps): JSX.Element => {
   };
 
   return (
-    <Stack
-      verticalAlign="center"
-      tokens={mainStackTokens}
-      className={endCallContainerStyle}
-    >
+    <Stack verticalAlign="center" tokens={mainStackTokens} className={endCallContainerStyle}>
       <Stack tokens={upperStackTokens}>
         <div tabIndex={0} className={endCallTitleStyle}>
           {leftCall}
@@ -48,7 +44,9 @@ export default (props: EndCallProps): JSX.Element => {
           <PrimaryButton
             disabled={isRejoiningThread}
             className={buttonStyle}
-            onClick={async () => { await rejoinThread(); }}
+            onClick={async () => {
+              await rejoinThread();
+            }}
           >
             <ChatIcon className={videoCameraIconStyle} size="medium" />
             <div className={buttonTextStyle}>{isRejoiningThread ? rejoining : rejoinChat}</div>
@@ -59,9 +57,7 @@ export default (props: EndCallProps): JSX.Element => {
         </Stack>
       </Stack>
       <div className={bottomStackFooterStyle}>
-        <a href="https://github.com/Azure/Communication/issues">
-          Give Feedback
-        </a>
+        <a href="https://github.com/Azure/Communication/issues">Give Feedback</a>
         &nbsp;on this sample app on Github
       </div>
     </Stack>

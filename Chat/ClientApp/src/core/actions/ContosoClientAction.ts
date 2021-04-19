@@ -5,8 +5,8 @@ export const SET_CURRENT_USER = 'SET_CURRENT_USER';
 export const SET_USERS = 'SET_USERS';
 
 export type UserConfiguration = {
-  emoji: string
-}
+  emoji: string;
+};
 
 export type Users = Record<string, UserConfiguration>;
 
@@ -45,7 +45,4 @@ export const setContosoUsers = (users: Users): SetContosoUsersAction => ({
   users
 });
 
-export type ContosoActionTypes =
-  | SetChatClientAction
-  | SetContosoUserAction
-  | SetContosoUsersAction;
+export type ContosoActionTypes = SetChatClientAction | SetContosoUserAction | SetContosoUsersAction;

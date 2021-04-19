@@ -1,12 +1,5 @@
 // © Microsoft Corporation. All rights reserved.
-import {
-  Icon,
-  Image,
-  PrimaryButton,
-  Stack,
-  IImageStyles,
-  Spinner,
-} from '@fluentui/react';
+import { Icon, Image, PrimaryButton, Stack, IImageStyles, Spinner } from '@fluentui/react';
 import { ChatIcon } from '@fluentui/react-icons-northstar';
 import React, { useState } from 'react';
 
@@ -32,9 +25,9 @@ export interface HomeScreenProps {
 
 const imageStyleProps: IImageStyles = {
   image: {
-    height: '100%',
+    height: '100%'
   },
-  root: {},
+  root: {}
 };
 
 export default (props: HomeScreenProps): JSX.Element => {
@@ -46,7 +39,7 @@ export default (props: HomeScreenProps): JSX.Element => {
   const listItems = [
     'Launch a conversation with a single click',
     'Real-time messaging with indicators',
-    'Invite up to 250 participants',
+    'Invite up to 250 participants'
   ];
 
   const [isCreatingThread, setIsCreatingThread] = useState(false);
@@ -57,20 +50,13 @@ export default (props: HomeScreenProps): JSX.Element => {
   };
 
   const creatThreadLoading = () => {
-    return (
-      <Spinner label={spinnerLabel} ariaLive="assertive" labelPosition="top" />
-    );
+    return <Spinner label={spinnerLabel} ariaLive="assertive" labelPosition="top" />;
   };
 
   const homeScreen = () => {
     return (
       <div>
-        <Stack
-          horizontal
-          horizontalAlign="center"
-          verticalAlign="center"
-          tokens={containerTokens}
-        >
+        <Stack horizontal horizontalAlign="center" verticalAlign="center" tokens={containerTokens}>
           <Stack className={upperStackStyle} tokens={upperStackTokens}>
             <div tabIndex={0} className={headerStyle}>
               {headerTitle}
@@ -78,16 +64,13 @@ export default (props: HomeScreenProps): JSX.Element => {
             <Stack tokens={nestedStackTokens}>
               <ul className={listStyle}>
                 <li tabIndex={0}>
-                  <Icon className={iconStyle} iconName={iconName} />{' '}
-                  {listItems[0]}
+                  <Icon className={iconStyle} iconName={iconName} /> {listItems[0]}
                 </li>
                 <li tabIndex={0}>
-                  <Icon className={iconStyle} iconName={iconName} />{' '}
-                  {listItems[1]}
+                  <Icon className={iconStyle} iconName={iconName} /> {listItems[1]}
                 </li>
                 <li tabIndex={0}>
-                  <Icon className={iconStyle} iconName={iconName} />{' '}
-                  {listItems[2]}
+                  <Icon className={iconStyle} iconName={iconName} /> {listItems[2]}
                 </li>
               </ul>
             </Stack>
@@ -112,7 +95,9 @@ export default (props: HomeScreenProps): JSX.Element => {
           />
         </Stack>
         <div className={moreInfoStyle}>
-          <a href="https://docs.microsoft.com/en-us/azure/communication-services/samples/chat-hero-sample">Learn more about this sample</a>
+          <a href="https://docs.microsoft.com/en-us/azure/communication-services/samples/chat-hero-sample">
+            Learn more about this sample
+          </a>
         </div>
       </div>
     );
