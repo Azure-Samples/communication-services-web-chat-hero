@@ -48,7 +48,7 @@ jobs:
 
       - name: Lint
         working-directory: ./Chat/ClientApp
-        run: npx eslint --ext ts --ext tsx
+        run: npx eslint --ext ts --ext tsx .
 
       - name: Check all is pretty
         working-directory: ./Chat/ClientApp
