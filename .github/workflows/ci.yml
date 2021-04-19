@@ -12,7 +12,7 @@ on:
 
 jobs:
   build_and_test:
-    name: Build and Test
+    name: Build and test
     runs-on: windows-latest
     steps:
 
@@ -33,3 +33,23 @@ jobs:
         shell: bash
         run: |
           dotnet test ./Chat
+
+  clean_frontend:
+    name: Run clean code tests on frontend
+    runs-on: windows-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install (dev) dependencies
+        working-directory: ./Chat/ClientApp
+        run: npm install
+
+      - name: Lint
+        working-directory: ./Chat/ClientApp
+        run: npx eslint --ext ts --ext tsx
+
+      - name: Check all is pretty
+        working-directory: ./Chat/ClientApp
+        run: npx prettier -c .
