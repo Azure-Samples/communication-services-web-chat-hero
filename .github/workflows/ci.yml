@@ -42,6 +42,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
       - name: Install (dev) dependencies
         working-directory: ./Chat/ClientApp
         run: npm install
