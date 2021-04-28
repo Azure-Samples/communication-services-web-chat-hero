@@ -36,7 +36,7 @@
     "eject": "react-scripts eject",
     "prettier": "prettier --write --config .prettierrc **/*.ts **/*.ts",
     "prettier:check": "prettier --check --config .prettierrc **/*.ts **/*.ts",
-    "lint": "eslint --ext ts --ext tsx ."
+    "lint": "eslint -c package.json --ext ts --ext tsx ."
   },
   "eslintConfig": {
     "extends": "react-app"
