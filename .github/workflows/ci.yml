@@ -52,8 +52,8 @@ jobs:
 
       - name: Lint
         working-directory: ./Chat/ClientApp
-        run: npx eslint --ext ts --ext tsx .
+        run: npm run lint
 
       - name: Check all is pretty
         working-directory: ./Chat/ClientApp
-        run: npx prettier -c .
+        run: npm run prettier:check

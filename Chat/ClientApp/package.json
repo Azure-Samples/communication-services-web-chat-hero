@@ -34,8 +34,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "prettier": "prettier --write --config .prettierrc **/*.js **/*.ts",
-    "prettier:check": "prettier --check --config .prettierrc **/*.js **/*.ts"
+    "prettier": "prettier --write --config .prettierrc **/*.ts **/*.ts",
+    "prettier:check": "prettier --check --config .prettierrc **/*.ts **/*.ts",
+    "lint": "eslint -c package.json --ext ts --ext tsx ."
   },
   "eslintConfig": {
     "extends": "react-app"
