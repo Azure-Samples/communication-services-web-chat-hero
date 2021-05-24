@@ -21,6 +21,9 @@ Additional documentation for this sample can be found on [Microsoft Docs](https:
 
 ![Homepage](./Media/homepage-sample-chat.png)
 
+## ❤️ Feedback
+We appreciate your feedback and energy helping us improve our services. [Please let us know if you are satisfied with ACS through this survey](https://microsoft.qualtrics.com/jfe/form/SV_5dtYL81xwHnUVue). 
+
 ## Prerequisites
 
 - Create an Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
