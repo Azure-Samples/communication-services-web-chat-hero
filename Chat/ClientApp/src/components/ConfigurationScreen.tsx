@@ -150,7 +150,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
                 }}
               >
                 <ChatIcon className={chatIconStyle} size="medium" />
-                <div className={startChatButtonTextStyle}>Join chat</div>
+                <div className={startChatButtonTextStyle}>Join event</div>
               </PrimaryButton>
             </div>
           </Stack>

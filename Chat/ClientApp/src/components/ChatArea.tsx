@@ -22,7 +22,7 @@ export default (props: ChatAreaProps): JSX.Element => {
       clearInterval(listener);
     };
   }, [onUpdateTypingUsers]);
-
+  // TODO: add here two tabs to switch between chat and people
   return (
     <Stack className={chatAreaContainerStyle}>
       <ChatThread />
