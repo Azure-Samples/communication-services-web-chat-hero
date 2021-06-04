@@ -50,7 +50,8 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
   const { topic, generateHeaderMessage, leaveChatHandler, removeChatParticipantById, userId } = props;
 
   useEffect(() => {
-    setHeader(topic && topic !== GUID_FOR_INITIAL_TOPIC_NAME ? topic : generateHeaderMessage());
+    // setHeader(topic && topic !== GUID_FOR_INITIAL_TOPIC_NAME ? topic : generateHeaderMessage());
+    setHeader("ACS Virtual Events: Alpha Event");
   }, [topic, generateHeaderMessage]);
 
   return (
@@ -61,7 +62,7 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
       <Stack.Item align="center">
         <Stack horizontal={true}>
           <Stack.Item align="center">
-            <Pivot
+            {/*<Pivot
               onKeyDownCapture={(e) => {
                 if ((e.target as HTMLElement).id === SidePanelTypes.People && e.keyCode === 39) e.preventDefault();
               }}
@@ -72,7 +73,6 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
               selectedKey={props.selectedPane}
             >
               <PivotItem itemKey={SidePanelTypes.None} />
-              {/* To Toggle People's Panel */}
               <PivotItem
                 itemKey={SidePanelTypes.People}
                 onRenderItemLink={() => (
@@ -83,7 +83,6 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
                   />
                 )}
               />
-              {/* To Toggle Settings's Panel */}
               <PivotItem
                 itemKey={SidePanelTypes.Settings}
                 onRenderItemLink={() => (
@@ -94,7 +93,7 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
                   />
                 )}
               />
-            </Pivot>
+            </Pivot>*/}
           </Stack.Item>
           <Stack.Item align="center">
             <div className={iconButtonContainerStyle}>

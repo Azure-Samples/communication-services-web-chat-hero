@@ -2,6 +2,7 @@ import { getTheme, IIconProps, IPivotStyles, mergeStyles } from '@fluentui/react
 
 const chatHeaderContainerStyle = mergeStyles({
   width: '100%',
+  minHeight: "55px",
   height: 'auto',
   paddingLeft: '3.25rem',
   paddingRight: '3.25rem',

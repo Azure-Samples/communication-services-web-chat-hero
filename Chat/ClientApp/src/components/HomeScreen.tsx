@@ -1,6 +1,6 @@
 // © Microsoft Corporation. All rights reserved.
 import { Icon, Image, PrimaryButton, Stack, IImageStyles, Spinner } from '@fluentui/react';
-import { ChatIcon } from '@fluentui/react-icons-northstar';
+import { AttendeeIcon } from '@fluentui/react-icons-northstar';
 import React, { useState } from 'react';
 
 import heroSVG from '../assets/hero.svg';
@@ -32,15 +32,9 @@ const imageStyleProps: IImageStyles = {
 
 export default (props: HomeScreenProps): JSX.Element => {
   const spinnerLabel = 'Creating a new chat thread...';
-  const iconName = 'SkypeCircleCheck';
   const imageProps = { src: heroSVG.toString() };
-  const headerTitle = 'Exceptionally simple chat app';
-  const startChatButtonText = 'Start chat';
-  const listItems = [
-    'Launch a conversation with a single click',
-    'Real-time messaging with indicators',
-    'Invite up to 250 participants'
-  ];
+  const headerTitle = 'Virtual Event Hackathon';
+  const startChatButtonText = 'Join Event';
 
   const [isCreatingThread, setIsCreatingThread] = useState(false);
 
@@ -61,19 +55,7 @@ export default (props: HomeScreenProps): JSX.Element => {
             <div tabIndex={0} className={headerStyle}>
               {headerTitle}
             </div>
-            <Stack tokens={nestedStackTokens}>
-              <ul className={listStyle}>
-                <li tabIndex={0}>
-                  <Icon className={iconStyle} iconName={iconName} /> {listItems[0]}
-                </li>
-                <li tabIndex={0}>
-                  <Icon className={iconStyle} iconName={iconName} /> {listItems[1]}
-                </li>
-                <li tabIndex={0}>
-                  <Icon className={iconStyle} iconName={iconName} /> {listItems[2]}
-                </li>
-              </ul>
-            </Stack>
+            powered by ACS
             <PrimaryButton
               id="startChat"
               role="main"
@@ -83,22 +65,17 @@ export default (props: HomeScreenProps): JSX.Element => {
                 onCreateThread();
               }}
             >
-              <ChatIcon className={videoCameraIconStyle} size="medium" />
+              <AttendeeIcon className={videoCameraIconStyle} size="medium" />
               <div className={startChatTextStyle}>{startChatButtonText}</div>
             </PrimaryButton>
           </Stack>
           <Image
             styles={imageStyleProps}
-            alt="Welcome to the Azure Communication Services Chat sample app"
+            alt="Virtual Event"
             className={imgStyle}
             {...imageProps}
           />
         </Stack>
-        <div className={moreInfoStyle}>
-          <a href="https://docs.microsoft.com/en-us/azure/communication-services/samples/chat-hero-sample">
-            Learn more about this sample
-          </a>
-        </div>
       </div>
     );
   };

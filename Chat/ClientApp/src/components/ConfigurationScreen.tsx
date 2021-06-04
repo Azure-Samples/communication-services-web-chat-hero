@@ -162,7 +162,8 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
   const configurationScreen = () => {
     return (
       <Stack className={mainContainerStyle} horizontalAlign="center" verticalAlign="center">
-        {isValidThread === false ? invalidChatThread() : joinChatArea()}
+        {/* {isValidThread === false ? invalidChatThread() : joinChatArea()} */}
+        {joinChatArea()}
       </Stack>
     );
   };
