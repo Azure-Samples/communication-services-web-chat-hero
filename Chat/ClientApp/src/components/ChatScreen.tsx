@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DefaultButton, Icon, IconButton, Pivot, PivotItem, Stack, StackItem } from '@fluentui/react';
-
+import { Stack } from '@fluentui/react';
 import ChatArea from '../containers/ChatArea';
 import ChatHeader from '../containers/ChatHeader';
 import { chatScreenBottomContainerStyle, chatScreenContainerStyle } from './styles/ChatScreen.styles';
@@ -42,9 +41,6 @@ export default (props: ChatScreenProps): JSX.Element => {
         <LeftPane />
         <MainArea />
         <ChatArea />
-        {/* <Stack.Item grow disableShrink>
-          <SidePanel selectedPane={selectedPane} setSelectedPane={setSelectedPane} />
-        </Stack.Item> */}
       </Stack>
     </Stack>
   );
