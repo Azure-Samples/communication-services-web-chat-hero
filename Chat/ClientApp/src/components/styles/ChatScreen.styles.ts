@@ -40,7 +40,6 @@ const staticAreaStyle = mergeStyles({
 
 const staticImageStyle = mergeStyles({
   height: "316px",
-  backgroundImage: 'url("https://by6atq.dm.files.1drv.com/y4pNYmywUwShGjLKVSQ9F8f_rdmCvPdFzVyn4GbLnzsDHmQMINQ_sjsbez4am8iGl1jFBURSlKxHQnd-eFcE-BASwp0iSUAhJlo8Tv5wEqWhi0_I7i6YBuHOEwrvjwL3_u2EQajEKi8szo4_3Lzui2UXLYJx3L6qAlwqfLWQiP3v3rlvghd_p0OEdk3n3GErbyBc-20fRCv_ToaALEdC8LvYA/default.png?psid=1");',
   width: "100%"
 });
 
