@@ -150,7 +150,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
                 }}
               >
                 <ChatIcon className={chatIconStyle} size="medium" />
-                <div className={startChatButtonTextStyle}>Join chat</div>
+                <div className={startChatButtonTextStyle}>Join event</div>
               </PrimaryButton>
             </div>
           </Stack>
@@ -162,7 +162,8 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
   const configurationScreen = () => {
     return (
       <Stack className={mainContainerStyle} horizontalAlign="center" verticalAlign="center">
-        {isValidThread === false ? invalidChatThread() : joinChatArea()}
+        {/* {isValidThread === false ? invalidChatThread() : joinChatArea()} */}
+        {joinChatArea()}
       </Stack>
     );
   };

@@ -1,11 +1,11 @@
-import { Stack } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
-
+import { Stack } from '@fluentui/react';
 import ChatArea from '../containers/ChatArea';
 import ChatHeader from '../containers/ChatHeader';
-import SidePanel from '../containers/SidePanel';
 import { chatScreenBottomContainerStyle, chatScreenContainerStyle } from './styles/ChatScreen.styles';
 import { SidePanelTypes } from './SidePanel';
+import LeftPane from './LeftPane';
+import MainArea from './MainArea';
 
 interface ChatScreenProps {
   leaveChatHandler(): void;
@@ -38,10 +38,9 @@ export default (props: ChatScreenProps): JSX.Element => {
     <Stack className={chatScreenContainerStyle}>
       <ChatHeader leaveChatHandler={leaveChatHandler} selectedPane={selectedPane} setSelectedPane={setSelectedPane} />
       <Stack className={chatScreenBottomContainerStyle} horizontal={true}>
+        <LeftPane />
+        <MainArea />
         <ChatArea />
-        <Stack.Item grow disableShrink>
-          <SidePanel selectedPane={selectedPane} setSelectedPane={setSelectedPane} />
-        </Stack.Item>
       </Stack>
     </Stack>
   );
