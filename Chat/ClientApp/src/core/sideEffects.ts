@@ -324,6 +324,24 @@ const sendMessage = (messageContent: string) => async (dispatch: Dispatch, getSt
   );
 };
 
+const getEventInformation = (eventId: string) => async (dispatch: Dispatch) => {
+  try {
+    let validationRequestOptions = { method: 'GET' };
+    let response = await fetch('/event/' + eventId, validationRequestOptions);
+    if (response.status === 200) {
+      return response.json().then((_responseJson) => {
+        console.log(_responseJson);
+        dispatch(setThreadId(_responseJson.sessionThreadIds[0]));
+        return _responseJson;
+      });
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error('Failed at getting isThreadIdValid, Error: ', error);
+  }
+};
+
 const isValidThread = (threadId: string) => async (dispatch: Dispatch) => {
   try {
     let validationRequestOptions = { method: 'GET' };
@@ -767,5 +785,6 @@ export {
   sendTypingNotification,
   updateTypingUsers,
   isValidThread,
-  updateThreadTopicName
+  updateThreadTopicName,
+  getEventInformation
 };

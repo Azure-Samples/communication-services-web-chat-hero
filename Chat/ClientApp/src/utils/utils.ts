@@ -67,6 +67,10 @@ export const getBackgroundColor = (avatar: string) => {
       };
   }
 };
+export const getEventId = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('eventId');
+};
 
 export const getThreadId = () => {
   const urlParams = new URLSearchParams(window.location.search);

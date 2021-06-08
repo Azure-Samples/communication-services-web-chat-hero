@@ -16,7 +16,7 @@ import {
   smallAvatarStyle,
   startChatButtonTextStyle
 } from './styles/ConfigurationScreen.styles';
-import { CAT, MOUSE, KOALA, OCTOPUS, MONKEY, FOX, getThreadId } from '../utils/utils';
+import { CAT, MOUSE, KOALA, OCTOPUS, MONKEY, FOX, getThreadId, getEventId } from '../utils/utils';
 import DisplayNameField from './DisplayNameField';
 import { MAXIMUM_LENGTH_OF_NAME } from '../constants';
 
@@ -24,6 +24,7 @@ export interface ConfigurationScreenProps {
   joinChatHandler(): void;
   setup(displayName: string, emoji: string): void;
   isValidThread(threadId: string | null): any;
+  getEventInfo(threadId: string | null): any;
 }
 
 export default (props: ConfigurationScreenProps): JSX.Element => {
@@ -40,7 +41,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
 
   const [isJoining, setIsJoining] = useState(false);
 
-  const [isValidThread, setIsValidThread] = useState<boolean | undefined>(undefined);
+  // const [isValidThread, setIsValidThread] = useState<boolean | undefined>(undefined);
 
   const { joinChatHandler, setup } = props;
 
@@ -65,19 +66,28 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
     }
   };
 
-  const isValidThreadProp = props.isValidThread;
+  // const isValidThreadProp = props.isValidThread;
+
+  // useEffect(() => {
+  //   const isValidThread = async () => {
+  //     if (await isValidThreadProp(getThreadId())) {
+  //       setIsValidThread(true);
+  //     } else {
+  //       setIsValidThread(false);
+  //     }
+  //   };
+  //   isValidThread();
+  //   document.getElementById('🐱')?.focus();
+  // }, [isValidThreadProp]);
+  
+  const getEventInfoProp = props.getEventInfo;
 
   useEffect(() => {
-    const isValidThread = async () => {
-      if (await isValidThreadProp(getThreadId())) {
-        setIsValidThread(true);
-      } else {
-        setIsValidThread(false);
-      }
+    const getEvent = async () => {
+      await getEventInfoProp(getEventId())
     };
-    isValidThread();
-    document.getElementById('🐱')?.focus();
-  }, [isValidThreadProp]);
+    getEvent();
+  }, [getEventInfoProp]);
 
   const invalidChatThread = () => {
     return (
@@ -162,7 +172,6 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
   const configurationScreen = () => {
     return (
       <Stack className={mainContainerStyle} horizontalAlign="center" verticalAlign="center">
-        {/* {isValidThread === false ? invalidChatThread() : joinChatArea()} */}
         {joinChatArea()}
       </Stack>
     );

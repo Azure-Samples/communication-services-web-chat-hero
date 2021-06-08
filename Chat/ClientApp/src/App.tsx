@@ -10,7 +10,7 @@ import EndScreen from './components/EndScreen';
 import RemovedFromThreadScreen from './components/RemovedFromThreadScreen';
 import HomeScreen from './containers/HomeScreen';
 import { reducer } from './core/reducers/index';
-import { getBuildTime, getChatSDKVersion, getThreadId } from './utils/utils';
+import { getBuildTime, getChatSDKVersion, getEventId, getThreadId } from './utils/utils';
 
 console.info(`Azure Communication Services chat sample using @azure/communication-chat : ${getChatSDKVersion()}`);
 console.info(`Build Date : ${getBuildTime()}`);
@@ -49,7 +49,7 @@ export default (): JSX.Element => {
     }
   };
 
-  if (getThreadId() && page === 'home') {
+  if (getEventId() && page === 'home') {
     setPage('configuration');
   }
 
