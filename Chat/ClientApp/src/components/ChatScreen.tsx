@@ -38,8 +38,8 @@ export default (props: ChatScreenProps): JSX.Element => {
     <Stack className={chatScreenContainerStyle}>
       <ChatHeader leaveChatHandler={leaveChatHandler} selectedPane={selectedPane} setSelectedPane={setSelectedPane} />
       <Stack className={chatScreenBottomContainerStyle} horizontal={true}>
-        <LeftPane />
-        <MainArea />
+        <LeftPane onTabClicked={() => { alert("Show the attendees"); }}/>
+        <MainArea updateContent={() => {}}/>
         <ChatArea />
       </Stack>
     </Stack>

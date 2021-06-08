@@ -3,10 +3,17 @@ import { Image } from '@fluentui/react';
 import defaultImg from '../assets/default.png';
 import { staticImageStyle, staticAreaStyle} from './styles/ChatScreen.styles';
 
-export default (props: any): JSX.Element => {
+export interface MainScreenProps {
+  updateContent(content: string): void;
+}
+
+export default (props: MainScreenProps): JSX.Element => {
   const imageProps = { src: defaultImg.toString() };
-  return (
-    <div className={staticAreaStyle}>
+  const { updateContent } = props;
+
+  const getComponent = () => {
+    return (
+      <div className={staticAreaStyle}>
       <Image
         className={staticImageStyle}
         alt="Default Event Image"
@@ -17,5 +24,9 @@ export default (props: any): JSX.Element => {
       <h2>Upcoming Sessions</h2>
       Coming soon...
     </div>
-  );
+
+    );  
+  }
+  
+  return getComponent()
 };
