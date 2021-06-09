@@ -4,7 +4,12 @@ import defaultImg from '../assets/default.png';
 import { staticImageStyle, staticAreaStyle } from './styles/ChatScreen.styles';
 import { tilesStackStyles, tilesStackTokens, tileStyle } from './styles/RoomTile.styles';
 
-export default (props: any): JSX.Element => {
+interface ChatScreenProps {
+  enterRoomHandler(roomTitle: string): void;
+
+}
+
+export default (props: ChatScreenProps): JSX.Element => {
   const imageProps = { src: defaultImg.toString() };
   return (
     <div className={staticAreaStyle}>
@@ -17,9 +22,9 @@ export default (props: any): JSX.Element => {
       Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           <h2>Upcoming Sessions</h2>
           <Stack horizontal horizontalAlign="space-evenly" styles={tilesStackStyles} tokens={tilesStackTokens}>
-              <DefaultButton className={tileStyle} text="Global All Hands" />
-              <DefaultButton className={tileStyle} text="Product Demos" />
-              <DefaultButton className={tileStyle} text="Ask Me Anything" />
+            <DefaultButton className={tileStyle} text="Global All Hands" onClick={() => { props.enterRoomHandler("Global All Hands") }} />
+            <DefaultButton className={tileStyle} text="Product Demos" onClick={() => { props.enterRoomHandler("Product Demos") }} />
+            <DefaultButton className={tileStyle} text="Ask Me Anything" onClick={() => { props.enterRoomHandler("Ask Me Anything") }}/>
           </Stack>
     </div>
   );
