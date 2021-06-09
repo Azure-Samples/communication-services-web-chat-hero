@@ -9,7 +9,6 @@ import ConfigurationScreen from './containers/ConfigurationScreen';
 import EndScreen from './components/EndScreen';
 import RemovedFromThreadScreen from './components/RemovedFromThreadScreen';
 import HomeScreen from './containers/HomeScreen';
-import Room from './containers/Room';
 
 import { reducer } from './core/reducers/index';
 import { getBuildTime, getChatSDKVersion, getThreadId } from './utils/utils';
@@ -23,25 +22,21 @@ initializeIcons();
 const store = createStore(reducer, applyMiddleware(thunk));
 
 export default (): JSX.Element => {
-  const [state, setState] = useState({ page: 'home', roomTitle: '' });
+  const [page, setPage] = useState('home');
 
   const getComponent = () => {
-    if (state.page === 'home') {
+    if (page === 'home') {
       return <HomeScreen />;
-    } else if (state.page === 'configuration') {
-      return <ConfigurationScreen joinChatHandler={() => setState({ ...state, page: 'chat' })} />;
-    } else if (state.page === 'chat') {
+    } else if (page === 'configuration') {
+      return <ConfigurationScreen joinChatHandler={() => setPage('chat')} />;
+    } else if (page === 'chat') {
       return (
         <ChatScreen
-          removedFromThreadHandler={() => setState({ ...state, page: 'removedFromThread' })}
-          leaveChatHandler={() => setState({ ...state, page: 'end' })}
-          enterRoomHandler={(title: string) => setState({page: 'room', roomTitle: title})
-          }
+          removedFromThreadHandler={() => setPage('removedFromThread')}
+          leaveChatHandler={() => setPage('end')}
         />
       );
-    } else if (state.page === 'room') {
-      return (<Room roomTitle={state.roomTitle} backToChatScreenHander={() => { setState({...state, page: 'chat'})}}/>);
-    } else if (state.page === 'end') {
+    } else if (page === 'end') {
       return (
         <EndScreen
           rejoinHandler={() => {
@@ -50,13 +45,13 @@ export default (): JSX.Element => {
           homeHandler={() => (window.location.href = window.location.origin)}
         />
       );
-    } else if (state.page === 'removedFromThread') {
+    } else if (page === 'removedFromThread') {
       return <RemovedFromThreadScreen homeHandler={() => (window.location.href = window.location.origin)} />;
     }
   };
 
-  if (getThreadId() && state.page === 'home') {
-    setState({ ...state, page: 'configuration' });
+  if (getThreadId() && page === 'home') {
+    setPage('configuration');
   }
 
   return <Provider store={store}>{getComponent()}</Provider>;
