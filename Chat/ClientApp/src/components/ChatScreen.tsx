@@ -10,6 +10,7 @@ import MainArea from './MainArea';
 interface ChatScreenProps {
   leaveChatHandler(): void;
   removedFromThreadHandler(): void;
+  enterRoomHandler(title: string): void;
   isRemoved: boolean;
 }
 
@@ -19,7 +20,7 @@ export default (props: ChatScreenProps): JSX.Element => {
     window.innerWidth > 600 ? SidePanelTypes.People : SidePanelTypes.None
   );
 
-  const { leaveChatHandler, isRemoved, removedFromThreadHandler } = props;
+  const { leaveChatHandler, isRemoved, removedFromThreadHandler, enterRoomHandler } = props;
   const [content, setMainArea] = useState('welcome');
 
   // when the screen first loads we want to put focus on the sendbox
@@ -41,7 +42,7 @@ export default (props: ChatScreenProps): JSX.Element => {
         <ChatHeader leaveChatHandler={leaveChatHandler} selectedPane={selectedPane} setSelectedPane={setSelectedPane} />
         <Stack className={chatScreenBottomContainerStyle} horizontal={true}>
           <LeftPane onTabClicked={(tab) => { setMainArea(tab) }}/>
-          <MainArea contents={content}/>
+          <MainArea contents={content} enterRoomHandler={props.enterRoomHandler} />
           <ChatArea />
         </Stack>
       </Stack>
