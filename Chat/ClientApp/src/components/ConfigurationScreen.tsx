@@ -16,14 +16,13 @@ import {
   smallAvatarStyle,
   startChatButtonTextStyle
 } from './styles/ConfigurationScreen.styles';
-import { CAT, MOUSE, KOALA, OCTOPUS, MONKEY, FOX, getThreadId, getEventId } from '../utils/utils';
+import { CAT, MOUSE, KOALA, OCTOPUS, MONKEY, FOX, getEventId } from '../utils/utils';
 import DisplayNameField from './DisplayNameField';
 import { MAXIMUM_LENGTH_OF_NAME } from '../constants';
 
 export interface ConfigurationScreenProps {
   joinChatHandler(): void;
   setup(displayName: string, emoji: string): void;
-  isValidThread(threadId: string | null): any;
   getEventInfo(threadId: string | null): any;
 }
 
@@ -40,8 +39,6 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
   const [selectedAvatar, setSelectedAvatar] = useState(CAT);
 
   const [isJoining, setIsJoining] = useState(false);
-
-  // const [isValidThread, setIsValidThread] = useState<boolean | undefined>(undefined);
 
   const { joinChatHandler, setup } = props;
 
@@ -65,20 +62,6 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
       }
     }
   };
-
-  // const isValidThreadProp = props.isValidThread;
-
-  // useEffect(() => {
-  //   const isValidThread = async () => {
-  //     if (await isValidThreadProp(getThreadId())) {
-  //       setIsValidThread(true);
-  //     } else {
-  //       setIsValidThread(false);
-  //     }
-  //   };
-  //   isValidThread();
-  //   document.getElementById('🐱')?.focus();
-  // }, [isValidThreadProp]);
   
   const getEventInfoProp = props.getEventInfo;
 
@@ -87,15 +70,8 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
       await getEventInfoProp(getEventId())
     };
     getEvent();
+    document.getElementById('🐱')?.focus();
   }, [getEventInfoProp]);
-
-  const invalidChatThread = () => {
-    return (
-      <div>
-        <p>thread Id is not valid</p>
-      </div>
-    );
-  };
 
   const joinChatLoading = () => {
     return <Spinner label={spinnerLabel} ariaLive="assertive" labelPosition="top" />;

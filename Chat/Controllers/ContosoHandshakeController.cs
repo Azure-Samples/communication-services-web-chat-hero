@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace Chat
 {
@@ -41,9 +40,6 @@ namespace Chat
 					sessionThreadIds = new List<string>() { "19:yXlrdWXkXW8LPAXmDrjcpzg-VwcXz8sE14kWXGez2Qs1@thread.v2" },
 					sessionThreadModeratorIds = new List<string>() { "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-8a5c-fc1b-1000-343a0d009850" }
 				};
-				//foreach (var threadId in eventInfo.sessionThreadIds) {
-				//	_store.Store.Add(threadId)
-				//}
 				store.Store.Add("acs_ve_06_07_2021", JsonSerializer.Serialize(eventInfo));
 			}
 		}
@@ -131,7 +127,7 @@ namespace Chat
 			{
 				return NotFound();
 			}
-			return Ok(_store.Store[threadId]);
+			return Ok();
 		}
 
 		/// <summary>
