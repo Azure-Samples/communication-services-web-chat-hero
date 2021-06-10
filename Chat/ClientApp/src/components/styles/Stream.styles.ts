@@ -3,7 +3,7 @@
 const streamMainStyle = mergeStyles({
   height: '100%',
   width: '100%',
-  maxHeight: '100%',
+  maxHeight: '500px',
   background: '#d2d0ce',
   overflow: 'auto',
   display: 'flex',
