@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace Chat
 {
@@ -31,6 +32,16 @@ namespace Chat
 			_userTokenManager = userTokenManager;
 			_chatGatewayUrl = Utils.ExtractApiChatGatewayUrl(chatConfiguration["ResourceConnectionString"]);
 			_resourceConnectionString = chatConfiguration["ResourceConnectionString"];
+
+			if (!_store.Store.ContainsKey("acs_ve_06_07_2021"))
+			{
+				var eventInfo = new ACSEvent
+				{
+					sessionThreadIds = new List<string>() { "19:yXlrdWXkXW8LPAXmDrjcpzg-VwcXz8sE14kWXGez2Qs1@thread.v2" },
+					sessionThreadModeratorIds = new List<string>() { "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-8a5c-fc1b-1000-343a0d009850" }
+				};
+				_store.Store.Add("acs_ve_06_07_2021", JsonSerializer.Serialize(eventInfo));
+			}
 		}
 
 		/// <summary>
@@ -90,6 +101,21 @@ namespace Chat
 		}
 
 		/// <summary>
+		/// Get event details
+		/// </summary>
+		/// <returns></returns>
+		[Route("event/{eventId}")]
+		[HttpGet]
+		public ActionResult<ACSEvent> getEventInformation(string eventId)
+		{
+			if (!_store.Store.ContainsKey(eventId))
+			{
+				return NotFound();
+			}
+			return JsonSerializer.Deserialize<ACSEvent>(_store.Store[eventId]);
+		}
+
+		/// <summary>
 		/// Check if a given thread Id exists in our in memory dictionary
 		/// </summary>
 		/// <returns></returns>
@@ -114,7 +140,9 @@ namespace Chat
 		[HttpPost]
 		public async Task<ActionResult> TryAddUserToThread(string threadId, ContosoMemberModel user)
 		{
-			var moderatorId = _store.Store[threadId];
+			var eventInfo = JsonSerializer.Deserialize<ACSEvent>(_store.Store["acs_ve_06_07_2021"]);
+			var _threadIndex = eventInfo.sessionThreadIds.IndexOf(threadId);
+			var moderatorId = eventInfo.sessionThreadModeratorIds[_threadIndex];
 
 			AccessToken moderatorToken = await _userTokenManager.GenerateTokenAsync(_resourceConnectionString, moderatorId);
 

@@ -62,6 +62,7 @@ export default (props: HomeScreenProps): JSX.Element => {
               aria-label="Start chat"
               className={buttonStyle}
               onClick={() => {
+                window.location.href += `?eventId=acs_ve_06_07_2021`;
                 onCreateThread();
               }}
             >
