@@ -1,9 +1,10 @@
-import React, { useState }  from 'react';
+import React from 'react';
 import { DefaultButton, Image, Stack } from '@fluentui/react';
 import defaultImg from '../assets/default.png';
 import { staticImageStyle, staticAreaStyle } from './styles/ChatScreen.styles';
 import { tilesStackStyles, tilesStackTokens, tileStyle } from './styles/RoomTile.styles';
 import RoomMainArea from './RoomMainArea';
+import AttendeesArea from '../containers/AttendeesArea';
 
 export interface MainScreenProps {
   contents: string;
@@ -35,20 +36,14 @@ export default (props: MainScreenProps): JSX.Element => {
         </div>
         );
     } else if (contents === 'attendees') {
-      return (
-        <div className={staticAreaStyle}>
-        <h2>Attendees</h2>
-        Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </div>
-      );
+      return ( <AttendeesArea /> );   
     } else if (contents === 'room') {
       return (
         <div className={staticAreaStyle}>
           <RoomMainArea roomTitle={roomTitle} backToChatScreenHander={() => { props.setMainArea({ contentType: "welcome" }) }} />
         </div>
       );
-    }
-    else {
+    } else {
       return (
         <div className={staticAreaStyle}>
         <h2>ERROR</h2>

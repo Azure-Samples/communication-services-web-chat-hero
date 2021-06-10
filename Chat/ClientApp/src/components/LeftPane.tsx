@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { DefaultButton, Icon, IconButton, Pivot, PivotItem, Stack, StackItem } from '@fluentui/react';
+import React from 'react';
+import { DefaultButton, Icon, Stack } from '@fluentui/react';
 
 import { leftPaneStyle, paneButtonStyle } from './styles/ChatScreen.styles';
 
