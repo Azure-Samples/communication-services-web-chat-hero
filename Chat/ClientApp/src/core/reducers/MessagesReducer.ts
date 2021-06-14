@@ -14,6 +14,7 @@ export interface MessagesState {
   typingNotifications: any;
   typingUsers: ChatParticipant[];
   failedMessages: string[];
+  isMessagesLoaded: boolean;
 }
 
 // model that allows us to track a message before its replicated on the server
@@ -26,13 +27,15 @@ export interface ClientChatMessage {
   createdOn: Date;
   id?: string;
   failed?: boolean;
+  isMessagesLoaded: boolean;
 }
 
 const initMessagesState: MessagesState = {
   messages: [],
   typingNotifications: {},
   typingUsers: [],
-  failedMessages: []
+  failedMessages: [],
+  isMessagesLoaded: false
 };
 
 export const MessagesReducer = (state = initMessagesState, action: MessagesActionTypes) => {
@@ -40,6 +43,7 @@ export const MessagesReducer = (state = initMessagesState, action: MessagesActio
     case SET_MESSAGES:
       return {
         ...state,
+        isMessagesLoaded: true,
         messages: [...action.messages]
       };
     case SET_TYPING_NOTIFICATIONS:
