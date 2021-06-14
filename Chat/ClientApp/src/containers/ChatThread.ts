@@ -11,6 +11,7 @@ const mapStateToProps = (state: State) => ({
   user: state.contosoClient.user,
   users: state.contosoClient.users,
   failedMessages: state.chat.failedMessages,
+  isMessageLoaded: state.chat.isMessagesLoaded,
   isYourLatestMessage: (messageId: string, messages: any[]) => {
     let latestArrivalTime: any = -1;
     let latestMessageId: string | undefined = undefined;
