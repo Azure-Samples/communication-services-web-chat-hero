@@ -1,4 +1,4 @@
-import { Stack, TooltipHost, PrimaryButton, Icon } from '@fluentui/react';
+import { Stack, TooltipHost, PrimaryButton, Icon, Spinner } from '@fluentui/react';
 import {
   Chat,
   MessageSeenIcon,
@@ -38,6 +38,7 @@ interface ChatThreadProps {
   user: User;
   users: any;
   failedMessages: string[];
+  isMessageLoaded: boolean;
 }
 
 // Reference: https://stackoverflow.com/questions/33235890/react-replace-links-in-a-text
@@ -112,10 +113,14 @@ export default (props: ChatThreadProps): JSX.Element => {
       setExistsNewMessage(true);
     }
     window.addEventListener('focus', sendReadReceipt);
-    createdRef.current.addEventListener('scroll', handleScroll);
+    if (typeof createdRef.current.addEventListener !== 'undefined') {
+      createdRef.current.addEventListener('scroll', handleScroll);
+    }
     return () => {
       window.removeEventListener('focus', sendReadReceipt);
-      createdRef.current.removeEventListener('scroll', handleScroll);
+      if (typeof createdRef.current.removeEventListener !== 'undefined') {
+        createdRef.current.removeEventListener('scroll', handleScroll);
+      }
     };
   }, [props.messages]);
 
@@ -218,6 +223,60 @@ export default (props: ChatThreadProps): JSX.Element => {
     setShouldUpdateMessageWithAttached(true);
   };
 
+  const spinnerLabel = 'Loading chat...';
+
+  const chatLoading = () => {
+    return <Spinner label={spinnerLabel} ariaLive="assertive" labelPosition="top" />;
+  };
+
+  const chatComponent = () => {
+    return (<LiveAnnouncer>
+      <Chat
+        styles={chatStyle}
+        items={messagesWithAttached.map((message: any, index: number) => {
+          const liveAuthor = `${message.senderDisplayName} says `;
+          const messageContentItem = (
+            <div>
+              <LiveMessage message={`${message.mine ? '' : liveAuthor} ${message.content}`} aria-live="polite" />
+              {renderHyperlink(message.content.message)}
+            </div>
+          );
+          return {
+            gutter: message.mine ? (
+              ''
+            ) : (
+              <div
+                className={messageAvatarContainerStyle(
+                  props.users[message.sender.communicationUserId] === undefined
+                    ? ''
+                    : props.users[message.sender.communicationUserId].emoji
+                )}
+              >
+                {props.users[message.sender.communicationUserId] === undefined
+                  ? ''
+                  : props.users[message.sender.communicationUserId].emoji}
+              </div>
+            ),
+            key: index,
+            contentPosition: message.mine ? 'end' : 'start',
+            message: (
+              <Flex vAlign="end">
+                <Chat.Message
+                  styles={chatMessageStyle(message.mine)}
+                  content={messageContentItem}
+                  author={message.senderDisplayName}
+                  mine={message.mine}
+                />
+                <div className={readReceiptIconStyle(message.mine)}>{readReceiptIcon(message)}</div>
+              </Flex>
+            ),
+            attached: message.attached
+          };
+        })}
+      />
+    </LiveAnnouncer>)
+  };
+
   const updateMessageWithAttached = () => {
     let newMessagesWithAttached: any[] = [];
     let messagesToRender = props.messages.slice(indexOfTheFirstMessage, props.messages.length);
@@ -276,51 +335,7 @@ export default (props: ChatThreadProps): JSX.Element => {
           />
         )}
         <Ref innerRef={createdRef}>
-          <LiveAnnouncer>
-            <Chat
-              styles={chatStyle}
-              items={messagesWithAttached.map((message: any, index: number) => {
-                const liveAuthor = `${message.senderDisplayName} says `;
-                const messageContentItem = (
-                  <div>
-                    <LiveMessage message={`${message.mine ? '' : liveAuthor} ${message.content}`} aria-live="polite" />
-                    {renderHyperlink(message.content.message)}
-                  </div>
-                );
-                return {
-                  gutter: message.mine ? (
-                    ''
-                  ) : (
-                    <div
-                      className={messageAvatarContainerStyle(
-                        props.users[message.sender.communicationUserId] === undefined
-                          ? ''
-                          : props.users[message.sender.communicationUserId].emoji
-                      )}
-                    >
-                      {props.users[message.sender.communicationUserId] === undefined
-                        ? ''
-                        : props.users[message.sender.communicationUserId].emoji}
-                    </div>
-                  ),
-                  key: index,
-                  contentPosition: message.mine ? 'end' : 'start',
-                  message: (
-                    <Flex vAlign="end">
-                      <Chat.Message
-                        styles={chatMessageStyle(message.mine)}
-                        content={messageContentItem}
-                        author={message.senderDisplayName}
-                        mine={message.mine}
-                      />
-                      <div className={readReceiptIconStyle(message.mine)}>{readReceiptIcon(message)}</div>
-                    </Flex>
-                  ),
-                  attached: message.attached
-                };
-              })}
-            />
-          </LiveAnnouncer>
+          {props.isMessageLoaded ? chatComponent() : chatLoading()}
         </Ref>
         {existsNewMessage && (
           <div>
