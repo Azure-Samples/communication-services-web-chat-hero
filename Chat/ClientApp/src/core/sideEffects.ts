@@ -386,10 +386,10 @@ const getEventInformation = (eventId: string) => async (dispatch: Dispatch) => {
     let validationRequestOptions = { method: 'GET' };
     let response = await fetch('/event/' + eventId, validationRequestOptions);
     if (response.status === 200) {
-      return response.json().then((_responseJson) => {
-        console.log(_responseJson);
-        dispatch(setThreadId(_responseJson.sessionThreadIds[0]));
-        return _serverHardCodedEventInfo = _responseJson;
+      return response.json().then((result) => {
+        console.log("Event Information: ", result);
+        dispatch(setThreadId(result.sessionThreadIds[0]));
+        return _serverHardCodedEventInfo = result;
       });
     } else {
       return false;
