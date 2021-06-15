@@ -105,7 +105,8 @@ export const convertToClientChatMessage = (chatMessage: ChatMessage, clientMessa
     sender: chatMessage.sender,
     senderDisplayName: chatMessage.senderDisplayName,
     createdOn: chatMessage.createdOn,
-    id: chatMessage.id
+    id: chatMessage.id,
+    isMessagesLoaded: true
   };
 };
 
@@ -120,6 +121,7 @@ export const createNewClientChatMessage = (
     clientMessageId: clientMessageId,
     sender: { communicationUserId: userId, kind: 'communicationUser' },
     senderDisplayName: displayName,
-    createdOn: new Date()
+    createdOn: new Date(),
+    isMessagesLoaded: true
   };
 };

@@ -133,7 +133,8 @@ const subscribeForMessage = async (chatClient: ChatClient, dispatch: Dispatch, g
         id: event.id,
         senderDisplayName: event.senderDisplayName,
         createdOn: event.createdOn,
-        content: { message: event.message }
+        content: { message: event.message },
+        isMessagesLoaded: false
       };
 
       messages.push(clientChatMessage);
