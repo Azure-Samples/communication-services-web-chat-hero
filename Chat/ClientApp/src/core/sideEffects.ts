@@ -51,18 +51,19 @@ const addUserToRoomThread = () => async (dispatch: Dispatch, getState: () => Sta
     console.error('Thread Id not created yet');
     return;
   }
-  let chatClient = state.contosoClient?.chatClient;
-  let userId = state.contosoClient?.user?.identity;
-  let userTokenString = state.contosoClient?.user?.token;
+  let contosoClient = state.contosoClient;
+  if(!contosoClient){
+    throw "Error: cannot add user to a room. contosoClient doesnt exist in state."
+  }
+  let chatClient = state.contosoClient.chatClient;
+  let userId = state.contosoClient.user.identity;
+  let userTokenString = state.contosoClient.user.token;
   let threadId: string = state.thread.threadId;
   if(!chatClient || !userId || !userTokenString){
-    throw "ERROR";
+    throw "Error: cannot add user to a room. One or more required state objects are missing.";
   }
   // set emoji for the user
   setEmoji(userId, _emoji);
-  if(!userTokenString){
-    throw "error";
-  }
   // subscribe for message, typing indicator, and read receipt
   let chatThreadClient = await chatClient.getChatThreadClient(threadId);
   subscribeForMessage(chatClient, dispatch, getState);
