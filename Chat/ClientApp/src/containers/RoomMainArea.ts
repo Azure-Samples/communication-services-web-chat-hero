@@ -12,7 +12,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   setupRoom: async () => {
     dispatch(addUserToRoomThread());
   },
-  setRoomThreadId: async (roomId?: string) => dispatch(setRoomThreadId(roomId)),
+  setRoomThreadId: async (roomId: string) => dispatch(setRoomThreadId(roomId)),
   removeChatParticipantById: (userId: string) => dispatch(removeThreadMemberByUserId(userId))
 });
 

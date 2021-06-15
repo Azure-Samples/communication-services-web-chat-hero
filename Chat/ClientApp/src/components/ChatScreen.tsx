@@ -10,7 +10,7 @@ import MainArea from './MainArea';
 interface ChatScreenProps {
   leaveChatHandler(): void;
   removedFromThreadHandler(): void;
-  setRoomThreadId(roomId?: string): void;
+  setRoomThreadId(roomId: string): void;
   setupRoom(): void;
   isRemoved: boolean;
 }

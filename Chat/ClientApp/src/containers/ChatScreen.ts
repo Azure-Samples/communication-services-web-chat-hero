@@ -9,7 +9,7 @@ const mapStateToProps = (state: State) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  setRoomThreadId: async (roomId?: string) => dispatch(setRoomThreadId(roomId)),
+  setRoomThreadId: async (roomId: string) => dispatch(setRoomThreadId(roomId)),
   setupRoom: async () => {
     dispatch(addUserToRoomThread());
   },

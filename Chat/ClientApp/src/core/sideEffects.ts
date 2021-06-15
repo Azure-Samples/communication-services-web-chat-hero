@@ -42,8 +42,8 @@ import {
   ParticipantsAddedEvent,
   ParticipantsRemovedEvent
 } from '@azure/communication-signaling';
-let event: any;
-let _displayName: string, _emoji: string;
+
+let _serverHardCodedEventInfo: any, _displayName: string, _emoji: string;
 
 const addUserToRoomThread = () => async (dispatch: Dispatch, getState: () => State) => {
   let state: State = getState();
@@ -372,13 +372,13 @@ const sendMessage = (messageContent: string) => async (dispatch: Dispatch, getSt
   );
 };
 
-const getEventIfExists = () => event;
+const getEventIfExists = () => _serverHardCodedEventInfo;
 
-const setRoomThreadId = (roomId?: string) => async (dispatch: Dispatch) => {
+const setRoomThreadId = (roomId: string) => async (dispatch: Dispatch) => {
   if(roomId == "main")
-    dispatch(setThreadId(event.sessionThreadIds[0]));
+    dispatch(setThreadId(_serverHardCodedEventInfo.sessionThreadIds[0]));
   else 
-    dispatch(setThreadId(event.sessionThreadIds[1]));
+    dispatch(setThreadId(_serverHardCodedEventInfo.sessionThreadIds[1]));
 }
 
 const getEventInformation = (eventId: string) => async (dispatch: Dispatch) => {
@@ -389,7 +389,7 @@ const getEventInformation = (eventId: string) => async (dispatch: Dispatch) => {
       return response.json().then((_responseJson) => {
         console.log(_responseJson);
         dispatch(setThreadId(_responseJson.sessionThreadIds[0]));
-        return event = _responseJson;
+        return _serverHardCodedEventInfo = _responseJson;
       });
     } else {
       return false;

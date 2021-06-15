@@ -10,25 +10,25 @@ interface RoomMainAreaProps {
   roomTitle: string;
   userId: string;
   setupRoom(): void;
-  setRoomThreadId(roomId?: string): void;
+  setRoomThreadId(roomId: string): void;
   backToChatScreenHander(): void;
   removeChatParticipantById: (userId: string) => Promise<void>;
 }
 
 export default (props: RoomMainAreaProps): JSX.Element => {
-  const { setupRoom } = props;
+  const { setupRoom, setRoomThreadId, backToChatScreenHander } = props;
 
   useEffect(()=>{
-    props.setRoomThreadId();
+    setRoomThreadId("room1");
     setupRoom();
   }, []);
 
   let backButtonHandler = ()=>{
     console.log("&", props.userId);
-    props.setRoomThreadId("main");
+    setRoomThreadId("main");
     // props.removeChatParticipantById(props.userId); //TODO
     setupRoom();
-    props.backToChatScreenHander();
+    backToChatScreenHander();
   }
 
   return (
