@@ -10,6 +10,8 @@ import MainArea from './MainArea';
 interface ChatScreenProps {
   leaveChatHandler(): void;
   removedFromThreadHandler(): void;
+  setRoomThreadId(roomId?: string): void;
+  setupRoom(): void;
   isRemoved: boolean;
 }
 
@@ -40,7 +42,11 @@ export default (props: ChatScreenProps): JSX.Element => {
       <Stack className={chatScreenContainerStyle}>
         <ChatHeader leaveChatHandler={leaveChatHandler} selectedPane={selectedPane} setSelectedPane={setSelectedPane} />
         <Stack className={chatScreenBottomContainerStyle} horizontal={true}>
-          <LeftPane onTabClicked={(tab) => { setMainArea({ ...content, contentType: tab }) }} />
+          <LeftPane onTabClicked={(tab) => { 
+            props.setRoomThreadId("main"); 
+            props.setupRoom();
+            setMainArea({ ...content, contentType: tab }) }
+            } />
           <MainArea contents={content.contentType} roomTitle={content.roomTitle} setMainArea={setMainArea} />
           <ChatArea />
         </Stack>

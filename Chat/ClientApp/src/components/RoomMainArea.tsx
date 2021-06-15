@@ -1,5 +1,5 @@
 ﻿import { ActionButton, FontIcon, IIconProps, Stack } from '@fluentui/react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Stream from './Stream';
 import { staticAreaStyle } from './styles/ChatScreen.styles';
 import { backButtonStyle, calendarIconStyle, headerTextStyle, roomMainAreaStackStyles,  timeIconStyle } from './styles/RoomMainArea.styles';
@@ -8,13 +8,32 @@ const backIcon: IIconProps = { iconName: 'Back' };
 
 interface RoomMainAreaProps {
   roomTitle: string;
+  userId: string;
+  setupRoom(): void;
+  setRoomThreadId(roomId?: string): void;
   backToChatScreenHander(): void;
+  removeChatParticipantById: (userId: string) => Promise<void>;
 }
 
 export default (props: RoomMainAreaProps): JSX.Element => {
+  const { setupRoom } = props;
+
+  useEffect(()=>{
+    props.setRoomThreadId();
+    setupRoom();
+  }, []);
+
+  let backButtonHandler = ()=>{
+    console.log("&", props.userId);
+    props.setRoomThreadId("main");
+    // props.removeChatParticipantById(props.userId); //TODO
+    setupRoom();
+    props.backToChatScreenHander();
+  }
+
   return (
     <div className={staticAreaStyle}>
-      <ActionButton className={backButtonStyle} iconProps={backIcon} onClick={props.backToChatScreenHander}>
+      <ActionButton className={backButtonStyle} iconProps={backIcon} onClick={backButtonHandler}>
         Back to all rooms
       </ActionButton>
       <h1>
