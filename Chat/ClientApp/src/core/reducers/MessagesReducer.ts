@@ -6,7 +6,8 @@ import {
   SET_MESSAGES,
   SET_TYPING_NOTIFICATIONS,
   SET_TYPING_USERS,
-  SET_FAILED_MESSAGES
+  SET_FAILED_MESSAGES,
+  SET_IS_MESSAGE_LOADED
 } from '../actions/MessagesAction';
 
 export interface MessagesState {
@@ -63,6 +64,11 @@ export const MessagesReducer = (state = initMessagesState, action: MessagesActio
       return {
         ...state,
         failedMessages: [...action.failedMessages]
+      };
+    case SET_IS_MESSAGE_LOADED:
+      return {
+        ...state,
+        isMessagesLoaded: action.isMessagesLoaded
       };
     default:
       return state;

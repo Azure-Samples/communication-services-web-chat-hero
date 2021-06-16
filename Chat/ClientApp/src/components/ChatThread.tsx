@@ -38,7 +38,7 @@ interface ChatThreadProps {
   user: User;
   users: any;
   failedMessages: string[];
-  isMessageLoaded: boolean;
+  isMessagesLoaded: boolean;
 }
 
 // Reference: https://stackoverflow.com/questions/33235890/react-replace-links-in-a-text
@@ -335,7 +335,7 @@ export default (props: ChatThreadProps): JSX.Element => {
           />
         )}
         <Ref innerRef={createdRef}>
-          {props.isMessageLoaded ? chatComponent() : chatLoading()}
+          {props.isMessagesLoaded ? chatComponent() : chatLoading()}
         </Ref>
         {existsNewMessage && (
           <div>
