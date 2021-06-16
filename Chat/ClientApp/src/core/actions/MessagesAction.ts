@@ -5,10 +5,16 @@ export const SET_MESSAGES = 'SET_MESSAGES';
 export const SET_TYPING_NOTIFICATIONS = 'SET_TYPING_NOTIFICATIONS';
 export const SET_TYPING_USERS = 'SET_TYPING_USERS';
 export const SET_FAILED_MESSAGES = 'SET_FAILED_MESSAGES';
+export const SET_IS_MESSAGE_LOADED = 'SET_IS_MESSAGE_LOADED';
 
 export interface SetMessagesAction {
   type: typeof SET_MESSAGES;
   messages: ClientChatMessage[];
+}
+
+export interface SetIsMessagesLoadedAction {
+  type: typeof SET_IS_MESSAGE_LOADED;
+  isMessagesLoaded: boolean;
 }
 
 export type TypingNotification = {
@@ -39,6 +45,11 @@ export const setMessages = (messages: ClientChatMessage[]): SetMessagesAction =>
   messages
 });
 
+export const setIsMessagesLoaded = (isMessagesLoaded: boolean): SetIsMessagesLoadedAction => ({
+  type: SET_IS_MESSAGE_LOADED,
+  isMessagesLoaded
+});
+
 export const setTypingNotifications = (
   id: string,
   typingNotification: TypingNotification
@@ -62,4 +73,5 @@ export type MessagesActionTypes =
   | SetMessagesAction
   | SetTypingNotificationsAction
   | SetTypingUsersAction
-  | SetFailedMessagesAction;
+  | SetFailedMessagesAction
+  | SetIsMessagesLoadedAction;
