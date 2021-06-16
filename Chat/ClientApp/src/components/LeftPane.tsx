@@ -34,17 +34,6 @@ export default (props: LeftPaneProps): JSX.Element => {
             </DefaultButton>
           </div>
         </Stack.Item>
-        <Stack.Item align="center">
-          <div>
-            <DefaultButton 
-              id="Group" 
-              className={paneButtonStyle}
-              onClick={() => onTabClicked('attendees')}
-            >
-              <Icon iconName="Group" />
-            </DefaultButton>
-          </div>
-        </Stack.Item>
       </Stack>  
     </div>
   );

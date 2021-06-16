@@ -4,7 +4,6 @@ import defaultImg from '../assets/default.png';
 import { staticImageStyle, staticAreaStyle } from './styles/ChatScreen.styles';
 import { tilesStackStyles, tilesStackTokens, tileStyle } from './styles/RoomTile.styles';
 import RoomMainArea from '../containers/RoomMainArea';
-import AttendeesArea from '../containers/AttendeesArea';
 
 export interface MainScreenProps {
   contents: string;
@@ -35,8 +34,6 @@ export default (props: MainScreenProps): JSX.Element => {
           </Stack>
         </div>
         );
-    } else if (contents === 'attendees') {
-      return ( <AttendeesArea /> );   
     } else if (contents === 'room') {
       return (
         <div className={staticAreaStyle}>

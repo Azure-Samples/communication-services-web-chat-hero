@@ -1,6 +1,7 @@
 import { ChatParticipant } from '@azure/communication-signaling';
 import React from 'react';
-import { staticAreaStyle } from './styles/ChatScreen.styles';
+import { IPersonaSharedProps, Persona, PersonaSize } from '@fluentui/react';
+
 
 interface AttendeesAreaProps {
     eventAttendees: any;
@@ -9,15 +10,16 @@ interface AttendeesAreaProps {
 export default (props: AttendeesAreaProps): JSX.Element => {
     const { eventAttendees } = props;
     const participants = eventAttendees as ChatParticipant[];
-
     return (
-        <div className={staticAreaStyle}>
-        <h2>Attendees</h2>
-        {participants.map(participant => (
-        <li>
-          {participant.displayName}
-        </li>
-      ))}
+        <div style={{paddingTop: '20px'}}>
+            {participants.map((participant, index) => (
+              <div key={index} style={{padding: '10px'}}>
+                <Persona
+                  text={participant.displayName}
+                  size={PersonaSize.size32}
+                />
+              </div>
+          ))}
         </div>
     );
 }
