@@ -43,9 +43,57 @@ import {
   ParticipantsRemovedEvent
 } from '@azure/communication-signaling';
 
+let _serverHardCodedEventInfo: any, _displayName: string, _emoji: string;
+
+const addUserToRoomThread = () => async (dispatch: Dispatch, getState: () => State) => {
+  let state: State = getState();
+  if (state.thread.threadId === undefined) {
+    console.error('Thread Id not created yet');
+    return;
+  }
+  let contosoClient = state.contosoClient;
+  if(!contosoClient){
+    throw "Error: cannot add user to a room. contosoClient doesnt exist in state."
+  }
+  let chatClient = state.contosoClient.chatClient;
+  let userId = state.contosoClient.user.identity;
+  let userTokenString = state.contosoClient.user.token;
+  let threadId: string = state.thread.threadId;
+  if(!chatClient || !userId || !userTokenString){
+    throw "Error: cannot add user to a room. One or more required state objects are missing.";
+  }
+  // set emoji for the user
+  setEmoji(userId, _emoji);
+  // subscribe for message, typing indicator, and read receipt
+  let chatThreadClient = await chatClient.getChatThreadClient(threadId);
+  subscribeForMessage(chatClient, dispatch, getState);
+  subscribeForTypingIndicator(chatClient, dispatch);
+  subscribeForReadReceipt(chatClient, chatThreadClient, dispatch);
+  subscribeForChatParticipants(chatClient, userId, dispatch, getState);
+  subscribeForTopicUpdated(chatClient, dispatch, getState);
+  dispatch(setThreadId(threadId));
+  dispatch(setContosoUser(userId, userTokenString, _displayName));
+  dispatch(setChatClient(chatClient));
+
+  await addThreadMemberHelper(
+    threadId,
+    {
+      identity: userId,
+      token: userTokenString,
+      displayName: _displayName,
+      memberRole: 'User'
+    },
+    dispatch
+  );
+
+  await getThreadInformation(chatClient, dispatch, getState);
+  await getMessages(chatClient, dispatch, getState);
+}
 // This function sets up the user to chat with the thread
 const addUserToThread = (displayName: string, emoji: string) => async (dispatch: Dispatch, getState: () => State) => {
   let state: State = getState();
+  _displayName = displayName;
+  _emoji = emoji;
   if (state.thread.threadId === undefined) {
     console.error('Thread Id not created yet');
     return;
@@ -325,15 +373,24 @@ const sendMessage = (messageContent: string) => async (dispatch: Dispatch, getSt
   );
 };
 
+const getEventIfExists = () => _serverHardCodedEventInfo;
+
+const setRoomThreadId = (roomId: string) => async (dispatch: Dispatch) => {
+  if(roomId == "main")
+    dispatch(setThreadId(_serverHardCodedEventInfo.sessionThreadIds[0]));
+  else 
+    dispatch(setThreadId(_serverHardCodedEventInfo.sessionThreadIds[1]));
+}
+
 const getEventInformation = (eventId: string) => async (dispatch: Dispatch) => {
   try {
     let validationRequestOptions = { method: 'GET' };
     let response = await fetch('/event/' + eventId, validationRequestOptions);
     if (response.status === 200) {
-      return response.json().then((_responseJson) => {
-        console.log(_responseJson);
-        dispatch(setThreadId(_responseJson.sessionThreadIds[0]));
-        return _responseJson;
+      return response.json().then((result) => {
+        console.log("Event Information: ", result);
+        dispatch(setThreadId(result.sessionThreadIds[0]));
+        return _serverHardCodedEventInfo = result;
       });
     } else {
       return false;
@@ -412,7 +469,7 @@ const addThreadMember = () => async (dispatch: Dispatch, getState: () => State) 
     dispatch
   );
 };
-
+// TODO: Only remove if user was in a room and getting to another room or to the main event page.
 const removeThreadMemberByUserId = (userId: string) => async (dispatch: Dispatch, getState: () => State) => {
   let state: State = getState();
   let chatClient = state.contosoClient.chatClient;
@@ -787,5 +844,8 @@ export {
   updateTypingUsers,
   isValidThread,
   updateThreadTopicName,
-  getEventInformation
+  getEventInformation,
+  getEventIfExists,
+  setRoomThreadId,
+  addUserToRoomThread
 };

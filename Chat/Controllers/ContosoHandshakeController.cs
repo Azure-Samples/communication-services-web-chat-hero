@@ -37,8 +37,8 @@ namespace Chat
 			{
 				var eventInfo = new ACSEvent
 				{
-					sessionThreadIds = new List<string>() { "19:yXlrdWXkXW8LPAXmDrjcpzg-VwcXz8sE14kWXGez2Qs1@thread.v2" },
-					sessionThreadModeratorIds = new List<string>() { "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-8a5c-fc1b-1000-343a0d009850" }
+					sessionThreadIds = new List<string>() { "19:a87VuOcsNpERaqNsLl-BnJT4C0mBdk8F5KxEpkAvE8k1@thread.v2", "19:z0V99GRnhAqZ2ebHSLhvps8xTT_zq5vFHLku5YsE21w1@thread.v2" },
+					sessionThreadModeratorIds = new List<string>() { "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-a1ee-63f8-02c3-593a0d00fc66", "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-a1f2-6c00-edbe-a43a0d00d824" }
 				};
 				_store.Store.Add("acs_ve_06_07_2021", JsonSerializer.Serialize(eventInfo));
 			}

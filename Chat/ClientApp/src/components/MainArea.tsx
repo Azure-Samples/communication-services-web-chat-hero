@@ -3,7 +3,7 @@ import { DefaultButton, Image, Stack } from '@fluentui/react';
 import defaultImg from '../assets/default.png';
 import { staticImageStyle, staticAreaStyle } from './styles/ChatScreen.styles';
 import { tilesStackStyles, tilesStackTokens, tileStyle } from './styles/RoomTile.styles';
-import RoomMainArea from './RoomMainArea';
+import RoomMainArea from '../containers/RoomMainArea';
 import AttendeesArea from '../containers/AttendeesArea';
 
 export interface MainScreenProps {
