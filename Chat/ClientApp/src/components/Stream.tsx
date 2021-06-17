@@ -21,9 +21,13 @@ export default (props: any): JSX.Element => {
           type: 'application/vnd.ms-sstr+xml'
         }
       ]);
+      return myPlayer;
     };
 
-    createPlayer();
+    let player = createPlayer();
+    return () => {
+      player.dispose();
+    }
   });
 
   return (

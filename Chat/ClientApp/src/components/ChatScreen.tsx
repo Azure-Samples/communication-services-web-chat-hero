@@ -5,7 +5,7 @@ import ChatHeader from '../containers/ChatHeader';
 import { chatScreenBottomContainerStyle, chatScreenContainerStyle } from './styles/ChatScreen.styles';
 import { SidePanelTypes } from './SidePanel';
 import LeftPane from './LeftPane';
-import MainArea from './MainArea';
+import MainArea from '../containers/MainArea';
 
 interface ChatScreenProps {
   leaveChatHandler(): void;

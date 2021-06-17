@@ -1,15 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DefaultButton, Image, Stack } from '@fluentui/react';
 import defaultImg from '../assets/default.png';
 import { staticImageStyle, staticAreaStyle } from './styles/ChatScreen.styles';
 import { tilesStackStyles, tilesStackTokens, tileStyle } from './styles/RoomTile.styles';
 import RoomMainArea from '../containers/RoomMainArea';
-import AttendeesArea from '../containers/AttendeesArea';
 
 export interface MainScreenProps {
   contents: string;
   roomTitle: string;
   setMainArea({ }): void;
+  resetMessages(): void;
 }
 
 export default (props: MainScreenProps): JSX.Element => {
@@ -28,19 +28,17 @@ export default (props: MainScreenProps): JSX.Element => {
           <h2>Event Description</h2>
           Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           <h2>Upcoming Sessions</h2>
-          <Stack horizontal horizontalAlign="space-evenly" styles={tilesStackStyles} tokens={tilesStackTokens}>
-              <DefaultButton className={tileStyle} text="Global All Hands" onClick={() => { setMainArea({ contentType: "room", roomTitle: "Global All Hands"}) }} />
-              <DefaultButton className={tileStyle} text="Product Demos" onClick={() => { setMainArea({ contentType: "room", roomTitle: "Product Demos" }) }} />
-              <DefaultButton className={tileStyle} text="Ask Me Anything" onClick={() => { setMainArea({ contentType: "room", roomTitle: "Ask Me Anything" }) }} />
+            <Stack horizontal horizontalAlign="space-evenly" styles={tilesStackStyles} tokens={tilesStackTokens}>
+              <DefaultButton className={tileStyle} text="Global All Hands" onClick={() => { setMainArea({ contentType: "room", roomTitle: "Global All Hands" }); props.resetMessages(); }} />
+              <DefaultButton className={tileStyle} text="Product Demos" onClick={() => { setMainArea({ contentType: "room", roomTitle: "Product Demos" }); props.resetMessages(); }} />
+              <DefaultButton className={tileStyle} text="Ask Me Anything" onClick={() => { setMainArea({ contentType: "room", roomTitle: "Ask Me Anything" }); props.resetMessages(); }} />
           </Stack>
         </div>
         );
-    } else if (contents === 'attendees') {
-      return ( <AttendeesArea /> );   
     } else if (contents === 'room') {
       return (
         <div className={staticAreaStyle}>
-          <RoomMainArea roomTitle={roomTitle} backToChatScreenHander={() => { props.setMainArea({ contentType: "welcome" }) }} />
+          <RoomMainArea roomTitle={roomTitle} backToChatScreenHander={() => { props.setMainArea({ contentType: "welcome" }); props.resetMessages(); }} />
         </div>
       );
     } else {

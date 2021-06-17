@@ -10,7 +10,7 @@ import {
 } from '../constants';
 import { setChatClient, setContosoUser, setContosoUsers } from './actions/ContosoClientAction';
 import { setReceipts } from './actions/ConversationsAction';
-import { setMessages, setTypingNotifications, setTypingUsers, setFailedMessages } from './actions/MessagesAction';
+import { setMessages, setTypingNotifications, setTypingUsers, setFailedMessages, setIsMessagesLoaded } from './actions/MessagesAction';
 import { setThreadId, setThreadTopicName } from './actions/ThreadAction';
 import { setThreadMembers, setThreadMembersError, setRemovedFromThread } from './actions/ThreadMembersAction';
 import { User } from './reducers/ContosoClientReducers';
@@ -439,6 +439,10 @@ const getMessages = async (chatClient: ChatClient, dispatch: Dispatch, getState:
   return dispatch(setMessages(reversedClientChatMessages));
 };
 
+const resetMessages = () => (dispatch: Dispatch, getState: () => State) => {
+  dispatch(setIsMessagesLoaded(false));
+}
+
 const createThread = async () => {
   // TODO: fetch saved threadId from the server
   let threadId = await createThreadHelper();
@@ -847,5 +851,6 @@ export {
   getEventInformation,
   getEventIfExists,
   setRoomThreadId,
-  addUserToRoomThread
+  addUserToRoomThread,
+  resetMessages
 };
