@@ -16,17 +16,16 @@ interface RoomMainAreaProps {
 }
 
 export default (props: RoomMainAreaProps): JSX.Element => {
-  const { setupRoom, setRoomThreadId, backToChatScreenHander } = props;
+  const { setupRoom, setRoomThreadId, backToChatScreenHander, removeChatParticipantById } = props;
 
   useEffect(()=>{
     setRoomThreadId("room1");
     setupRoom();
   }, []);
 
-  let backButtonHandler = ()=>{
-    console.log("&", props.userId);
+  const backButtonHandler = () => {
+    removeChatParticipantById(props.userId);
     setRoomThreadId("main");
-    // props.removeChatParticipantById(props.userId); //TODO
     setupRoom();
     backToChatScreenHander();
   }

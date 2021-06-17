@@ -32,7 +32,7 @@ export default (): JSX.Element => {
     } else if (page === 'chat') {
       return (
         <ChatScreen
-          removedFromThreadHandler={() => setPage('removedFromThread')}
+          removedFromThreadHandler={() => setPage('chat')}
           leaveChatHandler={() => setPage('end')}
         />
       );
