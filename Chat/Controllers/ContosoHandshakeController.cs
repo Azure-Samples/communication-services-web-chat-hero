@@ -37,8 +37,8 @@ namespace Chat
 			{
 				var eventInfo = new ACSEvent
 				{
-					sessionThreadIds = new List<string>() { "19:Zn0x8VcPAZp45f1g4ZGpaKxdyxP-PMiFID_5HCgT8TM1@thread.v2", "19:X1EfWHTqIYTjsGH3vXdukNrO8ZfmhZEdA-7feHlAjJ01@thread.v2" },
-					sessionThreadModeratorIds = new List<string>() { "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-bad4-4402-71bf-a43a0d002d9c", "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-bad7-2b3b-570c-113a0d00d8b4" }
+					sessionThreadIds = new List<string>() { "19:EV6bzyGuXSRPBmp2bo4BHlbjsfyLLtFOkB8KjZiHb201@thread.v2", "19:4YD7S71M4TG0HEQWahNcgYfQ4KsYPjPdkKgHmDpEoSc1@thread.v2" },
+					sessionThreadModeratorIds = new List<string>() { "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-baee-fdc5-28c5-593a0d000c27", "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-baef-95a7-28c5-593a0d000c31" }
 				};
 				_store.Store.Add("acs_ve_06_07_2021", JsonSerializer.Serialize(eventInfo));
 			}
