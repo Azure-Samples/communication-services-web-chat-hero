@@ -5,6 +5,8 @@
   "dependencies": {
     "@azure/communication-chat": "1.0.0",
     "@azure/communication-common": "1.0.0",
+    "@azure/communication-calling": "1.0.0",
+    "@azure/communication-identity": "1.0.0",
     "@azure/communication-signaling": "1.0.0-beta.3",
     "@fluentui/react": "^7.166.2",
     "@fluentui/react-icons-northstar": "^0.51.7",
@@ -25,6 +27,7 @@
   },
   "devDependencies": {
     "@types/react-redux": "^7.1.16",
+    "@types/uuid": "^8.3.0",
     "prettier": "2.1.0",
     "typescript": "^3.9.9"
   },

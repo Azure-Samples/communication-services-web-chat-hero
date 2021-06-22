@@ -10,6 +10,22 @@ import { ConversationsReducer, ConversationsState } from './ConversationsReducer
 import { MessagesReducer, MessagesState } from './MessagesReducer';
 import { ThreadReducer, ThreadState } from './ThreadReducers';
 import { ThreadMembersReducer, ThreadMembersState } from './ThreadMembersReducers';
+import { callsReducer, CallsState } from './calls';
+import { devicesReducer, DevicesState } from './devices';
+import { controlsReducer, ControlsState } from './controls';
+import { streamsReducer, StreamsState } from './streams';
+import { sdkReducer, SdkState } from './sdk';
+import { RemoteParticipant, RemoteVideoStream } from '@azure/communication-calling';
+import { CallTypes } from '../actions/calls';
+import { ControlTypes } from '../actions/controls';
+import { DeviceTypes } from '../actions/devices';
+import { SdkTypes } from '../actions/sdk';
+import { StreamTypes } from '../actions/streams';
+
+export interface ParticipantStream {
+  user: RemoteParticipant;
+  stream: RemoteVideoStream | undefined;
+}
 
 export interface State {
   chat: MessagesState;
@@ -17,6 +33,11 @@ export interface State {
   conversations: ConversationsState;
   thread: ThreadState;
   threadMembers: ThreadMembersState;
+  calls: CallsState;
+  devices: DevicesState;
+  controls: ControlsState;
+  sdk: SdkState;
+  streams: StreamsState;
 }
 
 type TotalActions =
@@ -24,12 +45,22 @@ type TotalActions =
   | ContosoActionTypes
   | ConversationsActionTypes
   | ThreadActionTypes
-  | ThreadMembersActionTypes;
+  | ThreadMembersActionTypes
+  | CallTypes
+  | ControlTypes
+  | DeviceTypes
+  | SdkTypes
+  | StreamTypes;
 
 export const reducer = combineReducers({
   chat: MessagesReducer,
   contosoClient: ContosoReducer,
   conversations: ConversationsReducer,
   thread: ThreadReducer,
-  threadMembers: ThreadMembersReducer
+  threadMembers: ThreadMembersReducer,
+  calls: callsReducer,
+  devices: devicesReducer,
+  streams: streamsReducer,
+  controls: controlsReducer,
+  sdk: sdkReducer
 });
