@@ -480,7 +480,7 @@ const createThread = async () => {
   // TODO: fetch saved threadId from the server
   let threadId = await createThreadHelper();
   if (threadId !== null) {
-    window.location.href += `?threadId=${threadId}`;
+    window.location.href += `&threadId=${threadId}`;
   } else {
     console.error('unable to generate a new chat thread');
   }

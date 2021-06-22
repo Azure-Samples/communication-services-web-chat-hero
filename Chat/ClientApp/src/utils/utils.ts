@@ -75,6 +75,11 @@ export const getEventId = () => {
   return urlParams.get('eventId');
 };
 
+export const getCallId = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('callId');
+};
+
 export const getThreadId = () => {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get('threadId');

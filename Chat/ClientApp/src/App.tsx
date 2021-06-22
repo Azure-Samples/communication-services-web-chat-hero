@@ -11,7 +11,7 @@ import RemovedFromThreadScreen from './components/RemovedFromThreadScreen';
 import HomeScreen from './containers/HomeScreen';
 
 import { reducer } from './core/reducers/index';
-import { getBuildTime, getChatSDKVersion, getEventId, getThreadId } from './utils/utils';
+import { getBuildTime, getCallId, getChatSDKVersion, getEventId, getThreadId } from './utils/utils';
 import { v1 as createGUID } from 'uuid';
 
 import GroupCall from './containers/GroupCall';
@@ -33,8 +33,17 @@ export default (): JSX.Element => {
 
 
   const getComponent = () => {
+
+    if (getEventId() && page === 'home') {
+      setPage('chatConfiguration');
+    }
+
+    if (getCallId() && page === 'home') {
+      setPage('callConfiguration');
+    }
+
     if (page === 'home') {
-      return <HomeScreen chatConfigHandler={() => setPage('chatConfiguration')} callConfigHandler={() => setPage('callConfiguration')}/>;
+      return <HomeScreen />;
     } else if (page === 'chatConfiguration') {
       return <ConfigurationScreen joinChatHandler={() => setPage('chat')} />;
     } else if (page === 'callConfiguration') {

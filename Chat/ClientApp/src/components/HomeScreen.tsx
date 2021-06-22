@@ -21,8 +21,6 @@ import {
 
 export interface HomeScreenProps {
   createThreadHandler(): void;
-  chatConfigHandler(): void;
-  callConfigHandler(): void;
 }
 
 const imageStyleProps: IImageStyles = {
@@ -70,7 +68,6 @@ export default (props: HomeScreenProps): JSX.Element => {
                 if(!urlParams.get('eventId'))
                   window.location.href += `?eventId=acs_ve_06_07_2021`;
                 onCreateThread();
-                props.chatConfigHandler();
               }}
             >
               <AttendeeIcon className={videoCameraIconStyle} size="medium" />
@@ -82,7 +79,9 @@ export default (props: HomeScreenProps): JSX.Element => {
               aria-label="Start Call"
               className={buttonStyle}
               onClick={() => {
-                props.callConfigHandler();
+                const urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.get('callId'))
+                  window.location.href += `?callId=acs_ve_06_07_2021`;
               }}
             >
               <AttendeeIcon className={videoCameraIconStyle} size="medium" />
