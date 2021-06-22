@@ -1,5 +1,5 @@
 import { loadTheme, initializeIcons } from '@fluentui/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
@@ -31,6 +31,15 @@ export default (): JSX.Element => {
   const [screenWidth, setScreenWidth] = useState(0);
   const [localVideoStream, setLocalVideoStream] = useState(undefined);
 
+  useEffect(() => {
+    const setWindowWidth = (): void => {
+      const width = typeof window !== 'undefined' ? window.innerWidth : 0;
+      setScreenWidth(width);
+    };
+    setWindowWidth();
+    window.addEventListener('resize', setWindowWidth);
+    return (): void => window.removeEventListener('resize', setWindowWidth);
+  }, []);
 
   const getComponent = () => {
 
@@ -48,7 +57,12 @@ export default (): JSX.Element => {
       return <ConfigurationScreen joinChatHandler={() => setPage('chat')} />;
     } else if (page === 'callConfiguration') {
       getGroupId();
-      return <CallingConfigurationScreen groupId={ groupId } startCallHandler={(): void => { window.history.pushState({}, document.title, window.location.href + '&groupId=' + getGroupId()); setPage('call'); }} />;
+      return <CallingConfigurationScreen
+        localVideoStream={localVideoStream}
+        setLocalVideoStream={setLocalVideoStream}
+        groupId={groupId}
+        startCallHandler={(): void => { window.history.pushState({}, document.title, window.location.href + '&groupId=' + getGroupId()); setPage('call'); }}
+      />;
     } else if (page === 'chat') {
       return (
         <ChatScreen
