@@ -25,10 +25,11 @@ export default (props: any): JSX.Element => {
     };
 
     let player = createPlayer();
+
     return () => {
       player.dispose();
     }
-  });
+  }, []);
 
   return (
     <div className={streamMainStyle}>
