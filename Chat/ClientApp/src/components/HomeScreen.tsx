@@ -65,7 +65,7 @@ export default (props: HomeScreenProps): JSX.Element => {
                 const urlParams = new URLSearchParams(window.location.search);
                 if(!urlParams.get('eventId'))
                   window.location.href += `?eventId=acs_ve_06_07_2021`;
-                // onCreateThread(); // Uncommenting it in case we want to get a new thread id.
+                onCreateThread();
               }}
             >
               <AttendeeIcon className={videoCameraIconStyle} size="medium" />
