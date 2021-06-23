@@ -28,6 +28,32 @@ const roomMainAreaStackStyles: IStackStyles = {
   },
 }
 
+const callAreaStyle = mergeStyles({
+  width: '75%',
+  height: '30%',
+  margin: '50px auto',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
+const joinCallButtonStyle = mergeStyles({
+  fontWeight: 600,
+  fontSize: '0.875rem', // 14px
+  width: 'fit-content',
+  height: '2.5rem',
+  borderRadius: 3,
+  selectors: {
+    '@media (max-width: 53.438rem)': {
+      padding: '0.625rem'
+    }
+  }
+});
+
+const joinCallTextStyle = mergeStyles({
+  fontSize: '0.875rem' // 14px
+});
+
 
 export {
   backButtonStyle,
@@ -35,4 +61,7 @@ export {
   headerTextStyle,
   roomMainAreaStackStyles,
   timeIconStyle,
+  joinCallButtonStyle,
+  callAreaStyle,
+  joinCallTextStyle,
 };

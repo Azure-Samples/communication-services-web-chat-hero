@@ -35,8 +35,6 @@ export default (props: HomeScreenProps): JSX.Element => {
   const imageProps = { src: heroSVG.toString() };
   const headerTitle = 'Virtual Event Hackathon';
   const startChatButtonText = 'Join Event';
-  const startCallButtonText = 'Join Call';
-
 
   const [isCreatingThread, setIsCreatingThread] = useState(false);
 
@@ -72,20 +70,6 @@ export default (props: HomeScreenProps): JSX.Element => {
             >
               <AttendeeIcon className={videoCameraIconStyle} size="medium" />
               <div className={startChatTextStyle}>{startChatButtonText}</div>
-            </PrimaryButton>
-            <PrimaryButton
-              id="startCalling"
-              role="main"
-              aria-label="Start Call"
-              className={buttonStyle}
-              onClick={() => {
-                const urlParams = new URLSearchParams(window.location.search);
-                if (!urlParams.get('callId'))
-                  window.location.href += `?callId=acs_ve_06_07_2021`;
-              }}
-            >
-              <AttendeeIcon className={videoCameraIconStyle} size="medium" />
-              <div className={startChatTextStyle}>{startCallButtonText}</div>
             </PrimaryButton>
           </Stack>
           <Image

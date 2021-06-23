@@ -1,22 +1,42 @@
-﻿import { ActionButton, FontIcon, IIconProps, Stack } from '@fluentui/react';
-import React, { useEffect } from 'react';
+﻿import { CallAgent, CallEndReason } from '@azure/communication-calling';
+import { AzureCommunicationTokenCredential } from '@azure/communication-common';
+import { ActionButton, FontIcon, IIconProps, PrimaryButton, Stack } from '@fluentui/react';
+import { AttendeeIcon } from '@fluentui/react-icons-northstar';
+import React, { useCallback, useEffect, useState } from 'react';
+import GroupCall from '../containers/GroupCall';
+import { TokenResponse } from '../containers/RoomMainArea';
 import Stream from './Stream';
 import { staticAreaStyle } from './styles/ChatScreen.styles';
-import { backButtonStyle, calendarIconStyle, headerTextStyle, roomMainAreaStackStyles,  timeIconStyle } from './styles/RoomMainArea.styles';
+import { videoCameraIconStyle } from './styles/Configuration.styles';
+import { backButtonStyle, calendarIconStyle, headerTextStyle, roomMainAreaStackStyles,  timeIconStyle, joinCallButtonStyle, callAreaStyle, joinCallTextStyle } from './styles/RoomMainArea.styles';
 
 const backIcon: IIconProps = { iconName: 'Back' };
 
-interface RoomMainAreaProps {
+export interface RoomMainAreaProps {
   roomTitle: string;
   userId: string;
+  groupId: string;
   setupRoom(): void;
   setRoomThreadId(roomId: string): void;
   backToChatScreenHander(): void;
   removeChatParticipantById: (userId: string) => Promise<void>;
+  getToken(): Promise<TokenResponse>;
+  createCallAgent(tokenCredential: AzureCommunicationTokenCredential, displayName: string): Promise<CallAgent>;
+  registerToCallEvents(
+    userId: string,
+    callAgent: CallAgent,
+    endCallHandler: (reason: CallEndReason) => void
+  ): Promise<void>;
+  joinGroup(callAgent: CallAgent, groupId: string): void;
+  callEndedHandler: (reason: CallEndReason) => void;
+  setGroup(groupId: string): void;
+  setupCallClient(unsupportedStateHandler: () => void): void;
 }
 
+const unsupportedStateHandler = () => {};
+
 export default (props: RoomMainAreaProps): JSX.Element => {
-  const { setupRoom, setRoomThreadId, backToChatScreenHander, removeChatParticipantById } = props;
+  const { setupRoom, setRoomThreadId, backToChatScreenHander, removeChatParticipantById, setGroup, groupId, setupCallClient } = props;
 
   useEffect(()=>{
     setRoomThreadId("room1");
@@ -29,6 +49,15 @@ export default (props: RoomMainAreaProps): JSX.Element => {
     setupRoom();
     backToChatScreenHander();
   }
+
+  const memoizedSetupCallClient = useCallback(() => setupCallClient(unsupportedStateHandler), [
+    unsupportedStateHandler
+  ]);
+  useEffect(() => {
+    memoizedSetupCallClient();
+  }, [memoizedSetupCallClient]);
+
+  const [isOnCall, setIsOnCall] = useState(false);
 
   return (
     <div className={staticAreaStyle}>
@@ -49,6 +78,41 @@ export default (props: RoomMainAreaProps): JSX.Element => {
         </h3>
       </ Stack>
       <Stream />
+      <div className={callAreaStyle}>
+        { !isOnCall ? (
+          <PrimaryButton
+            id="joinCall"
+            role="main"
+            aria-label="Join Call"
+            className={joinCallButtonStyle}
+            onClick={async (): Promise<void> => {
+              //1. Retrieve a token
+              const { tokenCredential, userId } = await props.getToken();
+              //2. Initialize the call agent
+              const callAgent = await props.createCallAgent(tokenCredential, props.userId);
+              //3. Register for calling events
+              props.registerToCallEvents(userId, callAgent, props.callEndedHandler);
+              //4. Join the call
+              await props.joinGroup(callAgent, groupId);
+              setGroup(groupId);
+              setIsOnCall(true);
+            }}
+          >
+            <AttendeeIcon className={videoCameraIconStyle} size="medium" />
+            <div className={joinCallTextStyle}>Join call</div>
+          </PrimaryButton>
+        )
+        :
+        (
+          <GroupCall
+            endCallHandler={(): void => setIsOnCall(false)}
+            groupId={groupId}
+            screenWidth={250}
+          />
+        )
+      }
+      </div>
     </div>
   );
 };
+
