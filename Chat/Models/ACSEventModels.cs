@@ -18,6 +18,8 @@ namespace Chat
 
     public class ACSRoom
     {
+        public string Id { get; set; }
+
         public string ChatSessionThreadId { get; set; }
         
         public string ChatSessionThreadModeratorId { get; set; }
