@@ -415,6 +415,10 @@ const setRoomThreadId = (roomId: string) => async (dispatch: Dispatch) => {
       dispatch(setThreadId(_serverHardCodedEventInfo.rooms[0].chatSessionThreadId));
 }
 
+const getRoomCallId = () => (dispatch: Dispatch) => {
+  return _serverHardCodedEventInfo.rooms[0].callingSessionId;
+}
+
 const getEventInformation = (eventId: string) => async (dispatch: Dispatch) => {
   try {
     let validationRequestOptions = { method: 'GET' };
@@ -1193,5 +1197,6 @@ export {
   getEventIfExists,
   setRoomThreadId,
   addUserToRoomThread,
-  resetMessages
+  resetMessages,
+  getRoomCallId,
 };

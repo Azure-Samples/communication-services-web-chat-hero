@@ -7,7 +7,7 @@ import RoomMainArea, { RoomMainAreaProps } from '../components/RoomMainArea';
 import { setCallAgent, setGroup } from '../core/actions/calls';
 import { setUserId } from '../core/actions/sdk';
 import { State } from '../core/reducers/index';
-import { addUserToRoomThread, setRoomThreadId, removeThreadMemberByUserId, initCallClient, registerToCallAgent, joinGroup } from '../core/sideEffects';
+import { addUserToRoomThread, setRoomThreadId, removeThreadMemberByUserId, initCallClient, registerToCallAgent, joinGroup, getRoomCallId } from '../core/sideEffects';
 import { utils } from '../utils/utils';
 
 export type TokenResponse = {
@@ -32,6 +32,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(registerToCallAgent(userId, callAgent, endCallHandler));
   },
   setGroup: (groupId: string): void => dispatch(setGroup(groupId)),
+  getRoomCallId: (): string => dispatch(getRoomCallId()),
 });
 
 const mapStateToProps = (state: State, props: RoomMainAreaProps) => ({

@@ -15,7 +15,6 @@ const backIcon: IIconProps = { iconName: 'Back' };
 export interface RoomMainAreaProps {
   roomTitle: string;
   userId: string;
-  groupId: string;
   setupRoom(): void;
   setRoomThreadId(roomId: string): void;
   backToChatScreenHander(): void;
@@ -31,12 +30,13 @@ export interface RoomMainAreaProps {
   callEndedHandler: (reason: CallEndReason) => void;
   setGroup(groupId: string): void;
   setupCallClient(unsupportedStateHandler: () => void): void;
+  getRoomCallId(): string;
 }
 
 const unsupportedStateHandler = () => {};
 
 export default (props: RoomMainAreaProps): JSX.Element => {
-  const { setupRoom, setRoomThreadId, backToChatScreenHander, removeChatParticipantById, setGroup, groupId, setupCallClient } = props;
+  const { setupRoom, setRoomThreadId, backToChatScreenHander, removeChatParticipantById, setGroup, getRoomCallId, setupCallClient } = props;
 
   useEffect(()=>{
     setRoomThreadId("room1");
@@ -93,8 +93,8 @@ export default (props: RoomMainAreaProps): JSX.Element => {
               //3. Register for calling events
               props.registerToCallEvents(userId, callAgent, props.callEndedHandler);
               //4. Join the call
-              await props.joinGroup(callAgent, groupId);
-              setGroup(groupId);
+              await props.joinGroup(callAgent, getRoomCallId());
+              setGroup(getRoomCallId());
               setIsOnCall(true);
             }}
           >
@@ -106,7 +106,7 @@ export default (props: RoomMainAreaProps): JSX.Element => {
         (
           <GroupCall
             endCallHandler={(): void => setIsOnCall(false)}
-            groupId={groupId}
+            groupId={getRoomCallId()}
             screenWidth={250}
           />
         )

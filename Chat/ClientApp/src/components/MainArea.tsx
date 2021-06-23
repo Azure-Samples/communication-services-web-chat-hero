@@ -4,7 +4,6 @@ import defaultImg from '../assets/default.png';
 import { staticImageStyle, staticAreaStyle } from './styles/ChatScreen.styles';
 import { tilesStackStyles, tilesStackTokens, tileStyle } from './styles/RoomTile.styles';
 import RoomMainArea from '../containers/RoomMainArea';
-import { v1 as createGUID } from 'uuid';
 
 export interface MainScreenProps {
   contents: string;
@@ -39,7 +38,7 @@ export default (props: MainScreenProps): JSX.Element => {
     } else if (contents === 'room') {
       return (
         <div className={staticAreaStyle}>
-          <RoomMainArea roomTitle={roomTitle} backToChatScreenHander={() => { props.setMainArea({ contentType: "welcome" }); props.resetMessages(); }} groupId={createGUID()} />
+          <RoomMainArea roomTitle={roomTitle} backToChatScreenHander={() => { props.setMainArea({ contentType: "welcome" }); props.resetMessages(); }} />
         </div>
       );
     } else {
