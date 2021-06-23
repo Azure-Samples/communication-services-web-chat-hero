@@ -22,7 +22,7 @@ namespace Chat
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IUserTokenManager, UserTokenManager>();
-            services.AddSingleton<IChatAdminThreadStore, InMemoryChatAdminThreadStore>();            
+            services.AddSingleton<IChatAdminThreadStore, InMemoryChatAdminThreadStore>();
 
             services.AddControllers();
 
