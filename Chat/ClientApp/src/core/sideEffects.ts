@@ -377,9 +377,9 @@ const getEventIfExists = () => _serverHardCodedEventInfo;
 
 const setRoomThreadId = (roomId: string) => async (dispatch: Dispatch) => {
   if(roomId == "main")
-    dispatch(setThreadId(_serverHardCodedEventInfo.sessionThreadIds[0]));
+      dispatch(setThreadId(_serverHardCodedEventInfo.chatSessionThreadId));
   else 
-    dispatch(setThreadId(_serverHardCodedEventInfo.sessionThreadIds[1]));
+      dispatch(setThreadId(_serverHardCodedEventInfo.rooms[0].chatSessionThreadId));
 }
 
 const getEventInformation = (eventId: string) => async (dispatch: Dispatch) => {
@@ -389,7 +389,7 @@ const getEventInformation = (eventId: string) => async (dispatch: Dispatch) => {
     if (response.status === 200) {
       return response.json().then((result) => {
         console.log("Event Information: ", result);
-        dispatch(setThreadId(result.sessionThreadIds[0]));
+        dispatch(setThreadId(result.chatSessionThreadId));
         return _serverHardCodedEventInfo = result;
       });
     } else {

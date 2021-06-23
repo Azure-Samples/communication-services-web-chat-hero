@@ -2,6 +2,7 @@
 
 using Azure.Core;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Chat
 {
@@ -18,6 +19,28 @@ namespace Chat
 		{
 			Store = new Dictionary<string, string>();
 			UseConfigStore = new Dictionary<string, ContosoUserConfigModel>();
+			initializeHardCodedValues();
+		}
+
+		private void initializeHardCodedValues()
+        {
+			var eventInfo = new ACSEvent
+			{
+				Id = "acs_ve_06_07_2021",
+				ChatSessionThreadId= "19:EV6bzyGuXSRPBmp2bo4BHlbjsfyLLtFOkB8KjZiHb201@thread.v2",
+				ChatSessionThreadModeratorId= "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-baee-fdc5-28c5-593a0d000c27",
+
+				Rooms = new List<ACSRoom>()
+                {
+					new ACSRoom
+					{
+						ChatSessionThreadId = "19:4YD7S71M4TG0HEQWahNcgYfQ4KsYPjPdkKgHmDpEoSc1@thread.v2",
+						ChatSessionThreadModeratorId = "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-baef-95a7-28c5-593a0d000c31"
+					}
+				}
+			};
+
+			Store.Add("acs_ve_06_07_2021", JsonSerializer.Serialize(eventInfo));
 		}
 	}
 }

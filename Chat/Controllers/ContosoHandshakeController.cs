@@ -32,16 +32,6 @@ namespace Chat
 			_userTokenManager = userTokenManager;
 			_chatGatewayUrl = Utils.ExtractApiChatGatewayUrl(chatConfiguration["ResourceConnectionString"]);
 			_resourceConnectionString = chatConfiguration["ResourceConnectionString"];
-
-			if (!_store.Store.ContainsKey("acs_ve_06_07_2021"))
-			{
-				var eventInfo = new ACSEvent
-				{
-					sessionThreadIds = new List<string>() { "19:EV6bzyGuXSRPBmp2bo4BHlbjsfyLLtFOkB8KjZiHb201@thread.v2", "19:4YD7S71M4TG0HEQWahNcgYfQ4KsYPjPdkKgHmDpEoSc1@thread.v2" },
-					sessionThreadModeratorIds = new List<string>() { "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-baee-fdc5-28c5-593a0d000c27", "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-baef-95a7-28c5-593a0d000c31" }
-				};
-				_store.Store.Add("acs_ve_06_07_2021", JsonSerializer.Serialize(eventInfo));
-			}
 		}
 
 		/// <summary>
@@ -140,9 +130,23 @@ namespace Chat
 		[HttpPost]
 		public async Task<ActionResult> TryAddUserToThread(string threadId, ContosoMemberModel user)
 		{
+			//Still a little hard coded here
+			//Maybe we should be using Routes that add to the Room or to the Event
 			var eventInfo = JsonSerializer.Deserialize<ACSEvent>(_store.Store["acs_ve_06_07_2021"]);
-			var _threadIndex = eventInfo.sessionThreadIds.IndexOf(threadId);
-			var moderatorId = eventInfo.sessionThreadModeratorIds[_threadIndex];
+			string moderatorId;
+			if(eventInfo.ChatSessionThreadId == threadId)
+            {
+				moderatorId = eventInfo.ChatSessionThreadModeratorId;
+			}
+			else if(eventInfo.Rooms.Exists(x => x.ChatSessionThreadId == threadId))
+            {
+				var roomInfo = eventInfo.Rooms.Find(x => x.ChatSessionThreadId == threadId);
+				moderatorId = roomInfo.ChatSessionThreadModeratorId;
+            }
+			else
+            {
+				return NotFound();
+            }
 
 			AccessToken moderatorToken = await _userTokenManager.GenerateTokenAsync(_resourceConnectionString, moderatorId);
 
