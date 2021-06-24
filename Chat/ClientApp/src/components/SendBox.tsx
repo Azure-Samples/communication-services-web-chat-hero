@@ -5,40 +5,6 @@ import React, { useState, Dispatch } from 'react';
 import { ENTER_KEY, EMPTY_MESSAGE_REGEX, MAXIMUM_LENGTH_OF_MESSAGE } from '../../src/constants';
 import { sendBoxStyle, sendIconStyle, textFieldStyle, TextFieldStyleProps } from './styles/SendBox.styles';
 import { User } from '../core/reducers/ContosoClientReducers';
-import {
-  AudioDeviceInfo,
-  Call,
-  CommunicationServicesError,
-  GroupCallLocator,
-  JoinCallOptions,
-  DeviceManager,
-  DeviceAccess,
-  RemoteParticipant,
-  VideoDeviceInfo,
-  CallAgent,
-  CallClient,
-  HangUpOptions,
-  CallEndReason
-} from '@azure/communication-calling';
-import { CommunicationUserKind } from '@azure/communication-common';
-import { utils } from '../utils/utils';
-import { callAdded, callRemoved, setCallState, setParticipants, setCallAgent } from './actions/calls';
-import { setMic, setShareScreen } from './actions/controls';
-import {
-  setAudioDeviceInfo,
-  setAudioDeviceList,
-  setCameraPermission,
-  setMicrophonePermission,
-  setVideoDeviceInfo,
-  setVideoDeviceList,
-  setDeviceManager
-} from './actions/devices';
-import { addScreenShareStream, removeScreenShareStream } from './actions/streams';
-import { State } from './reducers';
-import { setLogLevel } from '@azure/logger';
-import RemoteStreamSelector from './RemoteStreamSelector';
-import { Constants } from './constants';
-import { setCallClient, setUserId } from './actions/sdk';
 
 interface SendboxProps {
   onSendMessage(messageContent: string): void;

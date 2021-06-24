@@ -21,6 +21,8 @@ import { ControlTypes } from '../actions/controls';
 import { DeviceTypes } from '../actions/devices';
 import { SdkTypes } from '../actions/sdk';
 import { StreamTypes } from '../actions/streams';
+import { EventActionTypes } from '../actions/EventAction';
+import { EventState, EventReducer } from './EventReducers';
 
 export interface ParticipantStream {
   user: RemoteParticipant;
@@ -38,6 +40,7 @@ export interface State {
   controls: ControlsState;
   sdk: SdkState;
   streams: StreamsState;
+  event: EventState;
 }
 
 type TotalActions =
@@ -50,7 +53,8 @@ type TotalActions =
   | ControlTypes
   | DeviceTypes
   | SdkTypes
-  | StreamTypes;
+  | StreamTypes
+  | EventActionTypes;
 
 export const reducer = combineReducers({
   chat: MessagesReducer,
@@ -62,5 +66,6 @@ export const reducer = combineReducers({
   devices: devicesReducer,
   streams: streamsReducer,
   controls: controlsReducer,
-  sdk: sdkReducer
+  sdk: sdkReducer,
+  event: EventReducer
 });

@@ -75,6 +75,7 @@ import RemoteStreamSelector from './RemoteStreamSelector';
 import { Constants } from './constants';
 import { setCallClient, setUserId } from './actions/sdk';
 import { addScreenShareStream, removeScreenShareStream } from './actions/streams';
+import { setEvent, setRoomId } from './actions/EventAction';
 
 let _serverHardCodedEventInfo: any, _displayName: string, _emoji: string;
 
@@ -406,17 +407,22 @@ const sendMessage = (messageContent: string) => async (dispatch: Dispatch, getSt
   );
 };
 
-const getEventIfExists = () => _serverHardCodedEventInfo;
-
-const setRoomThreadId = (roomId: string) => async (dispatch: Dispatch) => {
-  if(roomId == "main")
-      dispatch(setThreadId(_serverHardCodedEventInfo.chatSessionThreadId));
-  else 
-      dispatch(setThreadId(_serverHardCodedEventInfo.rooms[0].chatSessionThreadId));
+const setRoomThreadId = (roomId: string) => async (dispatch: Dispatch, getState: () => State) => {
+  let state: State = getState();
+  if (roomId == "main") {
+    dispatch(setRoomId(undefined));
+    dispatch(setThreadId(state.event.event!.chatSessionThreadId));
+  }
+  else {
+    dispatch(setRoomId(roomId));
+    dispatch(setThreadId(state.event.event!.rooms[0].chatSessionThreadId));
+  }
 }
 
-const getRoomCallId = () => (dispatch: Dispatch) => {
-  return _serverHardCodedEventInfo.rooms[0].callingSessionId;
+const getRoomCallId = () => (dispatch: Dispatch, getState: () => State) => {
+  let state: State = getState();
+  state.event.roomId;
+  return state.event.event?.rooms[0].callingSessionId;
 }
 
 const getEventInformation = (eventId: string) => async (dispatch: Dispatch) => {
@@ -426,8 +432,9 @@ const getEventInformation = (eventId: string) => async (dispatch: Dispatch) => {
     if (response.status === 200) {
       return response.json().then((result) => {
         console.log("Event Information: ", result);
+        dispatch(setEvent(result))
         dispatch(setThreadId(result.chatSessionThreadId));
-        return _serverHardCodedEventInfo = result;
+        return true;
       });
     } else {
       return false;
@@ -1194,7 +1201,6 @@ export {
   isValidThread,
   updateThreadTopicName,
   getEventInformation,
-  getEventIfExists,
   setRoomThreadId,
   addUserToRoomThread,
   resetMessages,
