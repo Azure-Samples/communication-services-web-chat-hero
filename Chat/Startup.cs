@@ -1,5 +1,6 @@
 ﻿// © Microsoft Corporation. All rights reserved.
 
+using Chat.Services.LiveStreaming;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -21,8 +22,7 @@ namespace Chat
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IUserTokenManager, UserTokenManager>();
-            services.AddSingleton<IChatAdminThreadStore, InMemoryChatAdminThreadStore>();
+            services.AddContosoServices(Configuration);
 
             services.AddControllers();
 
