@@ -12,10 +12,12 @@ import {
   leaveIcon,
   pivotItemStyle,
   pivotItemStyles,
-  topicNameLabelStyle
+  topicNameLabelStyle,
+  feedbackContainer
 } from './styles/ChatHeader.styles';
 import { SidePanelTypes } from './SidePanel';
 import { ChatHeaderDispatchProps, ChatHeaderProps } from '../containers/ChatHeader';
+import { FeedbackButton } from './FeedbackButton';
 import { GUID_FOR_INITIAL_TOPIC_NAME } from '../constants';
 
 type ChatHeaderPaneProps = {
@@ -54,7 +56,10 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
   }, [topic, generateHeaderMessage]);
 
   return (
-    <Stack className={chatHeaderContainerStyle} horizontal={true} horizontalAlign="space-between">
+      <Stack className={chatHeaderContainerStyle} horizontal={true} horizontalAlign="space-between">
+      <Stack.Item grow={1} className={feedbackContainer}>
+        <FeedbackButton />
+       </Stack.Item>
       <Stack.Item align="center">
         <div className={topicNameLabelStyle}>{header}</div>
       </Stack.Item>

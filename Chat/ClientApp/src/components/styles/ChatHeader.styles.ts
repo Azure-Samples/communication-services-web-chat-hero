@@ -57,6 +57,10 @@ const leaveButtonStyle = mergeStyles({
   fontWeight: 600
 });
 
+export const feedbackContainer = mergeStyles({
+    marginLeft: '1rem'
+});
+
 const greyIconButtonStyle = mergeStyles({
   color: '#323130',
   marginRight: '0.5rem'

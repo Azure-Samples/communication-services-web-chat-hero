@@ -1,5 +1,6 @@
 import { ChatMessage } from '@azure/communication-chat';
 import { CommunicationIdentifier, isCommunicationUserIdentifier } from '@azure/communication-common';
+import { BlobServiceClient, BlockBlobUploadResponse } from '@azure/storage-blob';
 import preval from 'preval.macro';
 import { ClientChatMessage } from '../core/reducers/MessagesReducer';
 
@@ -118,4 +119,17 @@ export const createNewClientChatMessage = (
     senderDisplayName: displayName,
     createdOn: new Date()
   };
+};
+
+export const uploadContentToBlobStorage = async (filename: string, content: string): Promise<BlockBlobUploadResponse> => {
+    const response = await fetch('/blobSettings');
+    if (!response.ok) {
+        throw new Error('Failed to get blob settings from server!');
+    }
+    const settings = await response.json();
+
+    const blobServiceClient = new BlobServiceClient(settings.sasUri);
+    const containerClient = blobServiceClient.getContainerClient(settings.containerName);
+    const blockBlobClient = containerClient.getBlockBlobClient(filename);
+    return blockBlobClient.upload(content, content.length);
 };
