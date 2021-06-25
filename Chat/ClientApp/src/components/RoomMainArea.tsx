@@ -62,6 +62,44 @@ export default (props: RoomMainAreaProps): JSX.Element => {
 
   const [isOnCall, setIsOnCall] = useState(false);
 
+  const groupCallArea = [];
+  let roomCallId = getRoomCallId();
+
+  if (isOnCall && !!roomCallId) {
+    groupCallArea.push((
+      <GroupCall
+        endCallHandler={(): void => setIsOnCall(false)}
+        groupId={roomCallId}
+        screenWidth={250}
+      />
+    ));
+  }
+  else if (!isOnCall && !!roomCallId) {
+    groupCallArea.push((
+      <PrimaryButton
+        id="joinCall"
+        role="main"
+        aria-label="Join Call"
+        className={joinCallButtonStyle}
+        onClick={async (): Promise<void> => {
+          //1. Retrieve a token
+          const { tokenCredential, userId } = await props.getToken();
+          //2. Initialize the call agent
+          const callAgent = await props.createCallAgent(tokenCredential, props.userId);
+          //3. Register for calling events
+          props.registerToCallEvents(userId, callAgent, props.callEndedHandler);
+          //4. Join the call
+          await props.joinGroup(callAgent, roomCallId);
+          setGroup(roomCallId);
+          setIsOnCall(true);
+        }}
+      >
+        <AttendeeIcon className={videoCameraIconStyle} size="medium" />
+        <div className={joinCallTextStyle}>Join call</div>
+      </PrimaryButton>
+    ));
+  }
+
   return (
     <div className={staticAreaStyle}>
       <ActionButton className={backButtonStyle} iconProps={backIcon} onClick={backButtonHandler}>
@@ -82,38 +120,7 @@ export default (props: RoomMainAreaProps): JSX.Element => {
       </ Stack>
       <Stream />
       <div className={callAreaStyle}>
-        { !isOnCall ? (
-          <PrimaryButton
-            id="joinCall"
-            role="main"
-            aria-label="Join Call"
-            className={joinCallButtonStyle}
-            onClick={async (): Promise<void> => {
-              //1. Retrieve a token
-              const { tokenCredential, userId } = await props.getToken();
-              //2. Initialize the call agent
-              const callAgent = await props.createCallAgent(tokenCredential, props.userId);
-              //3. Register for calling events
-              props.registerToCallEvents(userId, callAgent, props.callEndedHandler);
-              //4. Join the call
-              await props.joinGroup(callAgent, getRoomCallId());
-              setGroup(getRoomCallId());
-              setIsOnCall(true);
-            }}
-          >
-            <AttendeeIcon className={videoCameraIconStyle} size="medium" />
-            <div className={joinCallTextStyle}>Join call</div>
-          </PrimaryButton>
-        )
-        :
-        (
-          <GroupCall
-            endCallHandler={(): void => setIsOnCall(false)}
-            groupId={getRoomCallId()}
-            screenWidth={250}
-          />
-        )
-      }
+        { groupCallArea }
       </div>
     </div>
   );
