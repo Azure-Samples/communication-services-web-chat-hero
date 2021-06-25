@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 
 import RoomMainArea, { RoomMainAreaProps } from '../components/RoomMainArea';
 import { setCallAgent, setGroup } from '../core/actions/calls';
+import { setRoomId } from '../core/actions/EventAction';
 import { setUserId } from '../core/actions/sdk';
 import { State } from '../core/reducers/index';
 import { addUserToRoomThread, setRoomThreadId, removeThreadMemberByUserId, initCallClient, registerToCallAgent, joinGroup, getRoomCallId } from '../core/sideEffects';
@@ -19,6 +20,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   setupRoom: async () => {
     dispatch(addUserToRoomThread());
   },
+  setRoomId: async (roomId: string) => dispatch(setRoomId(roomId)),
   setRoomThreadId: async (roomId: string) => dispatch(setRoomThreadId(roomId)),
   removeChatParticipantById: (userId: string) => dispatch(removeThreadMemberByUserId(userId)),
   setupCallClient: (unsupportedStateHandler: () => void): void => dispatch(initCallClient(unsupportedStateHandler)),
@@ -37,6 +39,7 @@ const mapDispatchToProps = (dispatch: any) => ({
 
 const mapStateToProps = (state: State, props: RoomMainAreaProps) => ({
   userId: state.contosoClient.user.identity,
+  roomId: state.event.roomId,
   getToken: async (): Promise<TokenResponse> => {
     const tokenResponse: CommunicationUserToken = await utils.getTokenForUser();
     const userToken = tokenResponse.token;

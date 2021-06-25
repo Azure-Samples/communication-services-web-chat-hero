@@ -9,20 +9,25 @@ namespace Chat
     {
         public string Id { get; set; }
 
-        public string ChatSessionThreadId { get; set; }
+        public AcsChatSession ChatSession { get; set; }
 
-        public string ChatSessionThreadModeratorId { get; set; }
+        public Dictionary<string, ACSRoom> Rooms { get; set; }
+    }
 
-        public List<ACSRoom> Rooms { get; set; }
+    public class AcsChatSession
+    {
+        public string ThreadId { get; set; }
+
+        public string ThreadModeratorId { get; set; }
     }
 
     public class ACSRoom
     {
         public string Id { get; set; }
 
-        public string ChatSessionThreadId { get; set; }
-        
-        public string ChatSessionThreadModeratorId { get; set; }
+        public string Title { get; set; }
+
+        public AcsChatSession ChatSession { get; set; }
         
         public string CallingSessionId { get; set; }
     }

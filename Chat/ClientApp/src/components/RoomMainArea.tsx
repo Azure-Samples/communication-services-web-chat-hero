@@ -16,6 +16,7 @@ export interface RoomMainAreaProps {
   roomTitle: string;
   userId: string;
   setupRoom(): void;
+  setRoomId(roomId: string): void;
   setRoomThreadId(roomId: string): void;
   backToChatScreenHander(): void;
   removeChatParticipantById: (userId: string) => Promise<void>;
@@ -31,23 +32,25 @@ export interface RoomMainAreaProps {
   setGroup(groupId: string): void;
   setupCallClient(unsupportedStateHandler: () => void): void;
   getRoomCallId(): string;
+  roomId: string;
 }
 
 const unsupportedStateHandler = () => {};
 
 export default (props: RoomMainAreaProps): JSX.Element => {
-  const { setupRoom, setRoomThreadId, backToChatScreenHander, removeChatParticipantById, setGroup, getRoomCallId, setupCallClient } = props;
+  const { setupRoom, setRoomThreadId, backToChatScreenHander, removeChatParticipantById, setGroup, getRoomCallId, setupCallClient, roomId, setRoomId } = props;
 
   useEffect(()=>{
-    setRoomThreadId("room1");
+    setRoomThreadId(roomId);
     setupRoom();
   }, []);
 
   const backButtonHandler = () => {
     removeChatParticipantById(props.userId);
+    setRoomId("main");
     setRoomThreadId("main");
     setupRoom();
-    backToChatScreenHander();
+    backToChatScreenHander(); //does this do anything?
   }
 
   const memoizedSetupCallClient = useCallback(() => setupCallClient(unsupportedStateHandler), [
