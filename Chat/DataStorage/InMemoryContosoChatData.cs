@@ -28,7 +28,7 @@ namespace Chat
 			{
 				Id = "acs_ve_06_07_2021",
 				ChatSessionThreadId = "19:YmjddgUQEvDM6hRDD8eGFTK4fdbqpRD-jVME8zwjed81@thread.v2",
-                ChatSessionThreadModeratorId = "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-e65d-db6b-f40f-343a0d00c1d6",
+				ChatSessionThreadModeratorId = "8:acs:85c99b9e-f6e1-408c-90d9-e37b6ad0e7c3_0000000a-e65d-db6b-f40f-343a0d00c1d6",
 
 				Rooms = new List<ACSRoom>()
 				{
