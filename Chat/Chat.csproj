@@ -15,6 +15,8 @@
     <PackageReference Include="Azure.Communication.Common" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.8" />
+    <PackageReference Include="Microsoft.Azure.Management.Media" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.33.0" />
   </ItemGroup>
 
   <ItemGroup>
