@@ -18,6 +18,7 @@ export interface RoomMainAreaProps {
   displayName: string;
   callAgent: CallAgent;
   setupRoom(): void;
+  setRoomId(roomId: string): void;
   setRoomThreadId(roomId: string): void;
   backToChatScreenHander(): void;
   removeChatParticipantById: (userId: string) => Promise<void>;
@@ -33,22 +34,24 @@ export interface RoomMainAreaProps {
   setGroup(groupId: string): void;
   setupCallClient(unsupportedStateHandler: () => void): Promise<void>;
   registerDevices(): Promise<void>;
-  getRoomCallId(): string;
+  roomId: string;
+  callId: string;
 }
 
 export default (props: RoomMainAreaProps): JSX.Element => {
-  const { setupRoom, setRoomThreadId, backToChatScreenHander, removeChatParticipantById, setGroup, getRoomCallId, setupCallClient, callAgent } = props;
+  const { setupRoom, setRoomThreadId, backToChatScreenHander, removeChatParticipantById, setGroup, callId, setupCallClient, callAgent, roomId, setRoomId } = props;
 
   useEffect(()=>{
-    setRoomThreadId("room1");
+    setRoomThreadId(roomId);
     setupRoom();
   }, []);
 
   const backButtonHandler = () => {
     removeChatParticipantById(props.userId);
+    setRoomId("main");
     setRoomThreadId("main");
     setupRoom();
-    backToChatScreenHander();
+    backToChatScreenHander(); //does this do anything?
   }
 
   const unsupportedCallingHandler = () => { setIsCallingSupported(false); };
@@ -64,7 +67,7 @@ export default (props: RoomMainAreaProps): JSX.Element => {
 
   async function onJoinCallClicked() {
     setIsJoiningCall(true);
-    var curCallAgent = callAgent;
+    let curCallAgent = callAgent;
 
     if (!curCallAgent) {
       await props.registerDevices();
@@ -77,18 +80,22 @@ export default (props: RoomMainAreaProps): JSX.Element => {
     }
     
     //4. Join the call
-    await props.joinGroup(curCallAgent, getRoomCallId());
-    setGroup(getRoomCallId());
+    await props.joinGroup(curCallAgent, callId);
+    setGroup(callId);
     setIsOnCall(true);
     setIsJoiningCall(false);
   }
 
   function getCallComponent() {
+    if (!callId || !isCallingSupported) {
+      return;
+    }
+
     if (isOnCall) {
       return (
         <GroupCall
             endCallHandler={(): void => setIsOnCall(false)}
-            groupId={getRoomCallId()}
+            groupId={callId}
             screenWidth={250}
             localVideoStream={localVideoStream}
             setLocalVideoStream={setLocalVideoStream}

@@ -8,7 +8,7 @@ export interface SetThreadTopicNameAction {
 
 export interface SetThreadIdAction {
   type: typeof SET_THREAD_ID;
-  threadId: string;
+  threadId: string | undefined;
 }
 
 export const setThreadTopicName = (topicName: string): SetThreadTopicNameAction => ({
@@ -16,7 +16,7 @@ export const setThreadTopicName = (topicName: string): SetThreadTopicNameAction 
   topicName
 });
 
-export const setThreadId = (threadId: string): SetThreadIdAction => ({
+export const setThreadId = (threadId: string | undefined): SetThreadIdAction => ({
   type: SET_THREAD_ID,
   threadId
 });

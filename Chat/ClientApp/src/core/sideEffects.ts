@@ -75,9 +75,9 @@ import RemoteStreamSelector from './RemoteStreamSelector';
 import { Constants } from './constants';
 import { setCallClient, setUserId } from './actions/sdk';
 import { addScreenShareStream, removeScreenShareStream } from './actions/streams';
-import { setEvent, setRoomId } from './actions/EventAction';
+import { AcsRoom, setEvent, setRoomId } from './actions/EventAction';
 
-let _serverHardCodedEventInfo: any, _displayName: string, _emoji: string;
+let _displayName: string, _emoji: string;
 
 const addUserToRoomThread = () => async (dispatch: Dispatch, getState: () => State) => {
   let state: State = getState();
@@ -407,21 +407,34 @@ const sendMessage = (messageContent: string) => async (dispatch: Dispatch, getSt
   );
 };
 
+//maybe we should do this earlier
 const setRoomThreadId = (roomId: string) => async (dispatch: Dispatch, getState: () => State) => {
   let state: State = getState();
-  if (roomId == "main") {
-    dispatch(setRoomId(undefined));
-    dispatch(setThreadId(state.event.event!.chatSessionThreadId));
+  let threadId;
+  if (roomId === "main") {
+    threadId = state.event.event!.chatSession.threadId;
+    console.log(`threadId: ${threadId}`);
   }
   else {
-    dispatch(setRoomId(roomId));
-    dispatch(setThreadId(state.event.event!.rooms[0].chatSessionThreadId));
+    let room = state.event.event!.rooms[roomId];
+    let chatSession = room.chatSession;
+    if (chatSession) {
+      threadId = chatSession.threadId;
+    }
   }
+  dispatch(setThreadId(threadId));
+}
+
+const getRooms = () => (dispatch: Dispatch, getState: () => State) => {
+  let state: State = getState();
+  let rooms: Record<string, AcsRoom> = state.event.event?.rooms!;
+  return rooms;
 }
 
 const getRoomCallId = () => (dispatch: Dispatch, getState: () => State) => {
   let state: State = getState();
-  return state.event.event?.rooms[0].callingSessionId;
+  let callingSessionId = state.event.event?.rooms[state.event.roomId!].callingSessionId;
+  return callingSessionId;
 }
 
 const getEventInformation = (eventId: string) => async (dispatch: Dispatch) => {
@@ -432,7 +445,7 @@ const getEventInformation = (eventId: string) => async (dispatch: Dispatch) => {
       return response.json().then((result) => {
         console.log("Event Information: ", result);
         dispatch(setEvent(result))
-        dispatch(setThreadId(result.chatSessionThreadId));
+        dispatch(setThreadId(result.chatSession.threadId));
         return true;
       });
     } else {
@@ -583,7 +596,6 @@ const getThreadInformation = async (chatClient: ChatClient, dispatch: Dispatch, 
 
   let chatThreadClient;
   let iteratableParticipants;
-  let topic;
 
   try {
     chatThreadClient = chatClient.getChatThreadClient(threadId);
@@ -1214,4 +1226,5 @@ export {
   addUserToRoomThread,
   resetMessages,
   getRoomCallId,
+  getRooms
 };

@@ -9,7 +9,7 @@ import { RemoteParticipant, LocalVideoStream } from '@azure/communication-callin
 import { utils } from '../utils/utils';
 import LocalStreamMedia from './LocalStreamMedia';
 import RemoteStreamMedia from './RemoteStreamMedia';
-import { SelectionState } from 'core/RemoteStreamSelector';
+import { SelectionState } from '../core/RemoteStreamSelector';
 import { Stack } from '@fluentui/react';
 import { Constants } from '../core/constants';
 

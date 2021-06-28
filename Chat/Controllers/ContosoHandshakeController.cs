@@ -133,15 +133,18 @@ namespace Chat
 			//Still a little hard coded here
 			//Maybe we should be using Routes that add to the Room or to the Event
 			var eventInfo = JsonSerializer.Deserialize<ACSEvent>(_store.Store["acs_ve_06_07_2021"]);
+			ACSRoom[] rooms = new ACSRoom[eventInfo.Rooms.Values.Count];
+			eventInfo.Rooms.Values.CopyTo(rooms, 0);
+
 			string moderatorId;
-			if(eventInfo.ChatSessionThreadId == threadId)
+			if(eventInfo.ChatSession.ThreadId == threadId)
             {
-				moderatorId = eventInfo.ChatSessionThreadModeratorId;
+				moderatorId = eventInfo.ChatSession.ThreadModeratorId;
 			}
-			else if(eventInfo.Rooms.Exists(x => x.ChatSessionThreadId == threadId))
+			else if(Array.Exists(rooms, x => x.ChatSession.ThreadId == threadId))
             {
-				var roomInfo = eventInfo.Rooms.Find(x => x.ChatSessionThreadId == threadId);
-				moderatorId = roomInfo.ChatSessionThreadModeratorId;
+				var roomInfo = Array.Find(rooms, x => x.ChatSession.ThreadId == threadId);
+				moderatorId = roomInfo.ChatSession.ThreadModeratorId;
             }
 			else
             {
