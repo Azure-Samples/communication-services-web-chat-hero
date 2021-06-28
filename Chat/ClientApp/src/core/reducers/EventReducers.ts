@@ -13,11 +13,13 @@ const initThreadState: EventState = {
 export const EventReducer = (state = initThreadState, action: EventActionTypes) => {
   switch (action.type) {
     case SET_EVENT:
+      console.log(`setting event: ${action.event.id}`);
       return {
         ...state,
         event: action.event
       };
     case SET_ROOM_ID:
+      console.log(`setting room: ${action.roomId}`);
       return {
         ...state,
         roomId: action.roomId
