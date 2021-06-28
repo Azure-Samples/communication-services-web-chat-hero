@@ -65,7 +65,7 @@ export default (props: RoomMainAreaProps): JSX.Element => {
   const groupCallArea = [];
   let roomCallId = getRoomCallId();
 
-  if (isOnCall && !!roomCallId) {
+  if (isOnCall) {
     groupCallArea.push((
       <GroupCall
         endCallHandler={(): void => setIsOnCall(false)}

@@ -9,7 +9,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(resetMessages());
   },
   getRooms: (): Record<string, AcsRoom> => dispatch(getRooms()),
-  setRoom: (roomId: string) => {
+  setActiveRoom: (roomId: string) => {
     dispatch(setRoomId(roomId));
   }
 });

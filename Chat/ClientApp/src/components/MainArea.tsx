@@ -12,12 +12,12 @@ export interface MainScreenProps {
   setMainArea({ }): void;
   resetMessages(): void;
   getRooms(): Record<string, AcsRoom>;
-  setRoom(rId: string): void;
+  setActiveRoom(rId: string): void;
 }
 
 export default (props: MainScreenProps): JSX.Element => {
   const imageProps = { src: defaultImg.toString() };
-  const { contents, roomTitle, setMainArea, getRooms, setRoom } = props;
+  const { contents, roomTitle, setMainArea, getRooms, setActiveRoom } = props;
 
   const getComponent = () => {
     if (contents === 'welcome') {
@@ -35,7 +35,7 @@ export default (props: MainScreenProps): JSX.Element => {
             <Stack horizontal horizontalAlign="space-evenly" styles={tilesStackStyles} tokens={tilesStackTokens}>
               {
                 Object.entries(rooms).map((value) => {
-                  return <DefaultButton className={tileStyle} text={value[1].title} onClick={() => { setMainArea({ contentType: "room", roomTitle: value[1].title }); setRoom(value[1].id); props.resetMessages(); }} />
+                  return <DefaultButton className={tileStyle} text={value[1].title} onClick={() => { setMainArea({ contentType: "room", roomTitle: value[1].title }); setActiveRoom(value[1].id); props.resetMessages(); }} />
                 })
               }
           </Stack>
