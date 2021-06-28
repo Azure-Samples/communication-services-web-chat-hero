@@ -56,7 +56,7 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
   }, [topic, generateHeaderMessage]);
 
   return (
-      <Stack className={chatHeaderContainerStyle} horizontal={true} horizontalAlign="space-between">
+    <Stack className={chatHeaderContainerStyle} horizontal={true} horizontalAlign="space-between">
       <Stack.Item grow={1} className={feedbackContainer}>
         <FeedbackButton />
        </Stack.Item>
