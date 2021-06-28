@@ -1,8 +1,8 @@
 ﻿import { CallAgent, CallEndReason } from '@azure/communication-calling';
 import { AzureCommunicationTokenCredential } from '@azure/communication-common';
-import { ActionButton, FontIcon, IIconProps, PrimaryButton, Stack } from '@fluentui/react';
+import { ActionButton, FontIcon, IIconProps, PrimaryButton, Spinner, Stack } from '@fluentui/react';
 import { AttendeeIcon } from '@fluentui/react-icons-northstar';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import GroupCall from '../containers/GroupCall';
 import { TokenResponse } from '../containers/RoomMainArea';
 import Stream from './Stream';
@@ -15,6 +15,8 @@ const backIcon: IIconProps = { iconName: 'Back' };
 export interface RoomMainAreaProps {
   roomTitle: string;
   userId: string;
+  displayName: string;
+  callAgent: CallAgent;
   setupRoom(): void;
   setRoomThreadId(roomId: string): void;
   backToChatScreenHander(): void;
@@ -26,17 +28,16 @@ export interface RoomMainAreaProps {
     callAgent: CallAgent,
     endCallHandler: (reason: CallEndReason) => void
   ): Promise<void>;
-  joinGroup(callAgent: CallAgent, groupId: string): void;
+  joinGroup(callAgent: CallAgent, groupId: string): Promise<void>;
   callEndedHandler: (reason: CallEndReason) => void;
   setGroup(groupId: string): void;
-  setupCallClient(unsupportedStateHandler: () => void): void;
+  setupCallClient(unsupportedStateHandler: () => void): Promise<void>;
+  registerDevices(): Promise<void>;
   getRoomCallId(): string;
 }
 
-const unsupportedStateHandler = () => {};
-
 export default (props: RoomMainAreaProps): JSX.Element => {
-  const { setupRoom, setRoomThreadId, backToChatScreenHander, removeChatParticipantById, setGroup, getRoomCallId, setupCallClient } = props;
+  const { setupRoom, setRoomThreadId, backToChatScreenHander, removeChatParticipantById, setGroup, getRoomCallId, setupCallClient, callAgent } = props;
 
   useEffect(()=>{
     setRoomThreadId("room1");
@@ -50,14 +51,70 @@ export default (props: RoomMainAreaProps): JSX.Element => {
     backToChatScreenHander();
   }
 
-  const memoizedSetupCallClient = useCallback(() => setupCallClient(unsupportedStateHandler), [
-    unsupportedStateHandler
-  ]);
-  useEffect(() => {
-    memoizedSetupCallClient();
-  }, [memoizedSetupCallClient]);
+  const unsupportedCallingHandler = () => { setIsCallingSupported(false); };
 
+  useEffect(() => {
+    setupCallClient(unsupportedCallingHandler);
+  }, []);
+
+  const [localVideoStream, setLocalVideoStream] = useState(undefined);
+  const [isCallingSupported, setIsCallingSupported] = useState(true);
   const [isOnCall, setIsOnCall] = useState(false);
+  const [isJoiningCall, setIsJoiningCall] = useState(false);
+
+  async function onJoinCallClicked() {
+    setIsJoiningCall(true);
+    var curCallAgent = callAgent;
+
+    if (!curCallAgent) {
+      await props.registerDevices();
+      //1. Retrieve a token
+      const { tokenCredential, userId } = await props.getToken();
+      //2. Initialize the call agent
+      curCallAgent = await props.createCallAgent(tokenCredential, props.displayName);
+      //3. Register for calling events
+      props.registerToCallEvents(userId, curCallAgent, props.callEndedHandler);
+    }
+    
+    //4. Join the call
+    await props.joinGroup(curCallAgent, getRoomCallId());
+    setGroup(getRoomCallId());
+    setIsOnCall(true);
+    setIsJoiningCall(false);
+  }
+
+  function getCallComponent() {
+    if (isOnCall) {
+      return (
+        <GroupCall
+            endCallHandler={(): void => setIsOnCall(false)}
+            groupId={getRoomCallId()}
+            screenWidth={250}
+            localVideoStream={localVideoStream}
+            setLocalVideoStream={setLocalVideoStream}
+          />
+      );
+    }
+    else if (isJoiningCall) {
+      return (
+        <Spinner label="Joining call..." ariaLive="assertive" labelPosition="top" />
+      );
+    }
+    else {
+      return (
+        <PrimaryButton
+            id="joinCall"
+            role="main"
+            aria-label="Join Call"
+            className={joinCallButtonStyle}
+            onClick={() => { onJoinCallClicked(); }}
+          >
+            <AttendeeIcon className={videoCameraIconStyle} size="medium" />
+            <div className={joinCallTextStyle}>Join call</div>
+          </PrimaryButton>
+      );
+    }
+  }
 
   return (
     <div className={staticAreaStyle}>
@@ -76,41 +133,10 @@ export default (props: RoomMainAreaProps): JSX.Element => {
           <FontIcon aria-label="DateTime" iconName="DateTime" className={timeIconStyle} />
           08:00AM - 12:00PM PST (UTC - 8:00)
         </h3>
-      </ Stack>
+      </Stack>
       <Stream />
       <div className={callAreaStyle}>
-        { !isOnCall ? (
-          <PrimaryButton
-            id="joinCall"
-            role="main"
-            aria-label="Join Call"
-            className={joinCallButtonStyle}
-            onClick={async (): Promise<void> => {
-              //1. Retrieve a token
-              const { tokenCredential, userId } = await props.getToken();
-              //2. Initialize the call agent
-              const callAgent = await props.createCallAgent(tokenCredential, props.userId);
-              //3. Register for calling events
-              props.registerToCallEvents(userId, callAgent, props.callEndedHandler);
-              //4. Join the call
-              await props.joinGroup(callAgent, getRoomCallId());
-              setGroup(getRoomCallId());
-              setIsOnCall(true);
-            }}
-          >
-            <AttendeeIcon className={videoCameraIconStyle} size="medium" />
-            <div className={joinCallTextStyle}>Join call</div>
-          </PrimaryButton>
-        )
-        :
-        (
-          <GroupCall
-            endCallHandler={(): void => setIsOnCall(false)}
-            groupId={getRoomCallId()}
-            screenWidth={250}
-          />
-        )
-      }
+        {getCallComponent()}
       </div>
     </div>
   );

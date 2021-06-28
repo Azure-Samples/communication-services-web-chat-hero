@@ -30,11 +30,10 @@ const roomMainAreaStackStyles: IStackStyles = {
 
 const callAreaStyle = mergeStyles({
   width: '75%',
-  height: '30%',
-  margin: '50px auto',
+  maxHeight: '30%',
+  margin: '30px auto',
   display: 'flex',
   justifyContent: 'center',
-  alignItems: 'center',
 });
 
 const joinCallButtonStyle = mergeStyles({

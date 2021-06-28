@@ -14,7 +14,7 @@ import { MAXIMUM_LENGTH_OF_NAME, ENTER_KEY } from '../constants';
 interface DisplayNameFieldProps {
   setName(name: string): void;
   setEmptyWarning(isEmpty: boolean): void;
-  //setNameLengthExceedLimit(isNameLengthExceedLimit: boolean): void;
+  setNameLengthExceedLimit(isNameLengthExceedLimit: boolean): void;
   validateName(): void;
   isEmpty: boolean;
   isNameLengthExceedLimit: boolean;
@@ -26,10 +26,10 @@ export default (props: DisplayNameFieldProps): JSX.Element => {
     if (!event.target.value) {
       props.setEmptyWarning(true);
     } else if (event.target.value.length > MAXIMUM_LENGTH_OF_NAME) {
-      //props.setNameLengthExceedLimit(true);
+      props.setNameLengthExceedLimit(true);
     } else {
       props.setEmptyWarning(false);
-      //props.setNameLengthExceedLimit(false);
+      props.setNameLengthExceedLimit(false);
     }
   };
 

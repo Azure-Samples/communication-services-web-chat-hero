@@ -2,6 +2,8 @@ import { mergeStyles, getTheme } from '@fluentui/react';
 
 const palette = getTheme().palette;
 export const mediaGalleryStyle = mergeStyles({
+  height: '150px',
+  width: '150px',
   padding: '0.4375rem',
   display: 'flex',
   alignItems: 'center',
