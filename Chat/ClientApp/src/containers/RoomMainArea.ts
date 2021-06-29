@@ -8,7 +8,7 @@ import { setCallAgent, setGroup } from '../core/actions/calls';
 import { setRoomId } from '../core/actions/EventAction';
 import { setUserId } from '../core/actions/sdk';
 import { State } from '../core/reducers/index';
-import { addUserToRoomThread, setRoomThreadId, removeThreadMemberByUserId, initCallClient, registerToCallAgent, joinGroup, getRoomCallId } from '../core/sideEffects';
+import { addUserToRoomThread, setRoomThreadId, removeThreadMemberByUserId, initCallClient, registerToCallAgent, joinGroup, getRoomCallId, registerDevices } from '../core/sideEffects';
 import { utils } from '../utils/utils';
 
 export type TokenResponse = {
@@ -23,7 +23,8 @@ const mapDispatchToProps = (dispatch: any) => ({
   setRoomId: async (roomId: string) => dispatch(setRoomId(roomId)),
   setRoomThreadId: async (roomId: string) => dispatch(setRoomThreadId(roomId)),
   removeChatParticipantById: (userId: string) => dispatch(removeThreadMemberByUserId(userId)),
-  setupCallClient: (unsupportedStateHandler: () => void): void => dispatch(initCallClient(unsupportedStateHandler)),
+  setupCallClient: async (unsupportedStateHandler: () => void) => dispatch(initCallClient(unsupportedStateHandler)),
+  registerDevices: async () => dispatch(registerDevices()),
   registerToCallEvents: async (
     userId: string,
     callAgent: CallAgent,
@@ -39,7 +40,10 @@ const mapDispatchToProps = (dispatch: any) => ({
 
 const mapStateToProps = (state: State, props: RoomMainAreaProps) => ({
   userId: state.contosoClient.user.identity,
+  displayName: state.contosoClient.user.displayName,
+  callAgent: state.calls.callAgent,
   roomId: state.event.roomId,
+  callId: state.event.event?.rooms[state.event.roomId!]?.callingSessionId,
   getToken: async (): Promise<TokenResponse> => {
     const tokenResponse: CommunicationUserToken = await utils.getTokenForUser();
     const userToken = tokenResponse.token;

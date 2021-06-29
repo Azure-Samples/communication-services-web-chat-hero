@@ -63,21 +63,6 @@ export default (props: MediaControlsProps): JSX.Element => {
       <CommandButton onClick={micOnClick} disabled={micDisabled} className={controlButtonStyle}>
         <div className={fullWidth}>{micActive ? <MicIcon size="medium" /> : <MicOffIcon size="medium" />}</div>
       </CommandButton>
-      {props.isLocalScreenShareSupportedInBrowser() && (
-        <CommandButton
-          disabled={screenShareDisabled}
-          onClick={props.onScreenShareChange}
-          className={screenShareDisabled ? controlButtonDisabledStyle : controlButtonStyle}
-        >
-          <div className={fullWidth}>
-            {props.screenShareActive ? (
-              <CallControlCloseTrayIcon size="medium" />
-            ) : (
-              <CallControlPresentNewIcon size="medium" />
-            )}
-          </div>
-        </CommandButton>
-      )}
       <CommandButton
         onClick={props.onEndCallClick}
         className={props.compressedMode ? controlButtonStyle : endCallButtonStyle}

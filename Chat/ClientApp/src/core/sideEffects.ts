@@ -1140,6 +1140,19 @@ export const registerToCallAgent = (
   };
 };
 
+export const registerDevices = () => {
+  return async (dispatch: Dispatch, getState: () => State): Promise<void> => {
+    let callClient = getState().sdk.callClient;
+    if (callClient === undefined) {
+      throw new Error('CallClient is not initialized');
+    }
+
+    const deviceManager: DeviceManager = await callClient.getDeviceManager();
+    dispatch(setDeviceManager(deviceManager));
+    subscribeToDeviceManager(deviceManager, dispatch, getState);
+  };
+};
+
 export const initCallClient = (unsupportedStateHandler: () => void) => {
   return async (dispatch: Dispatch, getState: () => State): Promise<void> => {
     let callClient;
@@ -1151,7 +1164,7 @@ export const initCallClient = (unsupportedStateHandler: () => void) => {
     }
 
     try {
-      setLogLevel('verbose');
+      //setLogLevel('verbose');
       callClient = new CallClient();
     } catch (e) {
       unsupportedStateHandler();
@@ -1162,10 +1175,7 @@ export const initCallClient = (unsupportedStateHandler: () => void) => {
       return;
     }
 
-    const deviceManager: DeviceManager = await callClient.getDeviceManager();
     dispatch(setCallClient(callClient));
-    dispatch(setDeviceManager(deviceManager));
-    subscribeToDeviceManager(deviceManager, dispatch, getState);
   };
 };
 
