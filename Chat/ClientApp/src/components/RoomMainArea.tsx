@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import GroupCall from '../containers/GroupCall';
 import { TokenResponse } from '../containers/RoomMainArea';
 import Stream from './Stream';
+import LiveStreamControl from './LiveStreamControl';
 import { staticAreaStyle } from './styles/ChatScreen.styles';
 import { videoCameraIconStyle } from './styles/Configuration.styles';
 import { backButtonStyle, calendarIconStyle, headerTextStyle, roomMainAreaStackStyles,  timeIconStyle, joinCallButtonStyle, callAreaStyle, joinCallTextStyle } from './styles/RoomMainArea.styles';
@@ -131,6 +132,7 @@ export default (props: RoomMainAreaProps): JSX.Element => {
       <h1>
         {props.roomTitle}
       </ h1>
+      <LiveStreamControl/>
       <Stack styles={roomMainAreaStackStyles} >
         <h3 className={headerTextStyle}>
           <FontIcon aria-label="Calendar" iconName="Calendar" className={calendarIconStyle} />
@@ -141,7 +143,7 @@ export default (props: RoomMainAreaProps): JSX.Element => {
           08:00AM - 12:00PM PST (UTC - 8:00)
         </h3>
       </Stack>
-      <Stream />
+      <Stream srcUrl=""/>
       <div className={callAreaStyle}>
         {getCallComponent()}
       </div>

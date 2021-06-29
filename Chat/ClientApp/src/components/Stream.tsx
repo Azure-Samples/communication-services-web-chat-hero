@@ -1,7 +1,11 @@
-﻿import React, { useEffect } from 'react';
+﻿import React, { useEffect,useState } from 'react';
 import { streamMainStyle } from './styles/Stream.styles';
 
-export default (props: any): JSX.Element => {
+export interface StreamProps {
+  srcUrl: string;
+}
+
+export default (props: StreamProps): JSX.Element => {
   useEffect(() => {
     let createPlayer = () => {
       var myOptions = {
@@ -11,6 +15,7 @@ export default (props: any): JSX.Element => {
         height: '100%',
         poster: ''
       };
+      
 
       let _window: any = window;
       var myPlayer = _window.amp('azuremediaplayer', myOptions);
@@ -42,6 +47,7 @@ export default (props: any): JSX.Element => {
         height="100%"
         poster="poster.jpg"
         data-setup='{"nativeControlsForTouch": false}'
+        src={props.srcUrl}
       ></video>
     </div>
   );
