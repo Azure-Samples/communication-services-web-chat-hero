@@ -12,12 +12,12 @@ import {
   leaveIcon,
   pivotItemStyle,
   pivotItemStyles,
-  topicNameLabelStyle,
-  feedbackContainer
+  topicNameLabelStyle
 } from './styles/ChatHeader.styles';
 import { SidePanelTypes } from './SidePanel';
 import { ChatHeaderDispatchProps, ChatHeaderProps } from '../containers/ChatHeader';
 import { FeedbackButton } from './FeedbackButton';
+import { utils } from '../utils/utils';
 import { GUID_FOR_INITIAL_TOPIC_NAME } from '../constants';
 
 type ChatHeaderPaneProps = {
@@ -28,6 +28,14 @@ type ChatHeaderPaneProps = {
 
 export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPaneProps): JSX.Element => {
   const [header, setHeader] = useState('');
+  const [isFeedbackEnabled, setIsFeedbackEnabled] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const settings = await utils.getFeedbackSettings();
+      setIsFeedbackEnabled(settings.isFeedbackEnabled);
+    })();
+  }, [])
 
   const togglePivotItem = (item: PivotItem | undefined) => {
     if (!item) return;
@@ -57,14 +65,11 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
 
   return (
     <Stack className={chatHeaderContainerStyle} horizontal={true} horizontalAlign="space-between">
-      <Stack.Item grow={1} className={feedbackContainer}>
-        <FeedbackButton />
-       </Stack.Item>
       <Stack.Item align="center">
         <div className={topicNameLabelStyle}>{header}</div>
       </Stack.Item>
       <Stack.Item align="center">
-        <Stack horizontal={true}>
+        <Stack horizontal={true} horizontalAlign="space-between">
           <Stack.Item align="center">
             <Pivot
               onKeyDownCapture={(e) => {
@@ -101,6 +106,9 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
               />
             </Pivot>
           </Stack.Item>
+          {isFeedbackEnabled && <Stack.Item align="center">
+            <FeedbackButton/>
+          </Stack.Item>}
           <Stack.Item align="center">
             <div className={iconButtonContainerStyle}>
               <IconButton

@@ -1,6 +1,6 @@
 import { mergeStyles } from '@fluentui/react';
 
-import { getBackgroundColor } from '../../utils/utils';
+import { utils } from '../../utils/utils';
 
 const responsiveLayoutStyle = mergeStyles({
   display: 'flex',
@@ -38,7 +38,7 @@ const smallAvatarContainerStyle = (avatar: string, selectedAvatar: string) =>
     width: '3rem',
     height: '3rem',
     border: avatar === selectedAvatar ? '0.125rem solid #0378D4' : '',
-    backgroundColor: getBackgroundColor(avatar)?.backgroundColor,
+    backgroundColor: utils.getBackgroundColor(avatar)?.backgroundColor,
     borderRadius: '50%',
     alignItems: 'center',
     display: 'flex',
@@ -50,7 +50,7 @@ const largeAvatarContainerStyle = (avatar: string) =>
   mergeStyles({
     width: '8.25rem',
     height: '8.25rem',
-    backgroundColor: getBackgroundColor(avatar)?.backgroundColor,
+    backgroundColor: utils.getBackgroundColor(avatar)?.backgroundColor,
     borderRadius: '50%',
     alignItems: 'center',
     display: 'flex',

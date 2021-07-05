@@ -16,12 +16,7 @@ import { setThreadMembers, setThreadMembersError, setRemovedFromThread } from '.
 import { User } from './reducers/ContosoClientReducers';
 import { State } from './reducers/index';
 import { ClientChatMessage } from './reducers/MessagesReducer';
-import {
-  compareMessages,
-  convertToClientChatMessage,
-  createNewClientChatMessage,
-  isUserMatchingIdentity
-} from '../utils/utils';
+import { utils } from '../utils/utils';
 
 import {
   ChatClient,
@@ -127,7 +122,7 @@ const subscribeForMessage = async (chatClient: ChatClient, dispatch: Dispatch, g
   chatClient.on('chatMessageReceived', async (event) => {
     let state: State = getState();
     let messages: ClientChatMessage[] = state.chat.messages !== undefined ? state.chat.messages : [];
-    if (!isUserMatchingIdentity(event.sender, state.contosoClient.user.identity)) {
+    if (!utils.isUserMatchingIdentity(event.sender, state.contosoClient.user.identity)) {
       const clientChatMessage = {
         sender: event.sender,
         id: event.id,
@@ -137,7 +132,7 @@ const subscribeForMessage = async (chatClient: ChatClient, dispatch: Dispatch, g
       };
 
       messages.push(clientChatMessage);
-      dispatch(setMessages(messages.sort(compareMessages)));
+      dispatch(setMessages(messages.sort(utils.compareMessages)));
     }
   });
 };
@@ -170,7 +165,7 @@ const subscribeForChatParticipants = async (
     let participants: ChatParticipant[] = [];
     for (let chatParticipant of event.participantsRemoved) {
       // if you are in the list, remove yourself from the chat
-      if (isUserMatchingIdentity(chatParticipant.id, identity)) {
+      if (utils.isUserMatchingIdentity(chatParticipant.id, identity)) {
         dispatch(setRemovedFromThread(true));
         return;
       }
@@ -180,7 +175,7 @@ const subscribeForChatParticipants = async (
     for (var i = 0; i < originalParticipants.length; i++) {
       const participantId = (originalParticipants[i].id as CommunicationUserIdentifier).communicationUserId;
       if (
-        event.participantsRemoved.filter((chatParticipant) => isUserMatchingIdentity(chatParticipant.id, participantId))
+        event.participantsRemoved.filter((chatParticipant) => utils.isUserMatchingIdentity(chatParticipant.id, participantId))
           .length === 0
       ) {
         participants.push(originalParticipants[i]);
@@ -209,7 +204,7 @@ const subscribeForChatParticipants = async (
       const addedParticipant = event.participantsAdded[j];
       const id = (addedParticipant.id as CommunicationUserIdentifier).communicationUserId;
       if (
-        participants.filter((participant: ChatParticipant) => isUserMatchingIdentity(participant.id, id)).length === 0
+        participants.filter((participant: ChatParticipant) => utils.isUserMatchingIdentity(participant.id, id)).length === 0
       ) {
         participants.push(addedParticipant);
       }
@@ -274,7 +269,7 @@ const updateTypingUsers = () => async (dispatch: Dispatch, getState: () => State
     }
     if (shouldDisplayTyping(typingNotification.originalArrivalTime)) {
       let threadMember = state.threadMembers.threadMembers.find((threadMember) =>
-        isUserMatchingIdentity(threadMember.id, id)
+        utils.isUserMatchingIdentity(threadMember.id, id)
       );
       if (threadMember) {
         typingUsers.push(threadMember);
@@ -308,7 +303,7 @@ const sendMessage = (messageContent: string) => async (dispatch: Dispatch, getSt
   // we use this client message id to have a local id for messages
   // if we fail to send the message we'll at least be able to show that the message failed to send on the client
   let clientMessageId = (Math.floor(Math.random() * MAXIMUM_INT64) + 1).toString(); //generate a random unsigned Int64 number
-  let newMessage = createNewClientChatMessage(userId, displayName, clientMessageId, messageContent);
+  let newMessage = utils.createNewClientChatMessage(userId, displayName, clientMessageId, messageContent);
 
   let messages = getState().chat.messages;
   messages.push(newMessage);
@@ -357,7 +352,7 @@ const getMessages = async (chatClient: ChatClient, dispatch: Dispatch, getState:
   }
 
   const reversedClientChatMessages: ClientChatMessage[] = messages
-    .map((message) => convertToClientChatMessage(message))
+    .map((message) => utils.convertToClientChatMessage(message))
     .reverse();
 
   return dispatch(setMessages(reversedClientChatMessages));
@@ -591,7 +586,7 @@ const sendMessageHelper = async (
       { senderDisplayName: displayName }
     );
     const message: ChatMessage = await chatThreadClient.getMessage(messageResult.id);
-    updateMessagesArray(dispatch, getState, convertToClientChatMessage(message, clientMessageId));
+    updateMessagesArray(dispatch, getState, utils.convertToClientChatMessage(message, clientMessageId));
   } catch (error) {
     console.error('Failed at getting messages, Error: ', error);
     let failedMessages = getState().chat.failedMessages;
@@ -614,7 +609,7 @@ const updateMessagesArray = async (dispatch: Dispatch, getState: () => State, ne
   messages = messages.map((message: ClientChatMessage) => {
     return message.clientMessageId === newMessage.clientMessageId ? Object.assign({}, message, newMessage) : message;
   });
-  dispatch(setMessages(messages.sort(compareMessages)));
+  dispatch(setMessages(messages.sort(utils.compareMessages)));
 };
 
 const getMessagesHelper = async (chatThreadClient: ChatThreadClient): Promise<ChatMessage[] | undefined> => {

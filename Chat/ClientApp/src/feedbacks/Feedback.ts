@@ -1,6 +1,6 @@
 ﻿import { store } from "../core/store";
 import { getLogs } from "./logger";
-import { uploadContentToBlobStorage } from "../utils/utils";
+import { utils } from "../utils/utils";
 import { v1 as createGUID } from 'uuid';
 
 export type FeedbackType = {
@@ -14,7 +14,7 @@ export type FeedbackType = {
 export const uploadFeedback = async (feedback: FeedbackType): Promise<void> => {
     try {
         const serializedFeedback = JSON.stringify(feedback, null, 4);
-        const logPromise = uploadContentToBlobStorage(`logs-${feedback.feedbackId}.json`, serializedFeedback);
+        const logPromise = utils.uploadContentToBlobStorage(`logs-${feedback.feedbackId}.json`, serializedFeedback);
         await Promise.all([logPromise]);
     } catch (error) {
         console.log(error);

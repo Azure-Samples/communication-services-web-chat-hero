@@ -1,14 +1,14 @@
 import { mergeStyles } from '@fluentui/react';
 import { ComponentSlotStyle } from '@fluentui/react-northstar';
 
-import { getBackgroundColor } from '../../utils/utils';
+import { utils } from '../../utils/utils';
 
 const messageAvatarContainerStyle = (avatar: string) =>
   mergeStyles({
     width: '2rem',
     minWidth: '2rem',
     height: '2rem',
-    backgroundColor: getBackgroundColor(avatar)?.backgroundColor,
+    backgroundColor: utils.getBackgroundColor(avatar)?.backgroundColor,
     borderRadius: '50%',
     alignItems: 'center',
     display: 'flex',

@@ -8,8 +8,10 @@
     IDropdownOption,
     Label,
     PrimaryButton,
-    TextField
+    TextField,
+    TooltipHost
 } from '@fluentui/react';
+import { feedbackButtonContainerStyle } from './styles/ChatHeader.styles';
 import React, { useCallback, useState } from 'react';
 import { uploadFeedback, createFeedback } from '../feedbacks/Feedback';
 
@@ -22,13 +24,19 @@ export const FeedbackButton = (): JSX.Element => {
 
     return (
         <>
+          <TooltipHost
+            content="Report a bug"
+            id='feedback-tooltip'
+          >
             <CommandButton
+                className={ feedbackButtonContainerStyle }
+                aria-describedby='feedback-tooltip'
                 key='Feedback'
-                text='Report a bug'
                 iconProps={{ iconName: 'Feedback' }}
                 onClick={togglePopup}
             />
-            {!hidden && <FeedbackPopup toggleHidden={togglePopup} />}
+          </TooltipHost>
+          {!hidden && <FeedbackPopup toggleHidden={togglePopup} />}
         </>
     );
 };

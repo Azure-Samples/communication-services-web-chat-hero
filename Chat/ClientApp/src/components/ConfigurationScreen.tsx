@@ -16,7 +16,7 @@ import {
   smallAvatarStyle,
   startChatButtonTextStyle
 } from './styles/ConfigurationScreen.styles';
-import { CAT, MOUSE, KOALA, OCTOPUS, MONKEY, FOX, getThreadId } from '../utils/utils';
+import { CAT, MOUSE, KOALA, OCTOPUS, MONKEY, FOX, utils } from '../utils/utils';
 import DisplayNameField from './DisplayNameField';
 import { MAXIMUM_LENGTH_OF_NAME } from '../constants';
 
@@ -69,7 +69,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
 
   useEffect(() => {
     const isValidThread = async () => {
-      if (await isValidThreadProp(getThreadId())) {
+      if (await isValidThreadProp(utils.getThreadId())) {
         setIsValidThread(true);
       } else {
         setIsValidThread(false);

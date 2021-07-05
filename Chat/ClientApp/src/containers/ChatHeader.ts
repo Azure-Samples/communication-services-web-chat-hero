@@ -6,7 +6,7 @@ import { GUID_FOR_INITIAL_TOPIC_NAME } from '../../src/constants';
 import ChatHeader from '../components/ChatHeader';
 import { State } from '../core/reducers/index';
 import { removeThreadMemberByUserId } from '../core/sideEffects';
-import { isUserMatchingIdentity } from '../utils/utils';
+import { utils } from '../utils/utils';
 
 export type ChatHeaderProps = {
   userId: string;
@@ -34,7 +34,7 @@ const mapStateToProps = (state: State): ChatHeaderProps => ({
     }
 
     let members = state.threadMembers.threadMembers.filter(
-      (member: ChatParticipant) => !isUserMatchingIdentity(member.id, state.contosoClient.user.identity)
+      (member: ChatParticipant) => !utils.isUserMatchingIdentity(member.id, state.contosoClient.user.identity)
     );
     if (members.length === 0) {
       header += 'yourself';
