@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
-
-import { GUID_FOR_INITIAL_TOPIC_NAME } from '../../src/constants';
+import { Constants } from '../core/constants';
 import { setContosoUsers, SetContosoUsersAction } from '../core/actions/ContosoClientAction';
 import SidePanel from '../components/SidePanel';
 import { State } from '../core/reducers/index';
@@ -33,7 +32,7 @@ const mapStateToProps = (state: State): SidePanelProps => ({
   identity: state.contosoClient.user.identity,
   chatParticipants: state.threadMembers.threadMembers,
   users: state.contosoClient.users,
-  existsTopicName: state.thread.topic !== GUID_FOR_INITIAL_TOPIC_NAME,
+  existsTopicName: state.thread.topic !== Constants.GUID_FOR_INITIAL_TOPIC_NAME,
   topic: state.thread.topic,
   threadId: state.thread.threadId,
   chatClient: state.contosoClient.chatClient,

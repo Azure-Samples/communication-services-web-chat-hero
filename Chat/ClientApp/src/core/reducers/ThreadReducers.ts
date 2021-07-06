@@ -1,4 +1,4 @@
-import { GUID_FOR_INITIAL_TOPIC_NAME } from '../../constants';
+import { Constants } from '../constants';
 import { SET_THREAD_TOPIC_NAME, SET_THREAD_ID, ThreadActionTypes } from '../actions/ThreadAction';
 
 export interface ThreadState {
@@ -7,7 +7,7 @@ export interface ThreadState {
 }
 
 const initThreadState: ThreadState = {
-  topic: GUID_FOR_INITIAL_TOPIC_NAME,
+  topic: Constants.GUID_FOR_INITIAL_TOPIC_NAME,
   threadId: undefined
 };
 

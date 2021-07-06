@@ -41,6 +41,10 @@ const topicNameEditTextStyle1 = mergeStyles({
   height: '100%'
 });
 
+const feedbackButtonContainerStyle = mergeStyles({
+  marginRight: '1.375rem'
+});
+
 const leaveButtonContainerStyle = mergeStyles({
   height: '100%',
   display: 'flex',
@@ -122,6 +126,7 @@ export {
   topicNameContainerStyle,
   topicNameLabelStyle,
   topicNameEditTextStyle1,
+  feedbackButtonContainerStyle,
   leaveButtonContainerStyle,
   leaveButtonStyle,
   greyIconButtonStyle,

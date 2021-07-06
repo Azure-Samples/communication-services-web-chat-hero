@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import ChatThread from '../components/ChatThread';
 import { State } from '../core/reducers/index';
 import { sendReadReceipt } from '../core/sideEffects';
-import { PARTICIPANTS_THRESHOLD } from '../constants';
-import { isUserMatchingIdentity } from '../utils/utils';
+import { Constants } from '../core/constants';
+import { utils } from '../utils/utils';
 
 const mapStateToProps = (state: State) => ({
   messages: state.chat.messages,
@@ -35,7 +35,7 @@ const mapStateToProps = (state: State) => ({
     return true;
   },
   isLargeParticipantsGroup: () => {
-    return state.threadMembers.threadMembers.length >= PARTICIPANTS_THRESHOLD;
+    return state.threadMembers.threadMembers.length >= Constants.PARTICIPANTS_THRESHOLD;
   },
   isMessageSeen: (clientMessageId: string, messages: any[]) => {
     if (!state.conversations.receipts || state.conversations.receipts.length === 0) {
@@ -46,7 +46,7 @@ const mapStateToProps = (state: State) => ({
     let latestArrivalTime: any = message ? message.createdOn : -1;
 
     var numSeen = state.conversations.receipts.filter((receipt) => {
-      if (isUserMatchingIdentity(receipt.sender, state.contosoClient.user.identity)) return false; //don't count sender's own read receipt
+      if (utils.isUserMatchingIdentity(receipt.sender, state.contosoClient.user.identity)) return false; //don't count sender's own read receipt
       let readMessagecreatedOn = messages.find((message) => message.id === receipt.chatMessageId)?.createdOn;
       return new Date(readMessagecreatedOn) >= new Date(latestArrivalTime);
     }).length;

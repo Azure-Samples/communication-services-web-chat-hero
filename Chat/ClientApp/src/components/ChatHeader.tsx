@@ -1,7 +1,7 @@
 import { DefaultButton, Icon, IconButton, Pivot, PivotItem, Stack } from '@fluentui/react';
 import { UserFriendsIcon, SettingsIcon } from '@fluentui/react-icons-northstar';
 import React, { Dispatch, useEffect, useState } from 'react';
-
+import { Constants } from '../core/constants';
 import { copyIconStyle } from './styles/SidePanel.styles';
 import {
   chatHeaderContainerStyle,
@@ -12,13 +12,12 @@ import {
   leaveIcon,
   pivotItemStyle,
   pivotItemStyles,
-  topicNameLabelStyle,
-  feedbackContainer
+  topicNameLabelStyle
 } from './styles/ChatHeader.styles';
 import { SidePanelTypes } from './SidePanel';
 import { ChatHeaderDispatchProps, ChatHeaderProps } from '../containers/ChatHeader';
 import { FeedbackButton } from './FeedbackButton';
-import { GUID_FOR_INITIAL_TOPIC_NAME } from '../constants';
+import { utils } from '../utils/utils';
 
 type ChatHeaderPaneProps = {
   selectedPane: SidePanelTypes;
@@ -28,6 +27,26 @@ type ChatHeaderPaneProps = {
 
 export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPaneProps): JSX.Element => {
   const [header, setHeader] = useState('');
+  const [screenWidth, setScreenWidth] = useState(0);
+
+  useEffect(() => {
+    const setWindowWidth = () => {
+      const width = typeof window !== 'undefined' ? window.innerWidth : 0;
+      setScreenWidth(width);
+    };
+    setWindowWidth();
+    window.addEventListener('resize', setWindowWidth);
+    return () => window.removeEventListener('resize', setWindowWidth);
+  }, []);
+
+  const [isFeedbackEnabled, setIsFeedbackEnabled] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const settings = await utils.getFeedbackSettings();
+      setIsFeedbackEnabled(settings.isFeedbackEnabled);
+    })();
+  }, [])
 
   const togglePivotItem = (item: PivotItem | undefined) => {
     if (!item) return;
@@ -47,24 +66,23 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
       : setSelectedPane(SidePanelTypes.None);
   };
 
+  const compressedMode = screenWidth <= Constants.MINI_HEADER_WINDOW_WIDTH;
+
   const leaveString = 'Leave';
 
   const { topic, generateHeaderMessage, leaveChatHandler, removeChatParticipantById, userId } = props;
 
   useEffect(() => {
-    setHeader(topic && topic !== GUID_FOR_INITIAL_TOPIC_NAME ? topic : generateHeaderMessage());
+    setHeader(topic && topic !== Constants.GUID_FOR_INITIAL_TOPIC_NAME ? topic : generateHeaderMessage());
   }, [topic, generateHeaderMessage]);
 
   return (
     <Stack className={chatHeaderContainerStyle} horizontal={true} horizontalAlign="space-between">
-      <Stack.Item grow={1} className={feedbackContainer}>
-        <FeedbackButton />
-       </Stack.Item>
       <Stack.Item align="center">
         <div className={topicNameLabelStyle}>{header}</div>
       </Stack.Item>
       <Stack.Item align="center">
-        <Stack horizontal={true}>
+        <Stack horizontal={true} horizontalAlign="space-between">
           <Stack.Item align="center">
             <Pivot
               onKeyDownCapture={(e) => {
@@ -101,6 +119,9 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
               />
             </Pivot>
           </Stack.Item>
+          {isFeedbackEnabled && <Stack.Item align="center">
+            <FeedbackButton iconOnly={compressedMode} />
+          </Stack.Item>}
           <Stack.Item align="center">
             <div className={iconButtonContainerStyle}>
               <IconButton

@@ -7,12 +7,12 @@ import ConfigurationScreen from './containers/ConfigurationScreen';
 import EndScreen from './components/EndScreen';
 import RemovedFromThreadScreen from './components/RemovedFromThreadScreen';
 import HomeScreen from './containers/HomeScreen';
-import { getBuildTime, getChatSDKVersion, getThreadId } from './utils/utils';
+import { utils } from './utils/utils';
 import { store } from './core/store';
 import { initLogger } from './feedbacks/logger';
 
-console.info(`Azure Communication Services chat sample using @azure/communication-chat : ${getChatSDKVersion()}`);
-console.info(`Build Date : ${getBuildTime()}`);
+console.info(`Azure Communication Services chat sample using @azure/communication-chat : ${utils.getChatSDKVersion()}`);
+console.info(`Build Date : ${utils.getBuildTime()}`);
 
 loadTheme({});
 initializeIcons();
@@ -47,7 +47,7 @@ export default (): JSX.Element => {
     }
   };
 
-  if (getThreadId() && page === 'home') {
+  if (utils.getThreadId() && page === 'home') {
     setPage('configuration');
   }
 

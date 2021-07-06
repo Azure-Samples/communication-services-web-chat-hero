@@ -10,11 +10,13 @@ namespace Chat
     {
         private readonly string _blobSasUri;
         private readonly string _blobContainerName;
+        private readonly string _isFeedbackEnabled;
 
         public BlobSettingsController(IConfiguration configuration)
         {
             _blobSasUri = configuration["LogBlobSasUri"];
             _blobContainerName = configuration["LogBlobContainerName"];
+            _isFeedbackEnabled = configuration["IsFeedbackEnabled"];
         }
 
         /// <summary>
@@ -29,6 +31,7 @@ namespace Chat
             {
                 sasUri = _blobSasUri,
                 containerName = _blobContainerName,
+                isFeedbackEnabled = _isFeedbackEnabled,
             };
 
             return this.Ok(clientResponse);

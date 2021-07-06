@@ -1,8 +1,7 @@
 import { Stack, TextField, PrimaryButton, Icon, StackItem } from '@fluentui/react';
 import React, { useEffect, useState, Dispatch } from 'react';
 import { FocusZone, FocusZoneDirection } from 'office-ui-fabric-react/lib/FocusZone';
-
-import { ENTER_KEY, GUID_FOR_INITIAL_TOPIC_NAME, MAXIMUM_LENGTH_OF_TOPIC } from '../../src/constants';
+import { Constants } from '../core/constants';
 import InviteFooter from './InviteFooter';
 import MemberItem from './MemberItem';
 import { inputBoxTextStyle } from './styles/ConfigurationScreen.styles';
@@ -45,7 +44,7 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
   const onTopicNameTextChange = (event: any) => {
     setIsEditingTopicName(true);
     setTopicName(event.target.value);
-    if (event.target.value.length > MAXIMUM_LENGTH_OF_TOPIC) {
+    if (event.target.value.length > Constants.MAXIMUM_LENGTH_OF_TOPIC) {
       setTopicNameOverflow(true);
     } else {
       setTopicNameOverflow(false);
@@ -53,7 +52,7 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
   };
 
   const onTopicNameSubmit = () => {
-    if (topicName.length > MAXIMUM_LENGTH_OF_TOPIC) return;
+    if (topicName.length > Constants.MAXIMUM_LENGTH_OF_TOPIC) return;
     if (!chatClient) return;
     if (!threadId) return;
     props.updateThreadTopicName(chatClient, threadId, topicName, setIsSavingTopicName);
@@ -106,13 +105,13 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
             className={isTopicNameOverflow ? groupNameInputBoxWarningStyle : groupNameInputBoxStyle}
             inputClassName={inputBoxTextStyle}
             borderless={true}
-            defaultValue={props.topic === GUID_FOR_INITIAL_TOPIC_NAME ? '' : props.topic}
+            defaultValue={props.topic === Constants.GUID_FOR_INITIAL_TOPIC_NAME ? '' : props.topic}
             placeholder={props.existsTopicName ? undefined : 'Type a group name'}
             autoComplete="off"
             onSubmit={onTopicNameSubmit}
             onChange={onTopicNameTextChange}
             onKeyUp={(ev) => {
-              if (ev.which === ENTER_KEY) {
+              if (ev.which === Constants.ENTER_KEY) {
                 onTopicNameSubmit();
               }
             }}

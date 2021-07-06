@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 
 import TypingIndicator from '../components/TypingIndicator';
 import { State } from '../core/reducers/index';
-import { PARTICIPANTS_THRESHOLD, MAXIMUM_LENGTH_OF_TYPING_USERS } from '../constants';
+import { Constants } from '../core/constants';
 import { ChatParticipant } from '@azure/communication-chat';
 import { CommunicationUserIdentifier } from '@azure/communication-common';
 
@@ -17,7 +17,7 @@ const mapStateToProps = (state: State) => ({
       (typingUser: ChatParticipant) =>
         (typingUser.id as CommunicationUserIdentifier).communicationUserId !== currentContosoUser.identity
     );
-    if (typingUsers.length === 0 || state.threadMembers.threadMembers.length >= PARTICIPANTS_THRESHOLD) {
+    if (typingUsers.length === 0 || state.threadMembers.threadMembers.length >= Constants.PARTICIPANTS_THRESHOLD) {
       return typingIndicator;
     }
     // if we have at least one other participant we want to show names for the first 2
@@ -39,7 +39,7 @@ const mapStateToProps = (state: State) => ({
       var len = typingUsers.length - 2;
       typingIndicator += ` and ${len} other${len === 1 ? '' : 's'}`;
     }
-    if (typingIndicator.length > MAXIMUM_LENGTH_OF_TYPING_USERS) {
+    if (typingIndicator.length > Constants.MAXIMUM_LENGTH_OF_TYPING_USERS) {
       typingIndicator = `${typingUsers.length} participant${typingUsers.length === 1 ? '' : 's'}`;
     }
     return typingIndicator;
@@ -54,7 +54,7 @@ const mapStateToProps = (state: State) => ({
       (typingUser: ChatParticipant) =>
         (typingUser.id as CommunicationUserIdentifier).communicationUserId !== currentContosoUser.identity
     );
-    if (typingUsers.length === 0 || state.threadMembers.threadMembers.length >= PARTICIPANTS_THRESHOLD) {
+    if (typingUsers.length === 0 || state.threadMembers.threadMembers.length >= Constants.PARTICIPANTS_THRESHOLD) {
       return typingIndicatorVerb;
     }
     typingIndicatorVerb = (typingUsers.length > 1 ? ' are' : ' is') + ' typing...';

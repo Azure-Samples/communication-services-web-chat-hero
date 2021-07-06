@@ -11,8 +11,7 @@ import {
 } from '@fluentui/react-northstar';
 import React, { useEffect, useState, createRef, useRef } from 'react';
 import { LiveAnnouncer, LiveMessage } from 'react-aria-live';
-
-import { URL_REGEX, NUMBER_OF_MESSAGES_TO_LOAD } from '../constants';
+import { Constants } from '../core/constants';
 import {
   chatContainerStyle,
   messageAvatarContainerStyle,
@@ -26,7 +25,7 @@ import {
 } from './styles/ChatThread.styles';
 import { User } from '../core/reducers/ContosoClientReducers';
 import { ClientChatMessage } from '../core/reducers/MessagesReducer';
-import { isUserMatchingIdentity } from '../utils/utils';
+import { utils } from '../utils/utils';
 
 interface ChatThreadProps {
   isYourLatestMessage(clientMessageId: string, messages: any[]): boolean;
@@ -44,7 +43,7 @@ interface ChatThreadProps {
 
 const renderHyperlink = (text: string) => {
   return text.split(' ').map((part) =>
-    URL_REGEX.test(part) ? (
+    Constants.URL_REGEX.test(part) ? (
       <a href={part} target="_blank" rel="noopener noreferrer">
         {part}{' '}
       </a>
@@ -102,7 +101,7 @@ export default (props: ChatThreadProps): JSX.Element => {
     const user =
       props.messages && props.messages[props.messages.length - 1] && props.messages[props.messages.length - 1].sender;
     // if you are the person that sent the most recent message
-    if (props.messages.length > 0 && user && isUserMatchingIdentity(user, props.user.identity)) {
+    if (props.messages.length > 0 && user && utils.isUserMatchingIdentity(user, props.user.identity)) {
       // after sending a message, scroll to bottom
       scrollToBottom();
       updateIndexOfTheFirstMessage();
@@ -204,7 +203,7 @@ export default (props: ChatThreadProps): JSX.Element => {
 
   const updateIndexOfTheFirstMessageToLoadMore = () => {
     setIndexOfTheFirstMessage(
-      indexOfTheFirstMessage > NUMBER_OF_MESSAGES_TO_LOAD ? indexOfTheFirstMessage - NUMBER_OF_MESSAGES_TO_LOAD : 0
+      indexOfTheFirstMessage > Constants.NUMBER_OF_MESSAGES_TO_LOAD ? indexOfTheFirstMessage - Constants.NUMBER_OF_MESSAGES_TO_LOAD : 0
     );
     setShouldUpdateMessageWithAttached(true);
   };
