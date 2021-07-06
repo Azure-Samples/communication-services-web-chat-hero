@@ -1,5 +1,5 @@
 import { loadTheme, initializeIcons } from '@fluentui/react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Provider } from 'react-redux';
 
 import ChatScreen from './containers/ChatScreen';

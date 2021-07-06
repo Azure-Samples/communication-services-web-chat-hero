@@ -11,8 +11,7 @@ import {
 } from '@fluentui/react-northstar';
 import React, { useEffect, useState, createRef, useRef } from 'react';
 import { LiveAnnouncer, LiveMessage } from 'react-aria-live';
-
-import { URL_REGEX, NUMBER_OF_MESSAGES_TO_LOAD } from '../constants';
+import { Constants } from '../core/constants';
 import {
   chatContainerStyle,
   messageAvatarContainerStyle,
@@ -44,7 +43,7 @@ interface ChatThreadProps {
 
 const renderHyperlink = (text: string) => {
   return text.split(' ').map((part) =>
-    URL_REGEX.test(part) ? (
+    Constants.URL_REGEX.test(part) ? (
       <a href={part} target="_blank" rel="noopener noreferrer">
         {part}{' '}
       </a>
@@ -204,7 +203,7 @@ export default (props: ChatThreadProps): JSX.Element => {
 
   const updateIndexOfTheFirstMessageToLoadMore = () => {
     setIndexOfTheFirstMessage(
-      indexOfTheFirstMessage > NUMBER_OF_MESSAGES_TO_LOAD ? indexOfTheFirstMessage - NUMBER_OF_MESSAGES_TO_LOAD : 0
+      indexOfTheFirstMessage > Constants.NUMBER_OF_MESSAGES_TO_LOAD ? indexOfTheFirstMessage - Constants.NUMBER_OF_MESSAGES_TO_LOAD : 0
     );
     setShouldUpdateMessageWithAttached(true);
   };

@@ -1,8 +1,7 @@
 import { Stack, TextField } from '@fluentui/react';
 import { SendIcon } from '@fluentui/react-northstar';
 import React, { useState, Dispatch } from 'react';
-
-import { ENTER_KEY, EMPTY_MESSAGE_REGEX, MAXIMUM_LENGTH_OF_MESSAGE } from '../../src/constants';
+import { Constants } from '../core/constants';
 import { sendBoxStyle, sendIconStyle, textFieldStyle, TextFieldStyleProps } from './styles/SendBox.styles';
 import { User } from '../core/reducers/ContosoClientReducers';
 
@@ -22,13 +21,13 @@ export default (props: SendboxProps): JSX.Element => {
 
   const addMessage = () => {
     // we dont want to send empty messages including spaces, newlines, tabs
-    if (!EMPTY_MESSAGE_REGEX.test(textValue)) {
+    if (!Constants.EMPTY_MESSAGE_REGEX.test(textValue)) {
       props.onSendMessage(textValue);
       setTextValue('');
     }
   };
   const setText = (e: any) => {
-    if (e.target.value.length > MAXIMUM_LENGTH_OF_MESSAGE) {
+    if (e.target.value.length > Constants.MAXIMUM_LENGTH_OF_MESSAGE) {
       setTextValueOverflow(true);
     } else {
       setTextValueOverflow(false);
@@ -50,7 +49,7 @@ export default (props: SendboxProps): JSX.Element => {
           onChange={setText}
           autoComplete="off"
           onKeyUp={(ev) => {
-            if (ev.which === ENTER_KEY && !textValueOverflow) {
+            if (ev.which === Constants.ENTER_KEY && !textValueOverflow) {
               addMessage();
             }
             props.onSendTypingNotification(lastSentTypingNotificationDate, setLastSentTypingNotificationDate);

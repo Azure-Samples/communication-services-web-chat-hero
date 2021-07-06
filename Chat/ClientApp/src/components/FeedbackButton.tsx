@@ -8,15 +8,17 @@
     IDropdownOption,
     Label,
     PrimaryButton,
-    TextField,
-    TooltipHost
+    TextField
 } from '@fluentui/react';
 import { feedbackButtonContainerStyle } from './styles/ChatHeader.styles';
 import React, { useCallback, useState } from 'react';
 import { uploadFeedback, createFeedback } from '../feedbacks/Feedback';
 
+type FeedbackButtonProps = {
+    iconOnly?: boolean;
+}
 
-export const FeedbackButton = (): JSX.Element => {
+export const FeedbackButton = ({ iconOnly }: FeedbackButtonProps): JSX.Element => {
     const [hidden, setHidden] = useState(true);
     const togglePopup = useCallback(() => {
         setHidden(!hidden);
@@ -24,18 +26,14 @@ export const FeedbackButton = (): JSX.Element => {
 
     return (
         <>
-          <TooltipHost
-            content="Report a bug"
-            id='feedback-tooltip'
-          >
-            <CommandButton
-                className={ feedbackButtonContainerStyle }
-                aria-describedby='feedback-tooltip'
-                key='Feedback'
-                iconProps={{ iconName: 'Feedback' }}
-                onClick={togglePopup}
+          <CommandButton
+            className={ feedbackButtonContainerStyle }
+            key='Feedback'
+            text={iconOnly ? undefined : 'Report a bug'}
+            ariaLabel={iconOnly ? 'Report a bug': undefined}
+            iconProps={{ iconName: 'Feedback' }}
+            onClick={togglePopup}
             />
-          </TooltipHost>
           {!hidden && <FeedbackPopup toggleHidden={togglePopup} />}
         </>
     );

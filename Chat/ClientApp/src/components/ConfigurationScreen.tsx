@@ -18,7 +18,7 @@ import {
 } from './styles/ConfigurationScreen.styles';
 import { CAT, MOUSE, KOALA, OCTOPUS, MONKEY, FOX, utils } from '../utils/utils';
 import DisplayNameField from './DisplayNameField';
-import { MAXIMUM_LENGTH_OF_NAME } from '../constants';
+import { Constants } from '../core/constants';
 
 export interface ConfigurationScreenProps {
   joinChatHandler(): void;
@@ -52,7 +52,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
     if (!name) {
       setEmptyWarning(true);
       setNameLengthExceedLimit(false);
-    } else if (name.length > MAXIMUM_LENGTH_OF_NAME) {
+    } else if (name.length > Constants.MAXIMUM_LENGTH_OF_NAME) {
       setEmptyWarning(false);
       setNameLengthExceedLimit(true);
     } else {

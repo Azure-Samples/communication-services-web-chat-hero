@@ -3,7 +3,7 @@ import { Dispatch } from 'react';
 
 import SendBox from '../components/SendBox';
 import { sendMessage, sendTypingNotification } from '../core/sideEffects';
-import { MINIMUM_TYPING_INTERVAL_IN_MILLISECONDS } from '../constants';
+import { Constants } from '../core/constants';
 import { State } from '../core/reducers';
 
 const mapStateToProps = (state: State) => ({
@@ -18,7 +18,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   ) => {
     let currentDate = new Date();
     let timeSinceLastSentTypingNotificationMs = currentDate.getTime() - lastSentTypingNotificationDate;
-    if (timeSinceLastSentTypingNotificationMs >= MINIMUM_TYPING_INTERVAL_IN_MILLISECONDS) {
+    if (timeSinceLastSentTypingNotificationMs >= Constants.MINIMUM_TYPING_INTERVAL_IN_MILLISECONDS) {
       dispatch(sendTypingNotification());
       setLastSentTypingNotificationDate(currentDate.getTime());
     }

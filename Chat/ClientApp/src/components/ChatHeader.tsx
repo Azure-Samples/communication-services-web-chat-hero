@@ -1,7 +1,7 @@
 import { DefaultButton, Icon, IconButton, Pivot, PivotItem, Stack } from '@fluentui/react';
 import { UserFriendsIcon, SettingsIcon } from '@fluentui/react-icons-northstar';
 import React, { Dispatch, useEffect, useState } from 'react';
-
+import { Constants } from '../core/constants';
 import { copyIconStyle } from './styles/SidePanel.styles';
 import {
   chatHeaderContainerStyle,
@@ -18,7 +18,6 @@ import { SidePanelTypes } from './SidePanel';
 import { ChatHeaderDispatchProps, ChatHeaderProps } from '../containers/ChatHeader';
 import { FeedbackButton } from './FeedbackButton';
 import { utils } from '../utils/utils';
-import { GUID_FOR_INITIAL_TOPIC_NAME } from '../constants';
 
 type ChatHeaderPaneProps = {
   selectedPane: SidePanelTypes;
@@ -28,6 +27,18 @@ type ChatHeaderPaneProps = {
 
 export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPaneProps): JSX.Element => {
   const [header, setHeader] = useState('');
+  const [screenWidth, setScreenWidth] = useState(0);
+
+  useEffect(() => {
+    const setWindowWidth = () => {
+      const width = typeof window !== 'undefined' ? window.innerWidth : 0;
+      setScreenWidth(width);
+    };
+    setWindowWidth();
+    window.addEventListener('resize', setWindowWidth);
+    return () => window.removeEventListener('resize', setWindowWidth);
+  }, []);
+
   const [isFeedbackEnabled, setIsFeedbackEnabled] = useState(false);
 
   useEffect(() => {
@@ -55,12 +66,14 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
       : setSelectedPane(SidePanelTypes.None);
   };
 
+  const compressedMode = screenWidth <= Constants.MINI_HEADER_WINDOW_WIDTH;
+
   const leaveString = 'Leave';
 
   const { topic, generateHeaderMessage, leaveChatHandler, removeChatParticipantById, userId } = props;
 
   useEffect(() => {
-    setHeader(topic && topic !== GUID_FOR_INITIAL_TOPIC_NAME ? topic : generateHeaderMessage());
+    setHeader(topic && topic !== Constants.GUID_FOR_INITIAL_TOPIC_NAME ? topic : generateHeaderMessage());
   }, [topic, generateHeaderMessage]);
 
   return (
@@ -107,7 +120,7 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
             </Pivot>
           </Stack.Item>
           {isFeedbackEnabled && <Stack.Item align="center">
-            <FeedbackButton/>
+            <FeedbackButton iconOnly={compressedMode} />
           </Stack.Item>}
           <Stack.Item align="center">
             <div className={iconButtonContainerStyle}>

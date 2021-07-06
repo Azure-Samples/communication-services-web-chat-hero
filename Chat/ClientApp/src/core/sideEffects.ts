@@ -1,13 +1,7 @@
 import { Dispatch } from 'redux';
 import React from 'react';
 
-import {
-  MINIMUM_TYPING_INTERVAL_IN_MILLISECONDS,
-  MAXIMUM_INT64,
-  PAGE_SIZE,
-  INITIAL_MESSAGES_SIZE,
-  OK
-} from '../constants';
+import { Constants } from './constants';
 import { setChatClient, setContosoUser, setContosoUsers } from './actions/ContosoClientAction';
 import { setReceipts } from './actions/ConversationsAction';
 import { setMessages, setTypingNotifications, setTypingUsers, setFailedMessages } from './actions/MessagesAction';
@@ -282,7 +276,7 @@ const updateTypingUsers = () => async (dispatch: Dispatch, getState: () => State
 const shouldDisplayTyping = (lastReceivedTypingEventDate: number) => {
   let currentDate = new Date();
   let timeSinceLastTypingNotificationMs = currentDate.getTime() - lastReceivedTypingEventDate;
-  return timeSinceLastTypingNotificationMs <= MINIMUM_TYPING_INTERVAL_IN_MILLISECONDS;
+  return timeSinceLastTypingNotificationMs <= Constants.MINIMUM_TYPING_INTERVAL_IN_MILLISECONDS;
 };
 
 const sendMessage = (messageContent: string) => async (dispatch: Dispatch, getState: () => State) => {
@@ -302,7 +296,7 @@ const sendMessage = (messageContent: string) => async (dispatch: Dispatch, getSt
 
   // we use this client message id to have a local id for messages
   // if we fail to send the message we'll at least be able to show that the message failed to send on the client
-  let clientMessageId = (Math.floor(Math.random() * MAXIMUM_INT64) + 1).toString(); //generate a random unsigned Int64 number
+  let clientMessageId = (Math.floor(Math.random() * Constants.MAXIMUM_INT64) + 1).toString(); //generate a random unsigned Int64 number
   let newMessage = utils.createNewClientChatMessage(userId, displayName, clientMessageId, messageContent);
 
   let messages = getState().chat.messages;
@@ -616,7 +610,7 @@ const getMessagesHelper = async (chatThreadClient: ChatThreadClient): Promise<Ch
   try {
     let messages: ChatMessage[] = [];
     let getMessagesResponse = await chatThreadClient.listMessages({
-      maxPageSize: PAGE_SIZE
+      maxPageSize: Constants.PAGE_SIZE
     });
 
     let messages_temp = [];
@@ -635,14 +629,14 @@ const getMessagesHelper = async (chatThreadClient: ChatThreadClient): Promise<Ch
 
       // filter and only return top 100 text messages
       messages.push(...messages_temp.filter((message) => message.type === 'text'));
-      if (messages.length >= INITIAL_MESSAGES_SIZE) {
-        return messages.slice(0, INITIAL_MESSAGES_SIZE);
+      if (messages.length >= Constants.INITIAL_MESSAGES_SIZE) {
+        return messages.slice(0, Constants.INITIAL_MESSAGES_SIZE);
       }
       // if there is no more messages
       break;
     }
 
-    return messages.slice(0, INITIAL_MESSAGES_SIZE);
+    return messages.slice(0, Constants.INITIAL_MESSAGES_SIZE);
   } catch (error) {
     console.error('Failed at getting messages, Error: ', error);
   }

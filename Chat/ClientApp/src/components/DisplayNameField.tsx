@@ -9,7 +9,7 @@ import {
   labelFontStyle,
   warningStyle
 } from './styles/ConfigurationScreen.styles';
-import { MAXIMUM_LENGTH_OF_NAME, ENTER_KEY } from '../constants';
+import { Constants } from '../core/constants';
 
 interface DisplayNameFieldProps {
   setName(name: string): void;
@@ -25,7 +25,7 @@ export default (props: DisplayNameFieldProps): JSX.Element => {
     props.setName(event.target.value);
     if (!event.target.value) {
       props.setEmptyWarning(true);
-    } else if (event.target.value.length > MAXIMUM_LENGTH_OF_NAME) {
+    } else if (event.target.value.length > Constants.MAXIMUM_LENGTH_OF_NAME) {
       props.setNameLengthExceedLimit(true);
     } else {
       props.setEmptyWarning(false);
@@ -46,7 +46,7 @@ export default (props: DisplayNameFieldProps): JSX.Element => {
         id="name"
         placeholder="Enter your name"
         onKeyDown={(ev) => {
-          if (ev.which === ENTER_KEY) {
+          if (ev.which === Constants.ENTER_KEY) {
             props.validateName();
           }
         }}

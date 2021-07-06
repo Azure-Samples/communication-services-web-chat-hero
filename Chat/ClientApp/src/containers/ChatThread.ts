@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import ChatThread from '../components/ChatThread';
 import { State } from '../core/reducers/index';
 import { sendReadReceipt } from '../core/sideEffects';
-import { PARTICIPANTS_THRESHOLD } from '../constants';
+import { Constants } from '../core/constants';
 import { utils } from '../utils/utils';
 
 const mapStateToProps = (state: State) => ({
@@ -35,7 +35,7 @@ const mapStateToProps = (state: State) => ({
     return true;
   },
   isLargeParticipantsGroup: () => {
-    return state.threadMembers.threadMembers.length >= PARTICIPANTS_THRESHOLD;
+    return state.threadMembers.threadMembers.length >= Constants.PARTICIPANTS_THRESHOLD;
   },
   isMessageSeen: (clientMessageId: string, messages: any[]) => {
     if (!state.conversations.receipts || state.conversations.receipts.length === 0) {
