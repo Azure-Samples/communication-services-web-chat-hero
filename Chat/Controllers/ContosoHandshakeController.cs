@@ -104,7 +104,7 @@ namespace Chat
 			return Ok();
 		}
 
-		/// <summary>
+				/// <summary>
 		/// Add the user to the thread if possible
 		/// </summary>
 		/// <param name="threadId"></param>
@@ -137,6 +137,41 @@ namespace Chat
 			catch(Exception e)
 			{
 				Console.WriteLine($"Unexpected error occurred while adding user from thread: {e}");
+			}
+
+			return Ok();
+		}
+
+		/// <summary>
+		/// Add the user to the thread if possible
+		/// </summary>
+		/// <param name="threadId"></param>
+		/// <param name="user"></param>
+		[Route("addTeamsUser/{threadId}")]
+		[HttpPost]
+		public async Task<ActionResult> TryAddTeamsUserToThread(string threadId, ContosoTeamsMemberModel user)
+		{
+			var moderatorId = _store.Store[threadId];
+
+			AccessToken moderatorToken = await _userTokenManager.GenerateTokenAsync(_resourceConnectionString, moderatorId);
+
+			ChatClient chatClient = new ChatClient(
+				new Uri(_chatGatewayUrl),
+				new CommunicationTokenCredential(moderatorToken.Token));
+
+			ChatThreadClient chatThreadClient = chatClient.GetChatThreadClient(threadId);
+
+			var threadProperties = await chatThreadClient.GetPropertiesAsync();
+			var chatParticipant = new ChatParticipant(new MicrosoftTeamsUserIdentifier(user.TeamsUserId));
+
+			try
+			{
+				Response response = await chatThreadClient.AddParticipantAsync(chatParticipant);
+				// at this time we are just return OK when this fails, but we need to handle this properly
+			}
+			catch(Exception e)
+			{
+				Console.WriteLine($"Unexpected error occurred while adding a Microsoft Teams user to a thread: {e}");
 			}
 
 			return Ok();

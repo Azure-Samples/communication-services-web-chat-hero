@@ -56,9 +56,9 @@ const sidePanelContainerStyle = (showSidePanel: boolean) =>
 const titleStyle = mergeStyles({
   marginLeft: '1rem',
   marginTop: '1rem',
-  fontSize: '1rem', // 16px
+  fontSize: '0.875', // 14px
   height: '1.375rem',
-  marginBottom: '1.25rem',
+  marginBottom: '0.375rem', // 6px
   fontWeight: 600
 });
 

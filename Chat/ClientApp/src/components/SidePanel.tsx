@@ -3,7 +3,7 @@ import React, { useEffect, useState, Dispatch } from 'react';
 import { FocusZone, FocusZoneDirection } from 'office-ui-fabric-react/lib/FocusZone';
 
 import { ENTER_KEY, GUID_FOR_INITIAL_TOPIC_NAME, MAXIMUM_LENGTH_OF_TOPIC } from '../../src/constants';
-import InviteFooter from './InviteFooter';
+import InviteFooter from './AddUserButton';
 import MemberItem from './MemberItem';
 import { inputBoxTextStyle } from './styles/ConfigurationScreen.styles';
 import {
@@ -21,7 +21,7 @@ import {
   groupNameInputBoxWarningStyle
 } from './styles/SidePanel.styles';
 import { SidePanelDispatchProps, SidePanelProps } from '../containers/SidePanel';
-import { CommunicationUserIdentifier } from '@azure/communication-common';
+import { CommunicationUserIdentifier, MicrosoftTeamsUserIdentifier } from '@azure/communication-common';
 
 export enum SidePanelTypes {
   None = 'none',
@@ -64,6 +64,10 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
     }, 100);
   };
 
+  const buttonStyle = {
+    lineHeight: '1rem', fontSize:'0.75', color: '#605E5C', margin: '0.375rem 1rem 0rem 1rem'
+  }
+
   return (
     <>
       <Stack
@@ -73,25 +77,31 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
         {/* Title */}
         <span className={titleStyle}>People</span>
         {/* Member list */}
+        
+        {/* Invite link footer */}
+        <InviteFooter />
+        <StackItem style={buttonStyle}>{"In this chat"}</StackItem>
         <StackItem className={memberListStyle}>
           <FocusZone direction={FocusZoneDirection.vertical}>
             {props.chatParticipants.map((person) => {
               const id = (person.id as CommunicationUserIdentifier).communicationUserId;
+              const fromACSId = (person.id as CommunicationUserIdentifier).communicationUserId;
+              const fromTeamsId = (person.id as MicrosoftTeamsUserIdentifier).microsoftTeamsUserId
+              const fromId = fromACSId ?? fromTeamsId;
+
               return (
                 <MemberItem
-                  key={id}
-                  userId={id}
-                  avatar={props.users[id] === undefined ? '' : props.users[id].emoji}
+                  key={fromId}
+                  userId={fromId}
+                  avatar={props.users[fromId] === undefined ? '' : props.users[fromId].emoji}
                   name={person.displayName as string}
-                  isYou={id === (props.identity as string)}
+                  isYou={fromId === (props.identity as string)}
                   removeThreadMemberByUserId={props.removeChatParticipantById}
                 />
               );
             })}
           </FocusZone>
         </StackItem>
-        {/* Invite link footer */}
-        <InviteFooter />
       </Stack>
       <Stack
         verticalAlign="space-between"

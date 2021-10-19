@@ -10,6 +10,11 @@ namespace Chat
         public string DisplayName { get; set; }
     }
 
+    public class ContosoTeamsMemberModel 
+    {
+        public string TeamsUserId { get; set; }
+    }
+
     public class ContosoThreadMemberModelList
     {
         public List<ContosoMemberModel> Members;

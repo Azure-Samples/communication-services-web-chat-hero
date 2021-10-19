@@ -1,5 +1,5 @@
 import { ChatMessage } from '@azure/communication-chat';
-import { CommunicationIdentifier, isCommunicationUserIdentifier } from '@azure/communication-common';
+import { CommunicationIdentifier, isCommunicationUserIdentifier, isMicrosoftTeamsUserIdentifier } from '@azure/communication-common';
 import preval from 'preval.macro';
 import { ClientChatMessage } from '../core/reducers/MessagesReducer';
 
@@ -90,8 +90,10 @@ export const compareMessages = (firstMessage: ClientChatMessage, secondMessage: 
   return firstDate - secondDate;
 };
 
-export const isUserMatchingIdentity = (user: CommunicationIdentifier, communicationUserId: string): boolean => {
-  return isCommunicationUserIdentifier(user) && user.communicationUserId === communicationUserId;
+export const isUserMatchingIdentity = (user: CommunicationIdentifier, id: string): boolean => {
+  const isMatchingTeamsUser = isMicrosoftTeamsUserIdentifier(user) && user.microsoftTeamsUserId === id
+  const isMatchingACSUser = isCommunicationUserIdentifier(user) && user.communicationUserId === id;
+  return isMatchingTeamsUser || isMatchingACSUser;
 };
 
 export const convertToClientChatMessage = (chatMessage: ChatMessage, clientMessageId?: string): ClientChatMessage => {
@@ -119,3 +121,20 @@ export const createNewClientChatMessage = (
     createdOn: new Date()
   };
 };
+
+// Teams Thread Member Helper
+export const addTeamsUser = async (threadId: string, teamsUserId: string) => {
+  try {
+    let body = {
+      teamsUserId
+    };
+    let addMemberRequestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    };
+    await fetch('/addTeamsUser/' + threadId, addMemberRequestOptions);
+  } catch (error) {
+    console.error('Failed at adding thread member, Error: ', error);
+  }
+}

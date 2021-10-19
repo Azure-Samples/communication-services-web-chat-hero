@@ -34,13 +34,15 @@ import {
 import {
   AzureCommunicationTokenCredential,
   CommunicationTokenRefreshOptions,
-  CommunicationUserIdentifier
+  CommunicationUserIdentifier,
+  MicrosoftTeamsUserIdentifier,
+  MicrosoftTeamsUserKind
 } from '@azure/communication-common';
 import {
   ChatThreadPropertiesUpdatedEvent,
   CommunicationUserKind,
   ParticipantsAddedEvent,
-  ParticipantsRemovedEvent
+  ParticipantsRemovedEvent,
 } from '@azure/communication-signaling';
 
 // This function sets up the user to chat with the thread
@@ -110,11 +112,14 @@ const addUserToThread = (displayName: string, emoji: string) => async (dispatch:
 const subscribeForTypingIndicator = async (chatClient: ChatClient, dispatch: Dispatch) => {
   await chatClient.startRealtimeNotifications();
   chatClient.on('typingIndicatorReceived', async (event) => {
-    const fromId = (event.sender as CommunicationUserKind).communicationUserId;
+    const fromACSId = (event.sender as CommunicationUserKind).communicationUserId;
+    const fromTeamsId = (event.sender as MicrosoftTeamsUserKind).microsoftTeamsUserId
+    const fromId = fromACSId ?? fromTeamsId;
+
     const typingNotification = {
       from: fromId,
       originalArrivalTime: event.receivedOn,
-      recipientId: (event.recipient as CommunicationUserKind).communicationUserId,
+      recipientId: fromId,
       threadId: event.threadId,
       version: event.version
     };
@@ -128,12 +133,13 @@ const subscribeForMessage = async (chatClient: ChatClient, dispatch: Dispatch, g
     let state: State = getState();
     let messages: ClientChatMessage[] = state.chat.messages !== undefined ? state.chat.messages : [];
     if (!isUserMatchingIdentity(event.sender, state.contosoClient.user.identity)) {
+
       const clientChatMessage = {
         sender: event.sender,
         id: event.id,
         senderDisplayName: event.senderDisplayName,
         createdOn: event.createdOn,
-        content: { message: event.message }
+        content: { message: event.type === 'RichText/Html' ? event.message.replace(/(<([^>]+)>)/gi, "") : event.message }
       };
 
       messages.push(clientChatMessage);
@@ -207,9 +213,13 @@ const subscribeForChatParticipants = async (
     // add participants not in the list
     for (var j = 0; j < event.participantsAdded.length; j++) {
       const addedParticipant = event.participantsAdded[j];
-      const id = (addedParticipant.id as CommunicationUserIdentifier).communicationUserId;
+      const acsId = (addedParticipant.id as CommunicationUserIdentifier).communicationUserId;
+      const teamsId = (addedParticipant.id as MicrosoftTeamsUserIdentifier).microsoftTeamsUserId;
+
+      const userId = acsId ?? teamsId;
+
       if (
-        participants.filter((participant: ChatParticipant) => isUserMatchingIdentity(participant.id, id)).length === 0
+        participants.filter((participant: ChatParticipant) => isUserMatchingIdentity(participant.id, userId)).length === 0
       ) {
         participants.push(addedParticipant);
       }
@@ -220,11 +230,15 @@ const subscribeForChatParticipants = async (
     for (var i = 0; i < addedParticipants.length; i++) {
       var threadMember = addedParticipants[i];
       var identity = (threadMember.id as CommunicationUserIdentifier).communicationUserId;
-      var user = users[identity];
-      if (user == null) {
-        var serverUser = await getEmoji(identity);
-        if (serverUser !== undefined) {
-          users[identity] = { emoji: serverUser.emoji };
+      const teamsIdentity = (threadMember.id as MicrosoftTeamsUserIdentifier).microsoftTeamsUserId;
+      // since there are no emojis for a teams user at this time, we aren't going to try
+      if (identity) {
+        var user = users[identity];
+        if (user == null) {
+          var serverUser = await getEmoji(identity);
+          if (serverUser !== undefined) {
+            users[identity] = { emoji: serverUser.emoji };
+          }
         }
       }
     }
