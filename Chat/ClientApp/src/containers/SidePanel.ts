@@ -5,8 +5,9 @@ import { setContosoUsers, SetContosoUsersAction } from '../core/actions/ContosoC
 import SidePanel from '../components/SidePanel';
 import { State } from '../core/reducers/index';
 import React from 'react';
-import { updateThreadTopicName, removeThreadMemberByUserId } from '../core/sideEffects';
+import { updateThreadTopicName, removeThreadMember } from '../core/sideEffects';
 import { ChatClient, ChatParticipant } from '@azure/communication-chat';
+import { CommunicationIdentifier } from '@azure/communication-common';
 
 export type SidePanelProps = {
   identity: string;
@@ -26,7 +27,7 @@ export type SidePanelProps = {
 
 export type SidePanelDispatchProps = {
   setContosoUsers: (users: any) => SetContosoUsersAction;
-  removeChatParticipantById: (userId: string) => void;
+  removeThreadMember: (communicationUser: CommunicationIdentifier) => void;
 };
 
 const mapStateToProps = (state: State): SidePanelProps => ({
@@ -49,8 +50,8 @@ const mapStateToProps = (state: State): SidePanelProps => ({
 
 const mapDispatchToProps = (dispatch: any): SidePanelDispatchProps => ({
   setContosoUsers: (users: any) => setContosoUsers(users),
-  removeChatParticipantById: async (userId: string) => {
-    dispatch(removeThreadMemberByUserId(userId));
+  removeThreadMember: async (communicationUser: CommunicationIdentifier) => {
+    dispatch(removeThreadMember(communicationUser));
   }
 });
 

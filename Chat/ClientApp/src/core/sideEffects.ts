@@ -33,8 +33,11 @@ import {
 } from '@azure/communication-chat';
 import {
   AzureCommunicationTokenCredential,
+  CommunicationIdentifier,
   CommunicationTokenRefreshOptions,
   CommunicationUserIdentifier,
+  isCommunicationUserIdentifier,
+  isMicrosoftTeamsUserIdentifier,
   MicrosoftTeamsUserIdentifier,
   MicrosoftTeamsUserKind
 } from '@azure/communication-common';
@@ -230,7 +233,6 @@ const subscribeForChatParticipants = async (
     for (var i = 0; i < addedParticipants.length; i++) {
       var threadMember = addedParticipants[i];
       var identity = (threadMember.id as CommunicationUserIdentifier).communicationUserId;
-      const teamsIdentity = (threadMember.id as MicrosoftTeamsUserIdentifier).microsoftTeamsUserId;
       // since there are no emojis for a teams user at this time, we aren't going to try
       if (identity) {
         var user = users[identity];
@@ -407,7 +409,7 @@ const addThreadMember = () => async (dispatch: Dispatch, getState: () => State) 
   );
 };
 
-const removeThreadMemberByUserId = (userId: string) => async (dispatch: Dispatch, getState: () => State) => {
+const removeThreadMember = (communicationUser: CommunicationIdentifier) => async (dispatch: Dispatch, getState: () => State) => {
   let state: State = getState();
   let chatClient = state.contosoClient.chatClient;
   let threadId = state.thread.threadId;
@@ -421,9 +423,9 @@ const removeThreadMemberByUserId = (userId: string) => async (dispatch: Dispatch
   }
   let chatThreadClient = await chatClient.getChatThreadClient(threadId);
   try {
-    await chatThreadClient.removeParticipant({
-      communicationUserId: userId
-    });
+    await chatThreadClient.removeParticipant(
+      communicationUser
+    );
   } catch (error) {
     console.log(error);
   }
@@ -503,7 +505,7 @@ const getThreadInformation = async (chatClient: ChatClient, dispatch: Dispatch, 
 
   // remove undefined display name chat participants
   const validChatParticipants = chatParticipants.filter(
-    (chatParticipant) => chatParticipant.displayName !== undefined && chatParticipant.id !== undefined
+    (chatParticipant) => !(isCommunicationUserIdentifier(chatParticipant.id) && chatParticipant.displayName === undefined)
   );
 
   // get the emojis for the new participants
@@ -530,7 +532,7 @@ const getThreadInformation = async (chatClient: ChatClient, dispatch: Dispatch, 
   dispatch(setThreadId(threadId));
   dispatch(setThreadTopicName(properties.topic));
   dispatch(setContosoUsers(users));
-  dispatch(setThreadMembers(validChatParticipants));
+  dispatch(setThreadMembers(chatParticipants));
 };
 
 const updateThreadTopicName = async (
@@ -773,7 +775,7 @@ export {
   addThreadMember,
   getThreadMembers,
   addUserToThread,
-  removeThreadMemberByUserId,
+  removeThreadMember,
   getEmoji,
   setEmoji,
   sendReadReceipt,

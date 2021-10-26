@@ -22,6 +22,7 @@ import {
 } from './styles/SidePanel.styles';
 import { SidePanelDispatchProps, SidePanelProps } from '../containers/SidePanel';
 import { CommunicationUserIdentifier, MicrosoftTeamsUserIdentifier } from '@azure/communication-common';
+import { getDisplayableId } from '../utils/utils';
 
 export enum SidePanelTypes {
   None = 'none',
@@ -89,14 +90,19 @@ export default (props: SidePanelProps & SidePanelDispatchProps & ChatSidePanePro
               const fromTeamsId = (person.id as MicrosoftTeamsUserIdentifier).microsoftTeamsUserId
               const fromId = fromACSId ?? fromTeamsId;
 
+              // this is the admin user that we use to add other acs users to the chat thread
+              if (person.displayName === undefined && fromACSId !== undefined) {
+                return;
+              }
+
               return (
                 <MemberItem
                   key={fromId}
                   userId={fromId}
                   avatar={props.users[fromId] === undefined ? '' : props.users[fromId].emoji}
-                  name={person.displayName as string}
+                  name={person.displayName as string ?? getDisplayableId(person.id)}
                   isYou={fromId === (props.identity as string)}
-                  removeThreadMemberByUserId={props.removeChatParticipantById}
+                  removeThreadMember={() => props.removeThreadMember(person.id)}
                 />
               );
             })}

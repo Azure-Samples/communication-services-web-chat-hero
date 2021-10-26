@@ -1,3 +1,4 @@
+import { CommunicationIdentifier } from '@azure/communication-common';
 import { IconButton } from '@fluentui/react';
 import React from 'react';
 
@@ -14,7 +15,7 @@ interface MemberItemProps {
   userId: string;
   isYou: boolean;
   avatar: string;
-  removeThreadMemberByUserId(userId: string): void;
+  removeThreadMember(): void;
 }
 
 export default (props: MemberItemProps): JSX.Element => {
@@ -35,7 +36,8 @@ export default (props: MemberItemProps): JSX.Element => {
                       key: props.name,
                       name: 'Remove participant',
                       onClick: () => {
-                        props.removeThreadMemberByUserId(props.userId);
+                        
+                        props.removeThreadMember();
                       }
                     }
                   ]

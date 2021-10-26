@@ -23,7 +23,7 @@ export default (props: AddUserDialogProps): JSX.Element => {
       isBlocking={false}
     >
       <div className={contentStyles.header}>
-        <span>Add person from teams (beta)</span>
+        <span>Add person from Teams (beta)</span>
         <IconButton
           styles={iconButtonStyles}
           iconProps={cancelIcon}
@@ -32,7 +32,7 @@ export default (props: AddUserDialogProps): JSX.Element => {
         />
       </div>
       <div className={contentStyles.body}>
-        <TextField style={teamsUriTextFieldStyle} label="Team's user URI" onChange={(_, value) => { if (!value) { return; } setTeamsUserId(value) }}></TextField>
+        <TextField style={teamsUriTextFieldStyle} label="Team's user id" onChange={(_, value) => { if (!value) { return; } setTeamsUserId(value) }}></TextField>
         <div style={descriptionStyle}>This enables your Communication Services users to add Teams users to chats, if the Teams tenant is enabled for federation. This functionality is currently in preview mode and should be used with test tenants only
           <div style={learnMoreStyle}>
             To learn more, check out our <a href="https://docs.microsoft.com/en-us/azure/communication-services/concepts/teams-interop">documentation</a>

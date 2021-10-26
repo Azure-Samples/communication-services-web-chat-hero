@@ -4,7 +4,8 @@ import TypingIndicator from '../components/TypingIndicator';
 import { State } from '../core/reducers/index';
 import { PARTICIPANTS_THRESHOLD, MAXIMUM_LENGTH_OF_TYPING_USERS } from '../constants';
 import { ChatParticipant } from '@azure/communication-chat';
-import { CommunicationUserIdentifier } from '@azure/communication-common';
+import { CommunicationUserIdentifier, isCommunicationUserIdentifier, isMicrosoftTeamsUserIdentifier } from '@azure/communication-common';
+import { getDisplayableId } from '../utils/utils';
 
 const mapStateToProps = (state: State) => ({
   generateTypingIndicatorList: () => {
@@ -25,11 +26,12 @@ const mapStateToProps = (state: State) => ({
       typingIndicator += typingUsers
         .filter(
           (typingUser: ChatParticipant) =>
-            contosoUsers[(typingUser.id as CommunicationUserIdentifier).communicationUserId] !== undefined
+          isCommunicationUserIdentifier(typingUser.id) || isMicrosoftTeamsUserIdentifier(typingUser.id)
         )
         .slice(0, 2)
         .map(
-          (typingUserWithEmoji: any) =>
+           (typingUserWithEmoji: any) =>
+            typingUserWithEmoji.displayName == null ? getDisplayableId(typingUserWithEmoji.id) :
             `${contosoUsers[typingUserWithEmoji.id.communicationUserId].emoji}${typingUserWithEmoji.displayName}`
         )
         .join(', ');

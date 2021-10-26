@@ -47,7 +47,7 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
 
   const leaveString = 'Leave';
 
-  const { topic, generateHeaderMessage, leaveChatHandler, removeChatParticipantById, userId } = props;
+  const { topic, generateHeaderMessage, leaveChatHandler, removeThreadMember, userId } = props;
 
   useEffect(() => {
     setHeader(topic && topic !== GUID_FOR_INITIAL_TOPIC_NAME ? topic : generateHeaderMessage());
@@ -104,7 +104,8 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
                 className={greyIconButtonStyle}
                 onClick={() => {
                   leaveChatHandler();
-                  removeChatParticipantById(userId);
+                  const user = { communicationUserId: userId }
+                  removeThreadMember(user);
                 }}
               />
             </div>
@@ -114,7 +115,8 @@ export default (props: ChatHeaderDispatchProps & ChatHeaderProps & ChatHeaderPan
                 className={leaveButtonStyle}
                 onClick={() => {
                   leaveChatHandler();
-                  removeChatParticipantById(userId);
+                  const user = { communicationUserId: userId }
+                  removeThreadMember(user);
                 }}
               >
                 <Icon iconName="Leave" className={copyIconStyle} />

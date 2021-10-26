@@ -1,5 +1,5 @@
 import { ChatMessage } from '@azure/communication-chat';
-import { CommunicationIdentifier, isCommunicationUserIdentifier, isMicrosoftTeamsUserIdentifier } from '@azure/communication-common';
+import { CommunicationIdentifier, isCommunicationUserIdentifier, isMicrosoftTeamsUserIdentifier, isPhoneNumberIdentifier, MicrosoftTeamsUserIdentifier, MicrosoftTeamsUserKind } from '@azure/communication-common';
 import preval from 'preval.macro';
 import { ClientChatMessage } from '../core/reducers/MessagesReducer';
 
@@ -137,4 +137,26 @@ export const addTeamsUser = async (threadId: string, teamsUserId: string) => {
   } catch (error) {
     console.error('Failed at adding thread member, Error: ', error);
   }
+}
+
+export const getDisplayableId = (identifier: CommunicationIdentifier) => {
+  var name = '';
+  if (isMicrosoftTeamsUserIdentifier(identifier)) {
+    name = `Teams User (${identifier.microsoftTeamsUserId?.substring(0, 7)})`;
+  }
+  else if (isCommunicationUserIdentifier(identifier)) {
+    name = `Azure User (${identifier.communicationUserId.substring(6, 12)})`;
+  }
+  else if (isPhoneNumberIdentifier(identifier)) {
+    name = `Phone User (${identifier.phoneNumber.substring(0, 7)})`;
+  }
+  else {
+    name =  `Unknown User (${identifier.id.substring(0, 7)})`;
+  }
+
+  return name;
+}
+
+export const removeTeamsUserById = (identifier: MicrosoftTeamsUserIdentifier) => {
+  
 }
