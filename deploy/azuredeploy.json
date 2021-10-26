@@ -14,7 +14,7 @@
     },
     "packageUrl": {
       "type": "string",
-      "defaultValue": "https://github.com/Azure-Samples/communication-services-web-chat-hero/releases/latest/download/group-chat.zip"
+      "defaultValue": "https://github.com/Azure-Samples/communication-services-web-chat-hero/releases/download/a961931/group-chat.zip"
     }
   },
   "variables": {
