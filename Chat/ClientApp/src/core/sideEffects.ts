@@ -186,10 +186,16 @@ const subscribeForChatParticipants = async (
     }
 
     const originalParticipants = state.threadMembers.threadMembers;
+
     for (var i = 0; i < originalParticipants.length; i++) {
-      const participantId = (originalParticipants[i].id as CommunicationUserIdentifier).communicationUserId;
+      const removedParticipant = originalParticipants[i];
+      const acsId = (removedParticipant.id as CommunicationUserIdentifier).communicationUserId;
+      const teamsId = (removedParticipant.id as MicrosoftTeamsUserIdentifier).microsoftTeamsUserId;
+
+      const userId = acsId ?? teamsId;
+
       if (
-        event.participantsRemoved.filter((chatParticipant) => isUserMatchingIdentity(chatParticipant.id, participantId))
+        event.participantsRemoved.filter((chatParticipant) => isUserMatchingIdentity(chatParticipant.id, userId))
           .length === 0
       ) {
         participants.push(originalParticipants[i]);
