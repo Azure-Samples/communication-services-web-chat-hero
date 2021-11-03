@@ -60,9 +60,12 @@ We appreciate your feedback and energy helping us improve our services. [Please 
 1. Go to the Chat folder and open the `Chat.csproj` solution in Visual Studio
 2. Run the project. The browser will open at localhost:5000.
 3. Click on "Add People" -> "Add person from Teams"
-![Add Teams User](./Media/add-teams-user-sample-chat.png)
+
+<img src="./Media/add-teams-user-sample-chat.PNG" width="220" height="120">
+
 4. Insert the Teams user's id, which is in Guid format. You can obtain the user id from the Admin Portal, via Remote Powershell or via the [Graph APIs](https://docs.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0&tabs=http)
-![Add Teams ID](./Media/add-teams-id-sample-chat.png)
+
+<img src="./Media/add-teams-id-sample-chat.PNG" width="390" height="250">
 
 ### Troubleshooting
 
