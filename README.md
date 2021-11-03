@@ -78,9 +78,9 @@ We appreciate your feedback and energy helping us improve our services. [Please 
 
 ## Known Limitations
 
-This Hero app is meant to be built off of. In it's current form, it has some limitations:
+This application sample is meant to be built off of. In it's current form, it has some limitations:
 
-- The ACS user that creates the thread is a 'super user', and will be part of the thread roster. It's presence is hidden within the Hero app. However the user will be visible in the Teams client as a regular ACS user.
+- The ACS user that creates the thread is a 'Super User'. It's presence is hidden within the Hero app, but it will be part of the thread roster. As such, the user will be visible in the Teams client as a regular ACS user.
 - The Display Name of the Teams participants is based off of the user's id, and is not the real name from Active Directory. The real user name of the Teams user can be retrieved from AD via the [Graph APIs](https://docs.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0&tabs=http) and set as part of the roster update operation.
 - 'Edit Message' and 'Delete Message' buttons are not provided by this application's interface
 
