@@ -9,6 +9,10 @@ products:
 - azure-communication-services
 ---
 
+> [!IMPORTANT]
+> Functionality described on this document is currently in private preview. Private preview includes access to SDKs and documentation for testing purposes that are not yet available publicly.
+> Apply to become an early adopter by filling out the form for [preview access to Azure Communication Services](https://aka.ms/ACS-EarlyAdopter).
+
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fcommunication-services-web-chat-hero%2Fmain%2Fdeploy%2Fazuredeploy.json)
 
 # Group Chat Sample
@@ -55,6 +59,10 @@ We appreciate your feedback and energy helping us improve our services. [Please 
 
 1. Go to the Chat folder and open the `Chat.csproj` solution in Visual Studio
 2. Run the project. The browser will open at localhost:5000.
+3. Click on "Add People" -> "Add person from Teams"
+![Add Teams User](./Media/add-teams-user-sample-chat.png)
+4. Insert the Teams user's id, which is in Guid format. You can obtain the user id from the Admin Portal, via Remote Powershell or via the [Graph APIs](https://docs.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0&tabs=http)
+![Add Teams ID](./Media/add-teams-id-sample-chat.png)
 
 ### Troubleshooting
 
@@ -67,6 +75,14 @@ We appreciate your feedback and energy helping us improve our services. [Please 
 1. Right click the `Chat` project and select Publish
 2. Create a new publish profile and select your app name, Azure subscription, resource group and etc.
 3. Before publish, add your connection string with `Edit App Service Settings`, and fill in `ResourceConnectionString` as key and connection string (copy from appsettings.json) as value
+
+## Known Limitations
+
+This Hero app is meant to be built off of. In it's current form, it has some limitations:
+
+- The ACS user that creates the thread is a 'super user', and will be part of the thread roster. It's presence is hidden within the Hero app. However the user will be visible in the Teams client as a regular ACS user.
+- The Display Name of the Teams participants is based off of the user's id, and is not the real name from Active Directory. The real user name of the Teams user can be retrieved from AD via the [Graph APIs](https://docs.microsoft.com/en-us/graph/api/user-get?view=graph-rest-1.0&tabs=http) and set as part of the roster update operation.
+- 'Edit Message' and 'Delete Message' buttons are not provided by this application's interface
 
 ## Building off of the sample
 
