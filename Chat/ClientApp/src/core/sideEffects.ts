@@ -142,7 +142,7 @@ const subscribeForMessage = async (chatClient: ChatClient, dispatch: Dispatch, g
         id: event.id,
         senderDisplayName: event.senderDisplayName,
         createdOn: event.createdOn,
-        content: { message: event.type === 'RichText/Html' ? event.message.replace(/(<([^>]+)>)/gi, "") : event.message }
+        content: { message: event.message }
       };
 
       messages.push(clientChatMessage);
@@ -646,7 +646,7 @@ const getMessagesHelper = async (chatThreadClient: ChatThreadClient): Promise<Ch
       maxPageSize: PAGE_SIZE
     });
 
-    let messages_temp = [];
+    let messages_temp:ChatMessage[] = [];
 
     for await (let page of getMessagesResponse.byPage()) {
       for (const message of page) {
@@ -659,9 +659,9 @@ const getMessagesHelper = async (chatThreadClient: ChatThreadClient): Promise<Ch
         console.error('Unable to get messages from server');
         return;
       }
-
+ 
       // filter and only return top 100 text messages
-      messages.push(...messages_temp.filter((message) => message.type === 'text'));
+      messages.push(...messages_temp.filter((message) => message.type === 'text' || message.type === 'html'));
       if (messages.length >= INITIAL_MESSAGES_SIZE) {
         return messages.slice(0, INITIAL_MESSAGES_SIZE);
       }

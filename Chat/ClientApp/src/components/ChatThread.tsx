@@ -27,6 +27,7 @@ import {
 import { User } from '../core/reducers/ContosoClientReducers';
 import { ClientChatMessage } from '../core/reducers/MessagesReducer';
 import { isUserMatchingIdentity } from '../utils/utils';
+import { ChatMessage } from '@azure/communication-chat';
 
 interface ChatThreadProps {
   isYourLatestMessage(clientMessageId: string, messages: any[]): boolean;
@@ -42,7 +43,23 @@ interface ChatThreadProps {
 
 // Reference: https://stackoverflow.com/questions/33235890/react-replace-links-in-a-text
 
-const renderHyperlink = (text: string) => {
+const renderMessage = (chatMessage: ChatMessage) => {
+  if (!chatMessage || !chatMessage.content || !chatMessage.content.message) {
+    return "";
+  }
+
+  if (chatMessage.sender?.kind === 'microsoftTeamsUser') {
+    return chatMessage.content.message.replace(/(<([^>]+)>)/gi, "");
+  }
+  else {
+    return chatMessage.content.message
+  }
+}
+
+const renderHyperlink = (text: string | undefined) => {
+  if (!text) {
+    return ""
+  }
   return text.split(' ').map((part) =>
     URL_REGEX.test(part) ? (
       <a href={part} target="_blank" rel="noopener noreferrer">
@@ -283,8 +300,8 @@ export default (props: ChatThreadProps): JSX.Element => {
                 const liveAuthor = `${message.senderDisplayName} says `;
                 const messageContentItem = (
                   <div>
-                    <LiveMessage message={`${message.mine ? '' : liveAuthor} ${message.content}`} aria-live="polite" />
-                    {renderHyperlink(message.content.message)}
+                    <LiveMessage message={`${message.mine ? '' : liveAuthor} ${renderMessage(message)}`} aria-live="polite" />
+                    {renderHyperlink(renderMessage(message))}
                   </div>
                 );
                 return {

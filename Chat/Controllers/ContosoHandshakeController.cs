@@ -23,7 +23,7 @@ namespace Chat
 		string _chatGatewayUrl;
 		string _resourceConnectionString;
 
-		const string GUID_FOR_INITIAL_TOPIC_NAME = "c774da81-94d5-4652-85c7-6ed0e8dc67e6";
+		const string GUID_FOR_INITIAL_TOPIC_NAME = "Teams Adhoc Chat - Hero Sample";
 
 		public ContosoHandshakeController(IChatAdminThreadStore store, IUserTokenManager userTokenManager, IConfiguration chatConfiguration)
 		{
