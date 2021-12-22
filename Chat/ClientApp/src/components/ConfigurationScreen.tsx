@@ -85,6 +85,13 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
         <p>thread Id is not valid</p>
       </div>
     );
+    };
+
+  const onJoinClicked = () => {
+      validateName();
+      if (emptyWarning === false && isNameLengthExceedLimit === false) {
+          joinChatHandler();
+      }
   };
 
   const joinChatLoading = () => {
@@ -134,7 +141,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
               setName={setName}
               setEmptyWarning={setEmptyWarning}
               setNameLengthExceedLimit={setNameLengthExceedLimit}
-              validateName={validateName}
+              onEnter={onJoinClicked}
               isEmpty={emptyWarning}
               isNameLengthExceedLimit={isNameLengthExceedLimit}
             />
@@ -142,12 +149,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
               <PrimaryButton
                 id="join"
                 className={buttonStyle}
-                onClick={() => {
-                  validateName();
-                  if (emptyWarning === false && isNameLengthExceedLimit === false) {
-                    joinChatHandler();
-                  }
-                }}
+                onClick={onJoinClicked}
               >
                 <ChatIcon className={chatIconStyle} size="medium" />
                 <div className={startChatButtonTextStyle}>Join chat</div>

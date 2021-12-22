@@ -15,7 +15,7 @@ interface DisplayNameFieldProps {
   setName(name: string): void;
   setEmptyWarning(isEmpty: boolean): void;
   setNameLengthExceedLimit(isNameLengthExceedLimit: boolean): void;
-  validateName(): void;
+  onEnter(): void;
   isEmpty: boolean;
   isNameLengthExceedLimit: boolean;
 }
@@ -47,7 +47,7 @@ export default (props: DisplayNameFieldProps): JSX.Element => {
         placeholder="Enter your name"
         onKeyDown={(ev) => {
           if (ev.which === ENTER_KEY) {
-            props.validateName();
+            props.onEnter();
           }
         }}
         styles={TextFieldStyleProps}
