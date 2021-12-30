@@ -1,0 +1,22 @@
+{
+  "name": "communication-services-web-chat-hero",
+  "version": "1.0.0",
+  "description": "--- page_type: sample languages: - javascript - nodejs - products: - azure - azure-communication-services ---",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "setup": "cd Server && npm install && cd ../Chat && npm install && cd ..",
+    "start": "cd Chat && npm run start && cd ..",
+    "build": "cd Server && npm run build && cd ../Chat && npm run build && cd ..",
+    "package": "cd Chat && npm run package && cd .."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure-Samples/communication-services-web-chat-hero.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Azure-Samples/communication-services-web-chat-hero/issues"
+  },
+  "homepage": "https://github.com/Azure-Samples/communication-services-web-chat-hero#readme"
+}
