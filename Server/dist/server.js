@@ -5,7 +5,7 @@
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"Logging":{"LogLevel":{"Default":"Trace","System":"Information","Microsoft":"Information"}},"AllowedHosts":"*","ResourceConnectionString":"endpoint=https://web-ui-dev.communication.azure.com/;accesskey=o17eop1mJojDm336WDsbWF3wH+viXxpU5cKI9YvGJ0zmDpbx/eHdhBSEn8CVBHmpctO1Amtm9nn5AnbRdylnWA=="}');
+module.exports = JSON.parse('{"Logging":{"LogLevel":{"Default":"Trace","System":"Information","Microsoft":"Information"}},"AllowedHosts":"*","ResourceConnectionString":"REPLACE_WITH_CONNECTION_STRING"}');
 
 /***/ }),
 
