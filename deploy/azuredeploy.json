@@ -40,6 +40,10 @@
       "location": "[resourceGroup().location]",
       "sku": {
         "name": "[parameters('sku')]"
+      },
+      "kind": "linux",
+      "properties": {
+          "reserved": true
       }
     },
     {
@@ -52,7 +56,9 @@
         "[resourceId('Microsoft.Communication/communicationServices', variables('commsName'))]"
       ],
       "properties": {
-        "siteConfig": "node",
+        "siteConfig": {
+          "linuxFxVersion": "NODE|14-lts"
+        },
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanPortalName'))]"
       },
             "resources": [
