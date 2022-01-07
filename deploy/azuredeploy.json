@@ -52,6 +52,7 @@
         "[resourceId('Microsoft.Communication/communicationServices', variables('commsName'))]"
       ],
       "properties": {
+        "siteConfig": "node",
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanPortalName'))]"
       },
             "resources": [
