@@ -16,7 +16,7 @@ This is a sample application to show how the Chat Web SDK can be used to build a
 
 Additional documentation for this sample can be found on [Microsoft Docs](https://docs.microsoft.com/en-us/azure/communication-services/samples/chat-hero-sample).
 
-![Homepage](./Media/homepage-sample-chat.png)
+![Homepage](./Chat/Media/homepage-sample-chat.png)
 
 ## ❤️ Feedback
 We appreciate your feedback and energy helping us improve our services. [Please let us know if you are satisfied with ACS through this survey](https://microsoft.qualtrics.com/jfe/form/SV_5dtYL81xwHnUVue). 
