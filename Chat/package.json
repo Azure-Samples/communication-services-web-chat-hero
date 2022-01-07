@@ -4,7 +4,7 @@
   "private": true,
   "description": "This is a sample application to show how the ACS Chat Web SDK can be used to build a group chat experience. The client-side application is a React based user interface which uses React Hooks for handling complex state while leveraging Microsoft Fluent UI for how things look.",
   "scripts": {
-    "build": "npm run clean && webpack --mode=production --env production",
+    "build": "npm run clean && concurrently --kill-others-on-fail \"tsc\" \"webpack --mode=production --env production\"",
     "clean": "rimraf dist",
     "package": "copyfiles -E -u 3 \"../Server/dist/**/*\" dist",
     "start": "concurrently \"cd ../Server && npm run start:dev\" \"npm run start:app\"",

@@ -351,3 +351,4 @@ MigrationBackup/
 Chat/ClientApp/build/
 Chat/build/
 Chat/dist/
+Server/dist/server.js
