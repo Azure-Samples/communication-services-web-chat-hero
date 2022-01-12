@@ -3,7 +3,7 @@ name: Create Chat Sample Release
 on:
   release:
     types: [created]
-    name: Release  
+    name: Release
 
 jobs:
   release:
@@ -32,7 +32,7 @@ jobs:
           7z a -tzip -r "group-chat.zip" ./Chat/dist/*
 
           # Delete output directory
-          # rm -r "./Chat/dist"
+          rm -r "./Chat/dist"
 
       - name: Publish
         uses: softprops/action-gh-release@v1

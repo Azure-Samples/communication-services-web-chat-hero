@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_and_test:
+  build and test:
     name: Build and test
     runs-on: windows-latest
     steps:
@@ -35,7 +35,7 @@ jobs:
         run: |
           npm run build
 
-  clean_frontend:
+  clean frontend:
     name: Run clean code tests on frontend
     runs-on: windows-latest
     steps:
