@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_and_test:
+  build and test:
     name: Build and test
     runs-on: windows-latest
     steps:
@@ -19,22 +19,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v1
+      - name: Setup Node 14
+        uses: actions/setup-node@v2
         with:
-          dotnet-version: 3.1.101
+          node-version: '14'
+
+      - name: Setup Server dependencies
+        working-directory: ./Server
+        run: |
+          npm install
 
       - name: Build backend
+        working-directory: ./Server
         shell: bash
         run: |
-          dotnet build ./Chat
+          npm run build
 
-      - name: Test backend
-        shell: bash
-        run: |
-          dotnet test ./Chat
-
-  clean_frontend:
+  clean frontend:
     name: Run clean code tests on frontend
     runs-on: windows-latest
     steps:
@@ -47,13 +48,17 @@ jobs:
           node-version: '14'
 
       - name: Install (dev) dependencies
-        working-directory: ./Chat/ClientApp
+        working-directory: ./Chat
         run: npm install
 
       - name: Lint
-        working-directory: ./Chat/ClientApp
+        working-directory: ./Chat
         run: npm run lint
 
       - name: Check all is pretty
-        working-directory: ./Chat/ClientApp
+        working-directory: ./Chat
         run: npm run prettier:check
+
+      - name: Build
+        working-directory: ./Chat
+        run: npm run build
