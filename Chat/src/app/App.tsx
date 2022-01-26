@@ -1,22 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { DEFAULT_COMPONENT_ICONS } from '@azure/communication-react';
-import { initializeIcons, registerIcons, Spinner } from '@fluentui/react';
+import { initializeIcons, Spinner } from '@fluentui/react';
 import React, { useState } from 'react';
 import { ChatScreen } from './ChatScreen';
 import ConfigurationScreen from './ConfigurationScreen';
 import { EndScreen } from './EndScreen';
 import { ErrorScreen } from './ErrorScreen';
 import HomeScreen from './HomeScreen';
-import { getThreadId } from './utils/getThreadId';
+import { getExistingThreadIdFromURL } from './utils/getExistingThreadIdFromURL';
 import { getBuildTime, getChatSDKVersion } from './utils/utils';
 
 console.info(`Thread chat sample using @azure/communication-chat : ${getChatSDKVersion()}`);
 console.info(`Build Date : ${getBuildTime()}`);
 
 initializeIcons();
-registerIcons({ icons: DEFAULT_COMPONENT_ICONS });
 
 const ERROR_PAGE_TITLE_ERROR = 'Oops! You are no longer a participant for the chat thread.';
 const ERROR_PAGE_TITLE_REMOVED = 'You have been removed from the chat.';
@@ -121,7 +119,7 @@ export default (): JSX.Element => {
     }
   };
 
-  if (getThreadId() && page === 'home') {
+  if (getExistingThreadIdFromURL() && page === 'home') {
     setPage('configuration');
   }
 
