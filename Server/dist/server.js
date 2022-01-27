@@ -5,7 +5,7 @@
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"Logging":{"LogLevel":{"Default":"Trace","System":"Information","Microsoft":"Information"}},"AllowedHosts":"*","ResourceConnectionString":"endpoint=https://web-ui-dev.communication.azure.com/;accesskey=o17eop1mJojDm336WDsbWF3wH+viXxpU5cKI9YvGJ0zmDpbx/eHdhBSEn8CVBHmpctO1Amtm9nn5AnbRdylnWA=="}');
+module.exports = JSON.parse('{"Logging":{"LogLevel":{"Default":"Trace","System":"Information","Microsoft":"Information"}},"AllowedHosts":"*","ResourceConnectionString":"REPLACE_WITH_CONNECTION_STRING","EndpointUrl":"REPLACE_WITH_ENDPOINT_URL"}');
 
 /***/ }),
 
@@ -59847,12 +59847,40 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use(cookie_parser_1.default());
 app.use(express_1.default.static(path_1.default.resolve(__dirname, 'build')));
+/**
+ * route: /createThread
+ * purpose: Chat: create a new chat thread
+ */
 app.use('/createThread', cors_1.default(), createThread_1.default);
+/**
+ * route: /addUser
+ * purpose: Chat: add the user to the chat thread
+ */
 app.use('/addUser', cors_1.default(), addUser_1.default);
+/**
+ * route: /refreshToken
+ * purpose: Chat,Calling: get a new token
+ */
 app.use('/refreshToken', cors_1.default(), refreshToken_1.default);
+/**
+ * route: /getEndpointUrl
+ * purpose: Chat,Calling: get the endpoint url of ACS resource
+ */
 app.use('/getEndpointUrl', cors_1.default(), getEndpointUrl_1.default);
+/**
+ * route: /token
+ * purpose: Chat,Calling: get ACS token with the given scope
+ */
 app.use('/token', cors_1.default(), issueToken_1.default);
+/**
+ * route: /isValidThread
+ * purpose: Chat: check if thread is valid
+ */
 app.use('/isValidThread', cors_1.default(), isValidThread_1.default);
+/**
+ * route: /userConfig
+ * purpose: Chat: to add user details to userconfig for chat thread
+ */
 app.use('/userConfig', cors_1.default(), userConfig_1.default);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -59884,7 +59912,6 @@ exports.createThread = void 0;
 const communication_common_1 = __webpack_require__(5907);
 const communication_chat_1 = __webpack_require__(5996);
 const envHelper_1 = __webpack_require__(6975);
-const constants_1 = __webpack_require__(5623);
 const threadIdToModeratorTokenMap_1 = __webpack_require__(6106);
 const identityClient_1 = __webpack_require__(4776);
 const createThread = (topicName) => __awaiter(void 0, void 0, void 0, function* () {
@@ -59894,9 +59921,9 @@ const createThread = (topicName) => __awaiter(void 0, void 0, void 0, function* 
         tokenRefresher: () => __awaiter(void 0, void 0, void 0, function* () { return (yield identityClient_1.getToken(user, ['chat', 'voip'])).token; }),
         refreshProactively: true
     });
-    const chatClient = new communication_chat_1.ChatClient(envHelper_1.getEnvUrl(), credential);
+    const chatClient = new communication_chat_1.ChatClient(envHelper_1.getEndpoint(), credential);
     const request = {
-        topic: topicName !== null && topicName !== void 0 ? topicName : constants_1.GUID_FOR_INITIAL_TOPIC_NAME
+        topic: topicName !== null && topicName !== void 0 ? topicName : 'Your Chat sample'
     };
     const options = {
         participants: [
@@ -59943,21 +59970,10 @@ exports.threadIdToModeratorCredentialMap = new Map();
 // Licensed under the MIT license.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.userIdToUserConfigMap = void 0;
+// For the purpose of this sample, we opted to use an in-memory data store.
+// This means that if the web application is restarted any information maintained would be wiped.
+// For longer term storage solutions we suggest referring to this document -> https://docs.microsoft.com/en-us/azure/architecture/guide/technology-choices/data-store-decision-tree
 exports.userIdToUserConfigMap = new Map();
-
-
-/***/ }),
-
-/***/ 5623:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.GUID_FOR_INITIAL_TOPIC_NAME = void 0;
-exports.GUID_FOR_INITIAL_TOPIC_NAME = 'c774da81-94d5-4652-85c7-6ed0e8dc67e6';
 
 
 /***/ }),
@@ -59970,7 +59986,7 @@ exports.GUID_FOR_INITIAL_TOPIC_NAME = 'c774da81-94d5-4652-85c7-6ed0e8dc67e6';
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getEnvUrl = exports.getResourceConnectionString = void 0;
+exports.getEndpoint = exports.getResourceConnectionString = void 0;
 const appSettings = __webpack_require__(9349);
 const getResourceConnectionString = () => {
     const resourceConnectionString = process.env['ResourceConnectionString'] || appSettings.ResourceConnectionString;
@@ -59980,11 +59996,11 @@ const getResourceConnectionString = () => {
     return resourceConnectionString;
 };
 exports.getResourceConnectionString = getResourceConnectionString;
-const getEnvUrl = () => {
-    const uri = new URL(exports.getResourceConnectionString().replace('endpoint=', ''));
+const getEndpoint = () => {
+    const uri = new URL(process.env['EndpointUrl'] || appSettings.EndpointUrl);
     return `${uri.protocol}//${uri.host}`;
 };
-exports.getEnvUrl = getEnvUrl;
+exports.getEndpoint = getEndpoint;
 
 
 /***/ }),
@@ -60055,12 +60071,22 @@ const express = __importStar(__webpack_require__(9268));
 const envHelper_1 = __webpack_require__(6975);
 const threadIdToModeratorTokenMap_1 = __webpack_require__(6106);
 const router = express.Router();
+/**
+ * route: /addUser/[threadId]
+ *
+ * purpose: Add the user to the chat thread with given threadId.
+ *
+ * @param threadId: id of the thread to which user needs to be added
+ * @param id: id of the user as string
+ * @param displayName: display name of the user as string
+ *
+ */
 router.post('/:threadId', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const addUserParam = req.body;
         const threadId = req.params['threadId'];
         const moderatorCredential = threadIdToModeratorTokenMap_1.threadIdToModeratorCredentialMap.get(threadId);
-        const chatClient = new communication_chat_1.ChatClient(envHelper_1.getEnvUrl(), moderatorCredential);
+        const chatClient = new communication_chat_1.ChatClient(envHelper_1.getEndpoint(), moderatorCredential);
         const chatThreadClient = yield chatClient.getChatThreadClient(threadId);
         yield chatThreadClient.addParticipants({
             participants: [
@@ -60117,6 +60143,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const express = __importStar(__webpack_require__(9268));
 const moderator_1 = __webpack_require__(2991);
 const router = express.Router();
+/**
+ * route: /createThread/
+ *
+ * purpose: Create a new chat thread.
+ *
+ * @returns The new threadId as string
+ *
+ */
 router.post('/', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         res.send(yield moderator_1.createThread());
@@ -60166,9 +60200,17 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const express = __importStar(__webpack_require__(9268));
 const envHelper_1 = __webpack_require__(6975);
 const router = express.Router();
+/**
+ * route: /getEndpointUrl/
+ *
+ * purpose: Get the endpoint url of Azure Communication Services resource.
+ *
+ * @returns The endpoint url as string
+ *
+ */
 router.get('/', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        res.send(envHelper_1.getEnvUrl());
+        res.send(envHelper_1.getEndpoint());
     });
 });
 exports.default = router;
@@ -60215,6 +60257,16 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const express = __importStar(__webpack_require__(9268));
 const threadIdToModeratorTokenMap_1 = __webpack_require__(6106);
 const router = express.Router();
+/**
+ * route: /isValidThread/[threadId]
+ *
+ * purpose: Check if thread is valid for given threadId.
+ *
+ * @param threadId: id of the thread to be verified
+ *
+ * @returns status 200 if thread is valid and status 404 if thread is
+ * invalid.
+ */
 router.get('/:threadId', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         if (threadIdToModeratorTokenMap_1.threadIdToModeratorCredentialMap.has(req.params['threadId'])) {
@@ -60278,9 +60330,19 @@ const handleUserTokenRequest = (requestedScope) => __awaiter(void 0, void 0, voi
     return yield identityClient_1.createUserAndToken(scopes);
 });
 /**
+ * route: /token/
+ *
+ * purpose: To get Azure Communication Services token with the given scope.
+ *
+ * @param scope: scope for the token as string
+ *
+ * @returns The token as string
+ *
+ * @remarks
  * By default the get and post routes will return a token with scopes ['chat', 'voip'].
  * Optionally ?scope can be passed in containing scopes seperated by comma
  * e.g. ?scope=chat,voip
+ *
  */
 router.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () { var _a; return res.send(yield handleUserTokenRequest((_a = req.query.scope) !== null && _a !== void 0 ? _a : '')); }));
 router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () { var _b; return res.send(yield handleUserTokenRequest((_b = req.body.scope) !== null && _b !== void 0 ? _b : '')); }));
@@ -60328,6 +60390,16 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const express = __importStar(__webpack_require__(9268));
 const identityClient_1 = __webpack_require__(4776);
 const router = express.Router();
+/**
+ * route: /refreshToken/[id]
+ *
+ * purpose: Get a new token for the given user id.
+ *
+ * @param id: id of the user
+ *
+ * @returns the user object with token details
+ *
+ */
 router.post('/:id', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!req.params['id']) {
@@ -60385,6 +60457,21 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const express = __importStar(__webpack_require__(9268));
 const userIdToUserConfigMap_1 = __webpack_require__(9941);
 const router = express.Router();
+/**
+ * route: /userConfig/[userId]
+ *
+ * purpose: To register the user with the emoji to the thread.
+ *
+ * @param threadId: id of the thread to which user needs to be registered
+ * @param userId: id of the user
+ * @param emoji: emoji selected by the user
+ *
+ * @remarks
+ * post call is used for registering the user to the thread and update the
+ * user config with the selected emoji and get call returns userconfig of
+ * all registered users.
+ *
+ */
 router.post('/:userId', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const userConfig = req.body;

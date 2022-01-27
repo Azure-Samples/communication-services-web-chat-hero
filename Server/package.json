@@ -2,6 +2,7 @@
   "name": "server",
   "version": "0.0.1",
   "private": true,
+  "description": "This is the server side that supports all ACS sample applications",
   "scripts": {
     "build": "npm run clean && webpack --mode=production --env production",
     "clean": "rimraf dist",
@@ -9,6 +10,7 @@
     "start:dev": "ts-node-dev ./bin/www",
     "start:debug": "node --inspect=9229 -r ts-node/register ./bin/www",
     "test": "jest",
+    "test:stable": "echo skip",
     "prettier": "prettier --no-error-on-unmatched-pattern --write --config ./.prettierrc --ignore-path=./.prettierignore \"**/*.js\" \"**/*.jsx\" \"**/*.ts\" \"**/*.tsx\"",
     "prettier:check": "prettier --no-error-on-unmatched-pattern --check --config ./.prettierrc --ignore-path=./.prettierignore \"**/*.js\" \"**/*.jsx\" \"**/*.ts\" \"**/*.tsx\"",
     "lint": "eslint */**/*.{ts,tsx}",

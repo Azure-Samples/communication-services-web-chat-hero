@@ -38,7 +38,7 @@ import { useSwitchableFluentTheme } from './theming/SwitchableFluentThemeProvide
 import { Chat20Filled } from '@fluentui/react-icons';
 import heroSVG from '../assets/hero.svg';
 import heroDarkModeSVG from '../assets/hero_dark.svg';
-import { getThreadId } from './utils/getThreadId';
+import { getExistingThreadIdFromURL } from './utils/getExistingThreadIdFromURL';
 import { createThread } from './utils/createThread';
 
 const imageStyleProps: IImageStyles = {
@@ -76,14 +76,14 @@ export default (): JSX.Element => {
   const imageProps = { src: currentTheme.name === 'Light' ? heroSVG.toString() : heroDarkModeSVG.toString() };
 
   const onCreateThread = async (): Promise<void> => {
-    const exisitedThreadId = getThreadId();
+    const exisitedThreadId = getExistingThreadIdFromURL();
+    setHomeScreenState(HOMESCREEN_SHOWING_LOADING_SPINNER_CREATE_THREAD);
+
     if (exisitedThreadId && exisitedThreadId.length > 0) {
-      setHomeScreenState(HOMESCREEN_SHOWING_LOADING_SPINNER_CREATE_THREAD);
       window.location.href += `?threadId=${exisitedThreadId}`;
       return;
     }
 
-    setHomeScreenState(HOMESCREEN_SHOWING_LOADING_SPINNER_CREATE_THREAD);
     const threadId = await createThread();
     if (!threadId) {
       console.error('Failed to create a thread, returned threadId is undefined or empty string');
