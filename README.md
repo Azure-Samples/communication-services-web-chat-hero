@@ -12,7 +12,11 @@ products:
 
 # Group Chat Sample
 
-This is a sample application to show how the Chat Web SDK can be used to build a single threaded chat experience.
+## Overview
+
+This is a sample application to show how we can use the `@azure/communication-react` package to build a chat experience.
+Learn more about the [Azure Communication Services UI Library](https://azure.github.io/communication-ui-library/). 
+The client-side application is a React based user interface. Alongside this front-end is a NodeJS web application powered by ExpressJS that performs functionality like minting new user tokens for each chat participant.
 
 Additional documentation for this sample can be found on [Microsoft Docs](https://docs.microsoft.com/en-us/azure/communication-services/samples/chat-hero-sample).
 
@@ -62,7 +66,7 @@ We appreciate your feedback and energy helping us improve our services. [Please 
 
 ## Additional Reading
 
+- [Azure Communication Services - UI Library](https://azure.github.io/communication-ui-library/) - To learn more about what the `@azure/communication-react` package offers.
 - [Azure Communication Chat SDK](https://docs.microsoft.com/en-us/azure/communication-services/concepts/chat/sdk-features) - To learn more about the chat web sdk
 - [FluentUI](https://developer.microsoft.com/en-us/fluentui#/) - Microsoft powered UI library
 - [React](https://reactjs.org/) - Library for building user interfaces
-- [Storybook](aka.ms/acsstorybook/) - Component Library documentation
