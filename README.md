@@ -54,8 +54,9 @@ We appreciate your feedback and energy helping us improve our services. [Please 
 ## Local run
 
 1. Set your connection string in `Server/appsettings.json`
-1. `npm run setup` from the root directory
-2. `npm run start` from the root directory
+2. Set your endpoint URL string in `Server/appsettings.json`
+3. `npm run setup` from the root directory
+4. `npm run start` from the root directory
 
 ## Publish to Azure
 
