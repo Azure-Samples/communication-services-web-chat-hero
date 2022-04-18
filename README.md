@@ -27,11 +27,10 @@ We appreciate your feedback and energy helping us improve our services. [Please 
 
 ## Prerequisites
 
+- [Visual Studio Code (Stable Build)](https://code.visualstudio.com/download)
+- [Node.js (16.14.2 LTS and above)](https://nodejs.org/en/download/)
 - Create an Azure account with an active subscription. For details, see [Create an account for free](https://azure.microsoft.com/free/?WT.mc_id=A261C142F).
-- [Node.js (12.18.4 and above)](https://nodejs.org/en/download/)
-- [Visual Studio (2017 and above)](https://visualstudio.microsoft.com/vs/)
-- Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/create-communication-resource). You'll need to record your resource **connection string** for this quickstart.
-
+- Create an Azure Communication Services resource. For details, see [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource). You'll need to record your resource **connection string** for this quickstart.
 ## Code structure
 
 - ./Chat/src/app: Where the client code lives
