@@ -67,7 +67,8 @@
           },
           "properties": {
             "ResourceConnectionString": "[listkeys(variables('commsName'), '2020-08-20-preview' ).primaryConnectionString]",
-            "WEBSITE_NODE_DEFAULT_VERSION": "~12"
+            "EndpointUrl": "[substring(listkeys(variables('commsName'), '2020-08-20-preview' ).primaryConnectionString, 9, add(indexOf(listkeys(variables('commsName'), '2020-08-20-preview' ).primaryConnectionString, '.azure.com/'),2))]",
+            "WEBSITE_NODE_DEFAULT_VERSION": "~14"
           }
         },
         {
