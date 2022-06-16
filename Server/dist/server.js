@@ -7311,7 +7311,7 @@ class ChatClient {
 /* harmony export */   "m": () => (/* binding */ parseClientArguments)
 /* harmony export */ });
 /* harmony import */ var _azure_core_auth__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(9732);
-/* harmony import */ var _azure_core_http__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7621);
+/* harmony import */ var _azure_core_http__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3978);
 /* harmony import */ var _connectionString__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(3181);
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
@@ -7371,37 +7371,31 @@ __webpack_require__.d(__webpack_exports__, {
   "u": () => (/* binding */ createCommunicationAccessKeyCredentialPolicy)
 });
 
-// EXTERNAL MODULE: ./node_modules/tslib/tslib.es6.js
-var tslib_es6 = __webpack_require__(655);
-// EXTERNAL MODULE: ./node_modules/@azure/core-http/es/src/policies/requestPolicy.js + 1 modules
-var requestPolicy = __webpack_require__(72);
-// EXTERNAL MODULE: ./node_modules/@azure/core-http/es/src/util/utils.js
-var utils = __webpack_require__(912);
-// EXTERNAL MODULE: ./node_modules/@azure/core-http/es/src/url.js
-var src_url = __webpack_require__(7621);
+// EXTERNAL MODULE: ./node_modules/@azure/communication-common/node_modules/@azure/core-http/dist-esm/src/policies/requestPolicy.js
+var requestPolicy = __webpack_require__(8054);
+// EXTERNAL MODULE: ./node_modules/@azure/communication-common/node_modules/@azure/core-http/dist-esm/src/url.js
+var src_url = __webpack_require__(3978);
+// EXTERNAL MODULE: ./node_modules/@azure/communication-common/node_modules/@azure/core-http/dist-esm/src/util/utils.js
+var utils = __webpack_require__(682);
 // EXTERNAL MODULE: external "crypto"
 var external_crypto_ = __webpack_require__(6417);
 ;// CONCATENATED MODULE: ./node_modules/@azure/communication-common/dist-esm/src/credential/cryptoUtils.js
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-
-const shaHash = (content) => (0,tslib_es6/* __awaiter */.mG)(void 0, void 0, void 0, function* () {
-    return (0,external_crypto_.createHash)("sha256")
-        .update(content)
-        .digest("base64");
-});
-const shaHMAC = (secret, content) => (0,tslib_es6/* __awaiter */.mG)(void 0, void 0, void 0, function* () {
+const shaHash = async (content) => (0,external_crypto_.createHash)("sha256")
+    .update(content)
+    .digest("base64");
+const shaHMAC = async (secret, content) => {
     const decodedSecret = Buffer.from(secret, "base64");
     return (0,external_crypto_.createHmac)("sha256", decodedSecret)
         .update(content)
         .digest("base64");
-});
+};
 //# sourceMappingURL=cryptoUtils.js.map
 ;// CONCATENATED MODULE: ./node_modules/@azure/communication-common/dist-esm/src/credential/communicationAccessKeyCredentialPolicy.js
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
 
 
 /**
@@ -7436,55 +7430,378 @@ class CommunicationAccessKeyCredentialPolicy extends requestPolicy/* BaseRequest
      *
      * @param webResource - The WebResource to be signed.
      */
-    signRequest(webResource) {
-        return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function* () {
-            const verb = webResource.method.toUpperCase();
-            const utcNow = new Date().toUTCString();
-            const contentHash = yield shaHash(webResource.body || "");
-            const dateHeader = utils/* isNode */.UG ? "date" : "x-ms-date";
-            const signedHeaders = `${dateHeader};host;x-ms-content-sha256`;
-            const url = src_url/* URLBuilder.parse */.UK.parse(webResource.url);
-            const query = url.getQuery();
-            const urlPathAndQuery = query ? `${url.getPath()}?${query}` : url.getPath();
-            const port = url.getPort();
-            const hostAndPort = port ? `${url.getHost()}:${port}` : url.getHost();
-            const stringToSign = `${verb}\n${urlPathAndQuery}\n${utcNow};${hostAndPort};${contentHash}`;
-            const signature = yield shaHMAC(this.accessKey.key, stringToSign);
-            if (utils/* isNode */.UG) {
-                webResource.headers.set("Host", hostAndPort || "");
-            }
-            webResource.headers.set(dateHeader, utcNow);
-            webResource.headers.set("x-ms-content-sha256", contentHash);
-            webResource.headers.set("Authorization", `HMAC-SHA256 SignedHeaders=${signedHeaders}&Signature=${signature}`);
-            return webResource;
-        });
+    async signRequest(webResource) {
+        const verb = webResource.method.toUpperCase();
+        const utcNow = new Date().toUTCString();
+        const contentHash = await shaHash(webResource.body || "");
+        const dateHeader = "x-ms-date";
+        const signedHeaders = `${dateHeader};host;x-ms-content-sha256`;
+        const url = src_url/* URLBuilder.parse */.UK.parse(webResource.url);
+        const query = url.getQuery();
+        const urlPathAndQuery = query ? `${url.getPath()}?${query}` : url.getPath();
+        const port = url.getPort();
+        const hostAndPort = port ? `${url.getHost()}:${port}` : url.getHost();
+        const stringToSign = `${verb}\n${urlPathAndQuery}\n${utcNow};${hostAndPort};${contentHash}`;
+        const signature = await shaHMAC(this.accessKey.key, stringToSign);
+        if (utils/* isNode */.UG) {
+            webResource.headers.set("Host", hostAndPort || "");
+        }
+        webResource.headers.set(dateHeader, utcNow);
+        webResource.headers.set("x-ms-content-sha256", contentHash);
+        webResource.headers.set("Authorization", `HMAC-SHA256 SignedHeaders=${signedHeaders}&Signature=${signature}`);
+        return webResource;
     }
     /**
      * Signs the request and calls the next policy in the factory.
      */
-    sendRequest(webResource) {
-        return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function* () {
-            if (!webResource) {
-                throw new Error("webResource cannot be null or undefined");
-            }
-            return this._nextPolicy.sendRequest(yield this.signRequest(webResource));
-        });
+    async sendRequest(webResource) {
+        if (!webResource) {
+            throw new Error("webResource cannot be null or undefined");
+        }
+        return this._nextPolicy.sendRequest(await this.signRequest(webResource));
     }
 }
 //# sourceMappingURL=communicationAccessKeyCredentialPolicy.js.map
 
 /***/ }),
 
-/***/ 2051:
+/***/ 5365:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "e": () => (/* binding */ createCommunicationAuthPolicy)
-/* harmony export */ });
-/* harmony import */ var _azure_core_auth__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(9732);
-/* harmony import */ var _azure_core_http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7879);
-/* harmony import */ var _communicationAccessKeyCredentialPolicy__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5994);
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "e": () => (/* binding */ createCommunicationAuthPolicy)
+});
+
+// EXTERNAL MODULE: ./node_modules/@azure/core-auth/dist-esm/src/tokenCredential.js
+var tokenCredential = __webpack_require__(9732);
+// EXTERNAL MODULE: ./node_modules/@azure/communication-common/node_modules/@azure/core-http/dist-esm/src/policies/requestPolicy.js
+var requestPolicy = __webpack_require__(8054);
+;// CONCATENATED MODULE: ./node_modules/@azure/communication-common/node_modules/@azure/core-http/dist-esm/src/util/constants.js
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+/**
+ * A set of constants used internally when processing requests.
+ */
+const Constants = {
+    /**
+     * The core-http version
+     */
+    coreHttpVersion: "2.2.4",
+    /**
+     * Specifies HTTP.
+     */
+    HTTP: "http:",
+    /**
+     * Specifies HTTPS.
+     */
+    HTTPS: "https:",
+    /**
+     * Specifies HTTP Proxy.
+     */
+    HTTP_PROXY: "HTTP_PROXY",
+    /**
+     * Specifies HTTPS Proxy.
+     */
+    HTTPS_PROXY: "HTTPS_PROXY",
+    /**
+     * Specifies NO Proxy.
+     */
+    NO_PROXY: "NO_PROXY",
+    /**
+     * Specifies ALL Proxy.
+     */
+    ALL_PROXY: "ALL_PROXY",
+    HttpConstants: {
+        /**
+         * Http Verbs
+         */
+        HttpVerbs: {
+            PUT: "PUT",
+            GET: "GET",
+            DELETE: "DELETE",
+            POST: "POST",
+            MERGE: "MERGE",
+            HEAD: "HEAD",
+            PATCH: "PATCH",
+        },
+        StatusCodes: {
+            TooManyRequests: 429,
+            ServiceUnavailable: 503,
+        },
+    },
+    /**
+     * Defines constants for use with HTTP headers.
+     */
+    HeaderConstants: {
+        /**
+         * The Authorization header.
+         */
+        AUTHORIZATION: "authorization",
+        AUTHORIZATION_SCHEME: "Bearer",
+        /**
+         * The Retry-After response-header field can be used with a 503 (Service
+         * Unavailable) or 349 (Too Many Requests) responses to indicate how long
+         * the service is expected to be unavailable to the requesting client.
+         */
+        RETRY_AFTER: "Retry-After",
+        /**
+         * The UserAgent header.
+         */
+        USER_AGENT: "User-Agent",
+    },
+};
+//# sourceMappingURL=constants.js.map
+// EXTERNAL MODULE: ./node_modules/@azure/abort-controller/dist-esm/src/AbortController.js + 1 modules
+var AbortController = __webpack_require__(5679);
+;// CONCATENATED MODULE: ./node_modules/@azure/communication-common/node_modules/@azure/core-http/dist-esm/src/util/typeguards.js
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+/**
+ * Helper TypeGuard that checks if the value is not null or undefined.
+ * @param thing - Anything
+ * @internal
+ */
+function isDefined(thing) {
+    return typeof thing !== "undefined" && thing !== null;
+}
+//# sourceMappingURL=typeguards.js.map
+;// CONCATENATED MODULE: ./node_modules/@azure/communication-common/node_modules/@azure/core-http/dist-esm/src/util/delay.js
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+
+const StandardAbortMessage = "The operation was aborted.";
+/**
+ * A wrapper for setTimeout that resolves a promise after delayInMs milliseconds.
+ * @param delayInMs - The number of milliseconds to be delayed.
+ * @param value - The value to be resolved with after a timeout of t milliseconds.
+ * @param options - The options for delay - currently abort options
+ *   @param abortSignal - The abortSignal associated with containing operation.
+ *   @param abortErrorMsg - The abort error message associated with containing operation.
+ * @returns - Resolved promise
+ */
+function delay(delayInMs, value, options) {
+    return new Promise((resolve, reject) => {
+        let timer = undefined;
+        let onAborted = undefined;
+        const rejectOnAbort = () => {
+            return reject(new AbortController/* AbortError */._((options === null || options === void 0 ? void 0 : options.abortErrorMsg) ? options === null || options === void 0 ? void 0 : options.abortErrorMsg : StandardAbortMessage));
+        };
+        const removeListeners = () => {
+            if ((options === null || options === void 0 ? void 0 : options.abortSignal) && onAborted) {
+                options.abortSignal.removeEventListener("abort", onAborted);
+            }
+        };
+        onAborted = () => {
+            if (isDefined(timer)) {
+                clearTimeout(timer);
+            }
+            removeListeners();
+            return rejectOnAbort();
+        };
+        if ((options === null || options === void 0 ? void 0 : options.abortSignal) && options.abortSignal.aborted) {
+            return rejectOnAbort();
+        }
+        timer = setTimeout(() => {
+            removeListeners();
+            resolve(value);
+        }, delayInMs);
+        if (options === null || options === void 0 ? void 0 : options.abortSignal) {
+            options.abortSignal.addEventListener("abort", onAborted);
+        }
+    });
+}
+//# sourceMappingURL=delay.js.map
+;// CONCATENATED MODULE: ./node_modules/@azure/communication-common/node_modules/@azure/core-http/dist-esm/src/policies/bearerTokenAuthenticationPolicy.js
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+
+
+// Default options for the cycler if none are provided
+const DEFAULT_CYCLER_OPTIONS = {
+    forcedRefreshWindowInMs: 1000,
+    retryIntervalInMs: 3000,
+    refreshWindowInMs: 1000 * 60 * 2, // Start refreshing 2m before expiry
+};
+/**
+ * Converts an an unreliable access token getter (which may resolve with null)
+ * into an AccessTokenGetter by retrying the unreliable getter in a regular
+ * interval.
+ *
+ * @param getAccessToken - a function that produces a promise of an access
+ * token that may fail by returning null
+ * @param retryIntervalInMs - the time (in milliseconds) to wait between retry
+ * attempts
+ * @param timeoutInMs - the timestamp after which the refresh attempt will fail,
+ * throwing an exception
+ * @returns - a promise that, if it resolves, will resolve with an access token
+ */
+async function beginRefresh(getAccessToken, retryIntervalInMs, timeoutInMs) {
+    // This wrapper handles exceptions gracefully as long as we haven't exceeded
+    // the timeout.
+    async function tryGetAccessToken() {
+        if (Date.now() < timeoutInMs) {
+            try {
+                return await getAccessToken();
+            }
+            catch (_a) {
+                return null;
+            }
+        }
+        else {
+            const finalToken = await getAccessToken();
+            // Timeout is up, so throw if it's still null
+            if (finalToken === null) {
+                throw new Error("Failed to refresh access token.");
+            }
+            return finalToken;
+        }
+    }
+    let token = await tryGetAccessToken();
+    while (token === null) {
+        await delay(retryIntervalInMs);
+        token = await tryGetAccessToken();
+    }
+    return token;
+}
+/**
+ * Creates a token cycler from a credential, scopes, and optional settings.
+ *
+ * A token cycler represents a way to reliably retrieve a valid access token
+ * from a TokenCredential. It will handle initializing the token, refreshing it
+ * when it nears expiration, and synchronizes refresh attempts to avoid
+ * concurrency hazards.
+ *
+ * @param credential - the underlying TokenCredential that provides the access
+ * token
+ * @param scopes - the scopes to request authorization for
+ * @param tokenCyclerOptions - optionally override default settings for the cycler
+ *
+ * @returns - a function that reliably produces a valid access token
+ */
+function createTokenCycler(credential, scopes, tokenCyclerOptions) {
+    let refreshWorker = null;
+    let token = null;
+    const options = Object.assign(Object.assign({}, DEFAULT_CYCLER_OPTIONS), tokenCyclerOptions);
+    /**
+     * This little holder defines several predicates that we use to construct
+     * the rules of refreshing the token.
+     */
+    const cycler = {
+        /**
+         * Produces true if a refresh job is currently in progress.
+         */
+        get isRefreshing() {
+            return refreshWorker !== null;
+        },
+        /**
+         * Produces true if the cycler SHOULD refresh (we are within the refresh
+         * window and not already refreshing)
+         */
+        get shouldRefresh() {
+            var _a;
+            return (!cycler.isRefreshing &&
+                ((_a = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a !== void 0 ? _a : 0) - options.refreshWindowInMs < Date.now());
+        },
+        /**
+         * Produces true if the cycler MUST refresh (null or nearly-expired
+         * token).
+         */
+        get mustRefresh() {
+            return (token === null || token.expiresOnTimestamp - options.forcedRefreshWindowInMs < Date.now());
+        },
+    };
+    /**
+     * Starts a refresh job or returns the existing job if one is already
+     * running.
+     */
+    function refresh(getTokenOptions) {
+        var _a;
+        if (!cycler.isRefreshing) {
+            // We bind `scopes` here to avoid passing it around a lot
+            const tryGetAccessToken = () => credential.getToken(scopes, getTokenOptions);
+            // Take advantage of promise chaining to insert an assignment to `token`
+            // before the refresh can be considered done.
+            refreshWorker = beginRefresh(tryGetAccessToken, options.retryIntervalInMs, 
+            // If we don't have a token, then we should timeout immediately
+            (_a = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a !== void 0 ? _a : Date.now())
+                .then((_token) => {
+                refreshWorker = null;
+                token = _token;
+                return token;
+            })
+                .catch((reason) => {
+                // We also should reset the refresher if we enter a failed state.  All
+                // existing awaiters will throw, but subsequent requests will start a
+                // new retry chain.
+                refreshWorker = null;
+                token = null;
+                throw reason;
+            });
+        }
+        return refreshWorker;
+    }
+    return async (tokenOptions) => {
+        //
+        // Simple rules:
+        // - If we MUST refresh, then return the refresh task, blocking
+        //   the pipeline until a token is available.
+        // - If we SHOULD refresh, then run refresh but don't return it
+        //   (we can still use the cached token).
+        // - Return the token, since it's fine if we didn't return in
+        //   step 1.
+        //
+        if (cycler.mustRefresh)
+            return refresh(tokenOptions);
+        if (cycler.shouldRefresh) {
+            refresh(tokenOptions);
+        }
+        return token;
+    };
+}
+// #endregion
+/**
+ * Creates a new factory for a RequestPolicy that applies a bearer token to
+ * the requests' `Authorization` headers.
+ *
+ * @param credential - The TokenCredential implementation that can supply the bearer token.
+ * @param scopes - The scopes for which the bearer token applies.
+ */
+function bearerTokenAuthenticationPolicy(credential, scopes) {
+    // This simple function encapsulates the entire process of reliably retrieving the token
+    const getToken = createTokenCycler(credential, scopes /* , options */);
+    class BearerTokenAuthenticationPolicy extends requestPolicy/* BaseRequestPolicy */.U {
+        constructor(nextPolicy, options) {
+            super(nextPolicy, options);
+        }
+        async sendRequest(webResource) {
+            if (!webResource.url.toLowerCase().startsWith("https://")) {
+                throw new Error("Bearer token authentication is not permitted for non-TLS protected (non-https) URLs.");
+            }
+            const { token } = await getToken({
+                abortSignal: webResource.abortSignal,
+                tracingOptions: {
+                    tracingContext: webResource.tracingContext,
+                },
+            });
+            webResource.headers.set(Constants.HeaderConstants.AUTHORIZATION, `Bearer ${token}`);
+            return this._nextPolicy.sendRequest(webResource);
+        }
+    }
+    return {
+        create: (nextPolicy, options) => {
+            return new BearerTokenAuthenticationPolicy(nextPolicy, options);
+        },
+    };
+}
+//# sourceMappingURL=bearerTokenAuthenticationPolicy.js.map
+// EXTERNAL MODULE: ./node_modules/@azure/communication-common/dist-esm/src/credential/communicationAccessKeyCredentialPolicy.js + 1 modules
+var communicationAccessKeyCredentialPolicy = __webpack_require__(5994);
+;// CONCATENATED MODULE: ./node_modules/@azure/communication-common/dist-esm/src/credential/communicationAuthPolicy.js
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
@@ -7498,11 +7815,11 @@ class CommunicationAccessKeyCredentialPolicy extends requestPolicy/* BaseRequest
  * @param credential - The KeyCredential or TokenCredential.
  */
 const createCommunicationAuthPolicy = (credential) => {
-    if ((0,_azure_core_auth__WEBPACK_IMPORTED_MODULE_0__/* .isTokenCredential */ .c)(credential)) {
-        return (0,_azure_core_http__WEBPACK_IMPORTED_MODULE_1__/* .bearerTokenAuthenticationPolicy */ .v)(credential, "https://communication.azure.com//.default");
+    if ((0,tokenCredential/* isTokenCredential */.c)(credential)) {
+        return bearerTokenAuthenticationPolicy(credential, "https://communication.azure.com//.default");
     }
     else {
-        return (0,_communicationAccessKeyCredentialPolicy__WEBPACK_IMPORTED_MODULE_2__/* .createCommunicationAccessKeyCredentialPolicy */ .u)(credential);
+        return (0,communicationAccessKeyCredentialPolicy/* createCommunicationAccessKeyCredentialPolicy */.u)(credential);
     }
 };
 //# sourceMappingURL=communicationAuthPolicy.js.map
@@ -7615,8 +7932,6 @@ __webpack_require__.d(__webpack_exports__, {
   "serializeCommunicationIdentifier": () => (/* reexport */ serializeCommunicationIdentifier)
 });
 
-// EXTERNAL MODULE: ./node_modules/tslib/tslib.es6.js
-var tslib_es6 = __webpack_require__(655);
 // EXTERNAL MODULE: ./node_modules/jwt-decode/lib/index.js
 var lib = __webpack_require__(4579);
 var lib_default = /*#__PURE__*/__webpack_require__.n(lib);
@@ -7635,7 +7950,6 @@ const parseToken = (token) => {
 ;// CONCATENATED MODULE: ./node_modules/@azure/communication-common/dist-esm/src/staticTokenCredential.js
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
 /**
  * StaticTokenCredential
  */
@@ -7643,10 +7957,8 @@ class StaticTokenCredential {
     constructor(token) {
         this.token = token;
     }
-    getToken() {
-        return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function* () {
-            return this.token;
-        });
+    async getToken() {
+        return this.token;
     }
     dispose() {
         /* intentionally empty */
@@ -7656,7 +7968,6 @@ class StaticTokenCredential {
 ;// CONCATENATED MODULE: ./node_modules/@azure/communication-common/dist-esm/src/autoRefreshTokenCredential.js
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
 
 const expiredToken = { token: "", expiresOnTimestamp: -10 };
 const minutesToMs = (minutes) => minutes * 1000 * 60;
@@ -7675,17 +7986,15 @@ class AutoRefreshTokenCredential {
             this.scheduleRefresh();
         }
     }
-    getToken(options) {
-        return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function* () {
-            if (!this.isCurrentTokenExpiringSoon) {
-                return this.currentToken;
-            }
-            const updatePromise = this.updateTokenAndReschedule(options === null || options === void 0 ? void 0 : options.abortSignal);
-            if (!this.isCurrentTokenValid) {
-                yield updatePromise;
-            }
+    async getToken(options) {
+        if (!this.isCurrentTokenExpiringSoon) {
             return this.currentToken;
-        });
+        }
+        const updatePromise = this.updateTokenAndReschedule(options === null || options === void 0 ? void 0 : options.abortSignal);
+        if (!this.isCurrentTokenValid) {
+            await updatePromise;
+        }
+        return this.currentToken;
     }
     dispose() {
         this.disposed = true;
@@ -7696,40 +8005,34 @@ class AutoRefreshTokenCredential {
             clearTimeout(this.activeTimeout);
         }
     }
-    updateTokenAndReschedule(abortSignal) {
-        return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function* () {
-            if (this.activeTokenUpdating) {
-                return this.activeTokenUpdating;
-            }
-            this.activeTokenUpdating = this.refreshTokenAndReschedule(abortSignal);
-            try {
-                yield this.activeTokenUpdating;
-            }
-            finally {
-                this.activeTokenUpdating = null;
-            }
-        });
+    async updateTokenAndReschedule(abortSignal) {
+        if (this.activeTokenUpdating) {
+            return this.activeTokenUpdating;
+        }
+        this.activeTokenUpdating = this.refreshTokenAndReschedule(abortSignal);
+        try {
+            await this.activeTokenUpdating;
+        }
+        finally {
+            this.activeTokenUpdating = null;
+        }
     }
-    refreshTokenAndReschedule(abortSignal) {
-        return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function* () {
-            this.currentToken = yield this.refreshToken(abortSignal);
-            if (this.refreshProactively) {
-                this.scheduleRefresh();
-            }
-        });
+    async refreshTokenAndReschedule(abortSignal) {
+        this.currentToken = await this.refreshToken(abortSignal);
+        if (this.refreshProactively) {
+            this.scheduleRefresh();
+        }
     }
-    refreshToken(abortSignal) {
-        return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function* () {
-            try {
-                if (!this.activeTokenFetching) {
-                    this.activeTokenFetching = this.refresh(abortSignal);
-                }
-                return parseToken(yield this.activeTokenFetching);
+    async refreshToken(abortSignal) {
+        try {
+            if (!this.activeTokenFetching) {
+                this.activeTokenFetching = this.refresh(abortSignal);
             }
-            finally {
-                this.activeTokenFetching = null;
-            }
-        });
+            return parseToken(await this.activeTokenFetching);
+        }
+        finally {
+            this.activeTokenFetching = null;
+        }
     }
     scheduleRefresh() {
         if (this.disposed) {
@@ -7756,7 +8059,6 @@ class AutoRefreshTokenCredential {
 
 
 
-
 /**
  * The CommunicationTokenCredential implementation with support for proactive token refresh.
  */
@@ -7774,13 +8076,11 @@ class AzureCommunicationTokenCredential {
      * Gets an `AccessToken` for the user. Throws if already disposed.
      * @param abortSignal - An implementation of `AbortSignalLike` to cancel the operation.
      */
-    getToken(options) {
-        return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function* () {
-            this.throwIfDisposed();
-            const token = yield this.tokenCredential.getToken(options);
-            this.throwIfDisposed();
-            return token;
-        });
+    async getToken(options) {
+        this.throwIfDisposed();
+        const token = await this.tokenCredential.getToken(options);
+        this.throwIfDisposed();
+        return token;
     }
     /**
      * Disposes the CommunicationTokenCredential and cancels any internal auto-refresh operation.
@@ -7798,8 +8098,8 @@ class AzureCommunicationTokenCredential {
 //# sourceMappingURL=communicationTokenCredential.js.map
 // EXTERNAL MODULE: ./node_modules/@azure/communication-common/dist-esm/src/credential/communicationAccessKeyCredentialPolicy.js + 1 modules
 var communicationAccessKeyCredentialPolicy = __webpack_require__(5994);
-// EXTERNAL MODULE: ./node_modules/@azure/communication-common/dist-esm/src/credential/communicationAuthPolicy.js
-var communicationAuthPolicy = __webpack_require__(2051);
+// EXTERNAL MODULE: ./node_modules/@azure/communication-common/dist-esm/src/credential/communicationAuthPolicy.js + 4 modules
+var communicationAuthPolicy = __webpack_require__(5365);
 // EXTERNAL MODULE: ./node_modules/@azure/communication-common/dist-esm/src/credential/clientArguments.js
 var clientArguments = __webpack_require__(4429);
 // EXTERNAL MODULE: ./node_modules/@azure/communication-common/dist-esm/src/credential/connectionString.js + 1 modules
@@ -7865,6 +8165,8 @@ const getIdentifierKind = (identifier) => {
     return Object.assign(Object.assign({}, identifier), { kind: "unknown" });
 };
 //# sourceMappingURL=identifierModels.js.map
+// EXTERNAL MODULE: ./node_modules/tslib/tslib.es6.js
+var tslib_es6 = __webpack_require__(655);
 ;// CONCATENATED MODULE: ./node_modules/@azure/communication-common/dist-esm/src/identifierModelSerializer.js
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
@@ -7963,7 +8265,923 @@ const deserializeCommunicationIdentifier = (serializedIdentifier) => {
 
 /***/ }),
 
-/***/ 1125:
+/***/ 8054:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "U": () => (/* binding */ BaseRequestPolicy)
+/* harmony export */ });
+/* unused harmony export RequestPolicyOptions */
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+/**
+ * The base class from which all request policies derive.
+ */
+class BaseRequestPolicy {
+    /**
+     * The main method to implement that manipulates a request/response.
+     */
+    constructor(
+    /**
+     * The next policy in the pipeline. Each policy is responsible for executing the next one if the request is to continue through the pipeline.
+     */
+    _nextPolicy, 
+    /**
+     * The options that can be passed to a given request policy.
+     */
+    _options) {
+        this._nextPolicy = _nextPolicy;
+        this._options = _options;
+    }
+    /**
+     * Get whether or not a log with the provided log level should be logged.
+     * @param logLevel - The log level of the log that will be logged.
+     * @returns Whether or not a log with the provided log level should be logged.
+     */
+    shouldLog(logLevel) {
+        return this._options.shouldLog(logLevel);
+    }
+    /**
+     * Attempt to log the provided message to the provided logger. If no logger was provided or if
+     * the log level does not meat the logger's threshold, then nothing will be logged.
+     * @param logLevel - The log level of this log.
+     * @param message - The message of this log.
+     */
+    log(logLevel, message) {
+        this._options.log(logLevel, message);
+    }
+}
+/**
+ * Optional properties that can be used when creating a RequestPolicy.
+ */
+class RequestPolicyOptions {
+    constructor(_logger) {
+        this._logger = _logger;
+    }
+    /**
+     * Get whether or not a log with the provided log level should be logged.
+     * @param logLevel - The log level of the log that will be logged.
+     * @returns Whether or not a log with the provided log level should be logged.
+     */
+    shouldLog(logLevel) {
+        return (!!this._logger &&
+            logLevel !== HttpPipelineLogLevel.OFF &&
+            logLevel <= this._logger.minimumLogLevel);
+    }
+    /**
+     * Attempt to log the provided message to the provided logger. If no logger was provided or if
+     * the log level does not meet the logger's threshold, then nothing will be logged.
+     * @param logLevel - The log level of this log.
+     * @param message - The message of this log.
+     */
+    log(logLevel, message) {
+        if (this._logger && this.shouldLog(logLevel)) {
+            this._logger.log(logLevel, message);
+        }
+    }
+}
+//# sourceMappingURL=requestPolicy.js.map
+
+/***/ }),
+
+/***/ 3978:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "UK": () => (/* binding */ URLBuilder)
+/* harmony export */ });
+/* unused harmony exports URLQuery, URLToken, isAlphaNumericCharacter, URLTokenizer */
+/* harmony import */ var _util_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(682);
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+
+/**
+ * A class that handles the query portion of a URLBuilder.
+ */
+class URLQuery {
+    constructor() {
+        this._rawQuery = {};
+    }
+    /**
+     * Get whether or not there any query parameters in this URLQuery.
+     */
+    any() {
+        return Object.keys(this._rawQuery).length > 0;
+    }
+    /**
+     * Get the keys of the query string.
+     */
+    keys() {
+        return Object.keys(this._rawQuery);
+    }
+    /**
+     * Set a query parameter with the provided name and value. If the parameterValue is undefined or
+     * empty, then this will attempt to remove an existing query parameter with the provided
+     * parameterName.
+     */
+    set(parameterName, parameterValue) {
+        const caseParameterValue = parameterValue;
+        if (parameterName) {
+            if (caseParameterValue !== undefined && caseParameterValue !== null) {
+                const newValue = Array.isArray(caseParameterValue)
+                    ? caseParameterValue
+                    : caseParameterValue.toString();
+                this._rawQuery[parameterName] = newValue;
+            }
+            else {
+                delete this._rawQuery[parameterName];
+            }
+        }
+    }
+    /**
+     * Get the value of the query parameter with the provided name. If no parameter exists with the
+     * provided parameter name, then undefined will be returned.
+     */
+    get(parameterName) {
+        return parameterName ? this._rawQuery[parameterName] : undefined;
+    }
+    /**
+     * Get the string representation of this query. The return value will not start with a "?".
+     */
+    toString() {
+        let result = "";
+        for (const parameterName in this._rawQuery) {
+            if (result) {
+                result += "&";
+            }
+            const parameterValue = this._rawQuery[parameterName];
+            if (Array.isArray(parameterValue)) {
+                const parameterStrings = [];
+                for (const parameterValueElement of parameterValue) {
+                    parameterStrings.push(`${parameterName}=${parameterValueElement}`);
+                }
+                result += parameterStrings.join("&");
+            }
+            else {
+                result += `${parameterName}=${parameterValue}`;
+            }
+        }
+        return result;
+    }
+    /**
+     * Parse a URLQuery from the provided text.
+     */
+    static parse(text) {
+        const result = new URLQuery();
+        if (text) {
+            if (text.startsWith("?")) {
+                text = text.substring(1);
+            }
+            let currentState = "ParameterName";
+            let parameterName = "";
+            let parameterValue = "";
+            for (let i = 0; i < text.length; ++i) {
+                const currentCharacter = text[i];
+                switch (currentState) {
+                    case "ParameterName":
+                        switch (currentCharacter) {
+                            case "=":
+                                currentState = "ParameterValue";
+                                break;
+                            case "&":
+                                parameterName = "";
+                                parameterValue = "";
+                                break;
+                            default:
+                                parameterName += currentCharacter;
+                                break;
+                        }
+                        break;
+                    case "ParameterValue":
+                        switch (currentCharacter) {
+                            case "&":
+                                result.set(parameterName, parameterValue);
+                                parameterName = "";
+                                parameterValue = "";
+                                currentState = "ParameterName";
+                                break;
+                            default:
+                                parameterValue += currentCharacter;
+                                break;
+                        }
+                        break;
+                    default:
+                        throw new Error("Unrecognized URLQuery parse state: " + currentState);
+                }
+            }
+            if (currentState === "ParameterValue") {
+                result.set(parameterName, parameterValue);
+            }
+        }
+        return result;
+    }
+}
+/**
+ * A class that handles creating, modifying, and parsing URLs.
+ */
+class URLBuilder {
+    /**
+     * Set the scheme/protocol for this URL. If the provided scheme contains other parts of a URL
+     * (such as a host, port, path, or query), those parts will be added to this URL as well.
+     */
+    setScheme(scheme) {
+        if (!scheme) {
+            this._scheme = undefined;
+        }
+        else {
+            this.set(scheme, "SCHEME");
+        }
+    }
+    /**
+     * Get the scheme that has been set in this URL.
+     */
+    getScheme() {
+        return this._scheme;
+    }
+    /**
+     * Set the host for this URL. If the provided host contains other parts of a URL (such as a
+     * port, path, or query), those parts will be added to this URL as well.
+     */
+    setHost(host) {
+        if (!host) {
+            this._host = undefined;
+        }
+        else {
+            this.set(host, "SCHEME_OR_HOST");
+        }
+    }
+    /**
+     * Get the host that has been set in this URL.
+     */
+    getHost() {
+        return this._host;
+    }
+    /**
+     * Set the port for this URL. If the provided port contains other parts of a URL (such as a
+     * path or query), those parts will be added to this URL as well.
+     */
+    setPort(port) {
+        if (port === undefined || port === null || port === "") {
+            this._port = undefined;
+        }
+        else {
+            this.set(port.toString(), "PORT");
+        }
+    }
+    /**
+     * Get the port that has been set in this URL.
+     */
+    getPort() {
+        return this._port;
+    }
+    /**
+     * Set the path for this URL. If the provided path contains a query, then it will be added to
+     * this URL as well.
+     */
+    setPath(path) {
+        if (!path) {
+            this._path = undefined;
+        }
+        else {
+            const schemeIndex = path.indexOf("://");
+            if (schemeIndex !== -1) {
+                const schemeStart = path.lastIndexOf("/", schemeIndex);
+                // Make sure to only grab the URL part of the path before setting the state back to SCHEME
+                // this will handle cases such as "/a/b/c/https://microsoft.com" => "https://microsoft.com"
+                this.set(schemeStart === -1 ? path : path.substr(schemeStart + 1), "SCHEME");
+            }
+            else {
+                this.set(path, "PATH");
+            }
+        }
+    }
+    /**
+     * Append the provided path to this URL's existing path. If the provided path contains a query,
+     * then it will be added to this URL as well.
+     */
+    appendPath(path) {
+        if (path) {
+            let currentPath = this.getPath();
+            if (currentPath) {
+                if (!currentPath.endsWith("/")) {
+                    currentPath += "/";
+                }
+                if (path.startsWith("/")) {
+                    path = path.substring(1);
+                }
+                path = currentPath + path;
+            }
+            this.set(path, "PATH");
+        }
+    }
+    /**
+     * Get the path that has been set in this URL.
+     */
+    getPath() {
+        return this._path;
+    }
+    /**
+     * Set the query in this URL.
+     */
+    setQuery(query) {
+        if (!query) {
+            this._query = undefined;
+        }
+        else {
+            this._query = URLQuery.parse(query);
+        }
+    }
+    /**
+     * Set a query parameter with the provided name and value in this URL's query. If the provided
+     * query parameter value is undefined or empty, then the query parameter will be removed if it
+     * existed.
+     */
+    setQueryParameter(queryParameterName, queryParameterValue) {
+        if (queryParameterName) {
+            if (!this._query) {
+                this._query = new URLQuery();
+            }
+            this._query.set(queryParameterName, queryParameterValue);
+        }
+    }
+    /**
+     * Get the value of the query parameter with the provided query parameter name. If no query
+     * parameter exists with the provided name, then undefined will be returned.
+     */
+    getQueryParameterValue(queryParameterName) {
+        return this._query ? this._query.get(queryParameterName) : undefined;
+    }
+    /**
+     * Get the query in this URL.
+     */
+    getQuery() {
+        return this._query ? this._query.toString() : undefined;
+    }
+    /**
+     * Set the parts of this URL by parsing the provided text using the provided startState.
+     */
+    set(text, startState) {
+        const tokenizer = new URLTokenizer(text, startState);
+        while (tokenizer.next()) {
+            const token = tokenizer.current();
+            let tokenPath;
+            if (token) {
+                switch (token.type) {
+                    case "SCHEME":
+                        this._scheme = token.text || undefined;
+                        break;
+                    case "HOST":
+                        this._host = token.text || undefined;
+                        break;
+                    case "PORT":
+                        this._port = token.text || undefined;
+                        break;
+                    case "PATH":
+                        tokenPath = token.text || undefined;
+                        if (!this._path || this._path === "/" || tokenPath !== "/") {
+                            this._path = tokenPath;
+                        }
+                        break;
+                    case "QUERY":
+                        this._query = URLQuery.parse(token.text);
+                        break;
+                    default:
+                        throw new Error(`Unrecognized URLTokenType: ${token.type}`);
+                }
+            }
+        }
+    }
+    /**
+     * Serializes the URL as a string.
+     * @returns the URL as a string.
+     */
+    toString() {
+        let result = "";
+        if (this._scheme) {
+            result += `${this._scheme}://`;
+        }
+        if (this._host) {
+            result += this._host;
+        }
+        if (this._port) {
+            result += `:${this._port}`;
+        }
+        if (this._path) {
+            if (!this._path.startsWith("/")) {
+                result += "/";
+            }
+            result += this._path;
+        }
+        if (this._query && this._query.any()) {
+            result += `?${this._query.toString()}`;
+        }
+        return result;
+    }
+    /**
+     * If the provided searchValue is found in this URLBuilder, then replace it with the provided
+     * replaceValue.
+     */
+    replaceAll(searchValue, replaceValue) {
+        if (searchValue) {
+            this.setScheme((0,_util_utils__WEBPACK_IMPORTED_MODULE_0__/* .replaceAll */ .ko)(this.getScheme(), searchValue, replaceValue));
+            this.setHost((0,_util_utils__WEBPACK_IMPORTED_MODULE_0__/* .replaceAll */ .ko)(this.getHost(), searchValue, replaceValue));
+            this.setPort((0,_util_utils__WEBPACK_IMPORTED_MODULE_0__/* .replaceAll */ .ko)(this.getPort(), searchValue, replaceValue));
+            this.setPath((0,_util_utils__WEBPACK_IMPORTED_MODULE_0__/* .replaceAll */ .ko)(this.getPath(), searchValue, replaceValue));
+            this.setQuery((0,_util_utils__WEBPACK_IMPORTED_MODULE_0__/* .replaceAll */ .ko)(this.getQuery(), searchValue, replaceValue));
+        }
+    }
+    /**
+     * Parses a given string URL into a new {@link URLBuilder}.
+     */
+    static parse(text) {
+        const result = new URLBuilder();
+        result.set(text, "SCHEME_OR_HOST");
+        return result;
+    }
+}
+class URLToken {
+    constructor(text, type) {
+        this.text = text;
+        this.type = type;
+    }
+    static scheme(text) {
+        return new URLToken(text, "SCHEME");
+    }
+    static host(text) {
+        return new URLToken(text, "HOST");
+    }
+    static port(text) {
+        return new URLToken(text, "PORT");
+    }
+    static path(text) {
+        return new URLToken(text, "PATH");
+    }
+    static query(text) {
+        return new URLToken(text, "QUERY");
+    }
+}
+/**
+ * Get whether or not the provided character (single character string) is an alphanumeric (letter or
+ * digit) character.
+ */
+function isAlphaNumericCharacter(character) {
+    const characterCode = character.charCodeAt(0);
+    return ((48 /* '0' */ <= characterCode && characterCode <= 57) /* '9' */ ||
+        (65 /* 'A' */ <= characterCode && characterCode <= 90) /* 'Z' */ ||
+        (97 /* 'a' */ <= characterCode && characterCode <= 122) /* 'z' */);
+}
+/**
+ * A class that tokenizes URL strings.
+ */
+class URLTokenizer {
+    constructor(_text, state) {
+        this._text = _text;
+        this._textLength = _text ? _text.length : 0;
+        this._currentState = state !== undefined && state !== null ? state : "SCHEME_OR_HOST";
+        this._currentIndex = 0;
+    }
+    /**
+     * Get the current URLToken this URLTokenizer is pointing at, or undefined if the URLTokenizer
+     * hasn't started or has finished tokenizing.
+     */
+    current() {
+        return this._currentToken;
+    }
+    /**
+     * Advance to the next URLToken and return whether or not a URLToken was found.
+     */
+    next() {
+        if (!hasCurrentCharacter(this)) {
+            this._currentToken = undefined;
+        }
+        else {
+            switch (this._currentState) {
+                case "SCHEME":
+                    nextScheme(this);
+                    break;
+                case "SCHEME_OR_HOST":
+                    nextSchemeOrHost(this);
+                    break;
+                case "HOST":
+                    nextHost(this);
+                    break;
+                case "PORT":
+                    nextPort(this);
+                    break;
+                case "PATH":
+                    nextPath(this);
+                    break;
+                case "QUERY":
+                    nextQuery(this);
+                    break;
+                default:
+                    throw new Error(`Unrecognized URLTokenizerState: ${this._currentState}`);
+            }
+        }
+        return !!this._currentToken;
+    }
+}
+/**
+ * Read the remaining characters from this Tokenizer's character stream.
+ */
+function readRemaining(tokenizer) {
+    let result = "";
+    if (tokenizer._currentIndex < tokenizer._textLength) {
+        result = tokenizer._text.substring(tokenizer._currentIndex);
+        tokenizer._currentIndex = tokenizer._textLength;
+    }
+    return result;
+}
+/**
+ * Whether or not this URLTokenizer has a current character.
+ */
+function hasCurrentCharacter(tokenizer) {
+    return tokenizer._currentIndex < tokenizer._textLength;
+}
+/**
+ * Get the character in the text string at the current index.
+ */
+function getCurrentCharacter(tokenizer) {
+    return tokenizer._text[tokenizer._currentIndex];
+}
+/**
+ * Advance to the character in text that is "step" characters ahead. If no step value is provided,
+ * then step will default to 1.
+ */
+function nextCharacter(tokenizer, step) {
+    if (hasCurrentCharacter(tokenizer)) {
+        if (!step) {
+            step = 1;
+        }
+        tokenizer._currentIndex += step;
+    }
+}
+/**
+ * Starting with the current character, peek "charactersToPeek" number of characters ahead in this
+ * Tokenizer's stream of characters.
+ */
+function peekCharacters(tokenizer, charactersToPeek) {
+    let endIndex = tokenizer._currentIndex + charactersToPeek;
+    if (tokenizer._textLength < endIndex) {
+        endIndex = tokenizer._textLength;
+    }
+    return tokenizer._text.substring(tokenizer._currentIndex, endIndex);
+}
+/**
+ * Read characters from this Tokenizer until the end of the stream or until the provided condition
+ * is false when provided the current character.
+ */
+function readWhile(tokenizer, condition) {
+    let result = "";
+    while (hasCurrentCharacter(tokenizer)) {
+        const currentCharacter = getCurrentCharacter(tokenizer);
+        if (!condition(currentCharacter)) {
+            break;
+        }
+        else {
+            result += currentCharacter;
+            nextCharacter(tokenizer);
+        }
+    }
+    return result;
+}
+/**
+ * Read characters from this Tokenizer until a non-alphanumeric character or the end of the
+ * character stream is reached.
+ */
+function readWhileLetterOrDigit(tokenizer) {
+    return readWhile(tokenizer, (character) => isAlphaNumericCharacter(character));
+}
+/**
+ * Read characters from this Tokenizer until one of the provided terminating characters is read or
+ * the end of the character stream is reached.
+ */
+function readUntilCharacter(tokenizer, ...terminatingCharacters) {
+    return readWhile(tokenizer, (character) => terminatingCharacters.indexOf(character) === -1);
+}
+function nextScheme(tokenizer) {
+    const scheme = readWhileLetterOrDigit(tokenizer);
+    tokenizer._currentToken = URLToken.scheme(scheme);
+    if (!hasCurrentCharacter(tokenizer)) {
+        tokenizer._currentState = "DONE";
+    }
+    else {
+        tokenizer._currentState = "HOST";
+    }
+}
+function nextSchemeOrHost(tokenizer) {
+    const schemeOrHost = readUntilCharacter(tokenizer, ":", "/", "?");
+    if (!hasCurrentCharacter(tokenizer)) {
+        tokenizer._currentToken = URLToken.host(schemeOrHost);
+        tokenizer._currentState = "DONE";
+    }
+    else if (getCurrentCharacter(tokenizer) === ":") {
+        if (peekCharacters(tokenizer, 3) === "://") {
+            tokenizer._currentToken = URLToken.scheme(schemeOrHost);
+            tokenizer._currentState = "HOST";
+        }
+        else {
+            tokenizer._currentToken = URLToken.host(schemeOrHost);
+            tokenizer._currentState = "PORT";
+        }
+    }
+    else {
+        tokenizer._currentToken = URLToken.host(schemeOrHost);
+        if (getCurrentCharacter(tokenizer) === "/") {
+            tokenizer._currentState = "PATH";
+        }
+        else {
+            tokenizer._currentState = "QUERY";
+        }
+    }
+}
+function nextHost(tokenizer) {
+    if (peekCharacters(tokenizer, 3) === "://") {
+        nextCharacter(tokenizer, 3);
+    }
+    const host = readUntilCharacter(tokenizer, ":", "/", "?");
+    tokenizer._currentToken = URLToken.host(host);
+    if (!hasCurrentCharacter(tokenizer)) {
+        tokenizer._currentState = "DONE";
+    }
+    else if (getCurrentCharacter(tokenizer) === ":") {
+        tokenizer._currentState = "PORT";
+    }
+    else if (getCurrentCharacter(tokenizer) === "/") {
+        tokenizer._currentState = "PATH";
+    }
+    else {
+        tokenizer._currentState = "QUERY";
+    }
+}
+function nextPort(tokenizer) {
+    if (getCurrentCharacter(tokenizer) === ":") {
+        nextCharacter(tokenizer);
+    }
+    const port = readUntilCharacter(tokenizer, "/", "?");
+    tokenizer._currentToken = URLToken.port(port);
+    if (!hasCurrentCharacter(tokenizer)) {
+        tokenizer._currentState = "DONE";
+    }
+    else if (getCurrentCharacter(tokenizer) === "/") {
+        tokenizer._currentState = "PATH";
+    }
+    else {
+        tokenizer._currentState = "QUERY";
+    }
+}
+function nextPath(tokenizer) {
+    const path = readUntilCharacter(tokenizer, "?");
+    tokenizer._currentToken = URLToken.path(path);
+    if (!hasCurrentCharacter(tokenizer)) {
+        tokenizer._currentState = "DONE";
+    }
+    else {
+        tokenizer._currentState = "QUERY";
+    }
+}
+function nextQuery(tokenizer) {
+    if (getCurrentCharacter(tokenizer) === "?") {
+        nextCharacter(tokenizer);
+    }
+    const query = readRemaining(tokenizer);
+    tokenizer._currentToken = URLToken.query(query);
+    tokenizer._currentState = "DONE";
+}
+//# sourceMappingURL=url.js.map
+
+/***/ }),
+
+/***/ 682:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "UG": () => (/* binding */ isNode),
+/* harmony export */   "ko": () => (/* binding */ replaceAll)
+/* harmony export */ });
+/* unused harmony exports urlIsHTTPS, encodeUri, stripResponse, stripRequest, isValidUuid, generateUuid, executePromisesSequentially, promiseToCallback, promiseToServiceCallback, prepareXMLRootList, applyMixins, isDuration, isPrimitiveType, getEnvironmentValue, isObject */
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+
+
+const validUuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i;
+/**
+ * A constant that indicates whether the environment is node.js or browser based.
+ */
+const isNode = typeof process !== "undefined" &&
+    !!process.version &&
+    !!process.versions &&
+    !!process.versions.node;
+/**
+ * Checks if a parsed URL is HTTPS
+ *
+ * @param urlToCheck - The url to check
+ * @returns True if the URL is HTTPS; false otherwise.
+ */
+function urlIsHTTPS(urlToCheck) {
+    return urlToCheck.protocol.toLowerCase() === Constants.HTTPS;
+}
+/**
+ * Encodes an URI.
+ *
+ * @param uri - The URI to be encoded.
+ * @returns The encoded URI.
+ */
+function encodeUri(uri) {
+    return encodeURIComponent(uri)
+        .replace(/!/g, "%21")
+        .replace(/"/g, "%27")
+        .replace(/\(/g, "%28")
+        .replace(/\)/g, "%29")
+        .replace(/\*/g, "%2A");
+}
+/**
+ * Returns a stripped version of the Http Response which only contains body,
+ * headers and the status.
+ *
+ * @param response - The Http Response
+ * @returns The stripped version of Http Response.
+ */
+function stripResponse(response) {
+    const strippedResponse = {};
+    strippedResponse.body = response.bodyAsText;
+    strippedResponse.headers = response.headers;
+    strippedResponse.status = response.status;
+    return strippedResponse;
+}
+/**
+ * Returns a stripped version of the Http Request that does not contain the
+ * Authorization header.
+ *
+ * @param request - The Http Request object
+ * @returns The stripped version of Http Request.
+ */
+function stripRequest(request) {
+    const strippedRequest = request.clone();
+    if (strippedRequest.headers) {
+        strippedRequest.headers.remove("authorization");
+    }
+    return strippedRequest;
+}
+/**
+ * Validates the given uuid as a string
+ *
+ * @param uuid - The uuid as a string that needs to be validated
+ * @returns True if the uuid is valid; false otherwise.
+ */
+function isValidUuid(uuid) {
+    return validUuidRegex.test(uuid);
+}
+/**
+ * Generated UUID
+ *
+ * @returns RFC4122 v4 UUID.
+ */
+function generateUuid() {
+    return uuidv4();
+}
+/**
+ * Executes an array of promises sequentially. Inspiration of this method is here:
+ * https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html. An awesome blog on promises!
+ *
+ * @param promiseFactories - An array of promise factories(A function that return a promise)
+ * @param kickstart - Input to the first promise that is used to kickstart the promise chain.
+ * If not provided then the promise chain starts with undefined.
+ * @returns A chain of resolved or rejected promises
+ */
+function executePromisesSequentially(promiseFactories, kickstart) {
+    let result = Promise.resolve(kickstart);
+    promiseFactories.forEach((promiseFactory) => {
+        result = result.then(promiseFactory);
+    });
+    return result;
+}
+/**
+ * Converts a Promise to a callback.
+ * @param promise - The Promise to be converted to a callback
+ * @returns A function that takes the callback `(cb: Function) => void`
+ * @deprecated generated code should instead depend on responseToBody
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+function promiseToCallback(promise) {
+    if (typeof promise.then !== "function") {
+        throw new Error("The provided input is not a Promise.");
+    }
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    return (cb) => {
+        promise
+            .then((data) => {
+            // eslint-disable-next-line promise/no-callback-in-promise
+            return cb(undefined, data);
+        })
+            .catch((err) => {
+            // eslint-disable-next-line promise/no-callback-in-promise
+            cb(err);
+        });
+    };
+}
+/**
+ * Converts a Promise to a service callback.
+ * @param promise - The Promise of HttpOperationResponse to be converted to a service callback
+ * @returns A function that takes the service callback (cb: ServiceCallback<T>): void
+ */
+function promiseToServiceCallback(promise) {
+    if (typeof promise.then !== "function") {
+        throw new Error("The provided input is not a Promise.");
+    }
+    return (cb) => {
+        promise
+            .then((data) => {
+            return process.nextTick(cb, undefined, data.parsedBody, data.request, data);
+        })
+            .catch((err) => {
+            process.nextTick(cb, err);
+        });
+    };
+}
+function prepareXMLRootList(obj, elementName, xmlNamespaceKey, xmlNamespace) {
+    if (!Array.isArray(obj)) {
+        obj = [obj];
+    }
+    if (!xmlNamespaceKey || !xmlNamespace) {
+        return { [elementName]: obj };
+    }
+    const result = { [elementName]: obj };
+    result[XML_ATTRKEY] = { [xmlNamespaceKey]: xmlNamespace };
+    return result;
+}
+/**
+ * Applies the properties on the prototype of sourceCtors to the prototype of targetCtor
+ * @param targetCtor - The target object on which the properties need to be applied.
+ * @param sourceCtors - An array of source objects from which the properties need to be taken.
+ */
+function applyMixins(targetCtorParam, sourceCtors) {
+    const castTargetCtorParam = targetCtorParam;
+    sourceCtors.forEach((sourceCtor) => {
+        Object.getOwnPropertyNames(sourceCtor.prototype).forEach((name) => {
+            castTargetCtorParam.prototype[name] = sourceCtor.prototype[name];
+        });
+    });
+}
+const validateISODuration = /^(-|\+)?P(?:([-+]?[0-9,.]*)Y)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)W)?(?:([-+]?[0-9,.]*)D)?(?:T(?:([-+]?[0-9,.]*)H)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)S)?)?$/;
+/**
+ * Indicates whether the given string is in ISO 8601 format.
+ * @param value - The value to be validated for ISO 8601 duration format.
+ * @returns `true` if valid, `false` otherwise.
+ */
+function isDuration(value) {
+    return validateISODuration.test(value);
+}
+/**
+ * Replace all of the instances of searchValue in value with the provided replaceValue.
+ * @param value - The value to search and replace in.
+ * @param searchValue - The value to search for in the value argument.
+ * @param replaceValue - The value to replace searchValue with in the value argument.
+ * @returns The value where each instance of searchValue was replaced with replacedValue.
+ */
+function replaceAll(value, searchValue, replaceValue) {
+    return !value || !searchValue ? value : value.split(searchValue).join(replaceValue || "");
+}
+/**
+ * Determines whether the given entity is a basic/primitive type
+ * (string, number, boolean, null, undefined).
+ * @param value - Any entity
+ * @returns true is it is primitive type, false otherwise.
+ */
+function isPrimitiveType(value) {
+    return (typeof value !== "object" && typeof value !== "function") || value === null;
+}
+function getEnvironmentValue(name) {
+    if (process.env[name]) {
+        return process.env[name];
+    }
+    else if (process.env[name.toLowerCase()]) {
+        return process.env[name.toLowerCase()];
+    }
+    return undefined;
+}
+/**
+ * @internal
+ * @returns true when input is an object type that is not null, Array, RegExp, or Date.
+ */
+function isObject(input) {
+    return (typeof input === "object" &&
+        input !== null &&
+        !Array.isArray(input) &&
+        !(input instanceof RegExp) &&
+        !(input instanceof Date));
+}
+//# sourceMappingURL=utils.js.map
+
+/***/ }),
+
+/***/ 9146:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -7992,12 +9210,97 @@ __webpack_require__.d(mappers_namespaceObject, {
 var tslib_es6 = __webpack_require__(655);
 // EXTERNAL MODULE: ./node_modules/@azure/communication-common/dist-esm/src/credential/clientArguments.js
 var clientArguments = __webpack_require__(4429);
-// EXTERNAL MODULE: ./node_modules/@azure/communication-common/dist-esm/src/credential/communicationAuthPolicy.js
-var communicationAuthPolicy = __webpack_require__(2051);
+// EXTERNAL MODULE: ./node_modules/@azure/communication-common/dist-esm/src/credential/communicationAuthPolicy.js + 4 modules
+var communicationAuthPolicy = __webpack_require__(5365);
 // EXTERNAL MODULE: ./node_modules/@azure/core-auth/dist-esm/src/tokenCredential.js
 var tokenCredential = __webpack_require__(9732);
-// EXTERNAL MODULE: ./node_modules/@azure/core-http/es/src/policies/requestPolicy.js + 1 modules
-var requestPolicy = __webpack_require__(72);
+;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/httpPipelineLogLevel.js
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+/**
+ * The different levels of logs that can be used with the HttpPipelineLogger.
+ */
+var HttpPipelineLogLevel;
+(function (HttpPipelineLogLevel) {
+    /**
+     * A log level that indicates that no logs will be logged.
+     */
+    HttpPipelineLogLevel[HttpPipelineLogLevel["OFF"] = 0] = "OFF";
+    /**
+     * An error log.
+     */
+    HttpPipelineLogLevel[HttpPipelineLogLevel["ERROR"] = 1] = "ERROR";
+    /**
+     * A warning log.
+     */
+    HttpPipelineLogLevel[HttpPipelineLogLevel["WARNING"] = 2] = "WARNING";
+    /**
+     * An information log.
+     */
+    HttpPipelineLogLevel[HttpPipelineLogLevel["INFO"] = 3] = "INFO";
+})(HttpPipelineLogLevel || (HttpPipelineLogLevel = {}));
+//# sourceMappingURL=httpPipelineLogLevel.js.map
+;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/policies/requestPolicy.js
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+var BaseRequestPolicy = /** @class */ (function () {
+    function BaseRequestPolicy(_nextPolicy, _options) {
+        this._nextPolicy = _nextPolicy;
+        this._options = _options;
+    }
+    /**
+     * Get whether or not a log with the provided log level should be logged.
+     * @param logLevel - The log level of the log that will be logged.
+     * @returns Whether or not a log with the provided log level should be logged.
+     */
+    BaseRequestPolicy.prototype.shouldLog = function (logLevel) {
+        return this._options.shouldLog(logLevel);
+    };
+    /**
+     * Attempt to log the provided message to the provided logger. If no logger was provided or if
+     * the log level does not meat the logger's threshold, then nothing will be logged.
+     * @param logLevel - The log level of this log.
+     * @param message - The message of this log.
+     */
+    BaseRequestPolicy.prototype.log = function (logLevel, message) {
+        this._options.log(logLevel, message);
+    };
+    return BaseRequestPolicy;
+}());
+
+/**
+ * Optional properties that can be used when creating a RequestPolicy.
+ */
+var RequestPolicyOptions = /** @class */ (function () {
+    function RequestPolicyOptions(_logger) {
+        this._logger = _logger;
+    }
+    /**
+     * Get whether or not a log with the provided log level should be logged.
+     * @param logLevel - The log level of the log that will be logged.
+     * @returns Whether or not a log with the provided log level should be logged.
+     */
+    RequestPolicyOptions.prototype.shouldLog = function (logLevel) {
+        return (!!this._logger &&
+            logLevel !== HttpPipelineLogLevel.OFF &&
+            logLevel <= this._logger.minimumLogLevel);
+    };
+    /**
+     * Attempt to log the provided message to the provided logger. If no logger was provided or if
+     * the log level does not meet the logger's threshold, then nothing will be logged.
+     * @param logLevel - The log level of this log.
+     * @param message - The message of this log.
+     */
+    RequestPolicyOptions.prototype.log = function (logLevel, message) {
+        if (this._logger && this.shouldLog(logLevel)) {
+            this._logger.log(logLevel, message);
+        }
+    };
+    return RequestPolicyOptions;
+}());
+
+//# sourceMappingURL=requestPolicy.js.map
 // EXTERNAL MODULE: ./node_modules/@azure/logger/dist-esm/src/index.js + 2 modules
 var src = __webpack_require__(8096);
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/log.js
@@ -8006,8 +9309,840 @@ var src = __webpack_require__(8096);
 
 var log_logger = (0,src/* createClientLogger */.YR)("core-http");
 //# sourceMappingURL=log.js.map
-// EXTERNAL MODULE: ./node_modules/@azure/core-http/es/src/url.js
-var src_url = __webpack_require__(7621);
+// EXTERNAL MODULE: ./node_modules/uuid/dist/esm-node/v4.js + 4 modules
+var v4 = __webpack_require__(2259);
+;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/util/serializer.common.js
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+/**
+ * Default key used to access the XML attributes.
+ */
+var XML_ATTRKEY = "$";
+/**
+ * Default key used to access the XML value content.
+ */
+var XML_CHARKEY = "_";
+//# sourceMappingURL=serializer.common.js.map
+;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/util/utils.js
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+
+
+var validUuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i;
+/**
+ * A constant that indicates whether the environment is node.js or browser based.
+ */
+var isNode = typeof process !== "undefined" &&
+    !!process.version &&
+    !!process.versions &&
+    !!process.versions.node;
+/**
+ * Checks if a parsed URL is HTTPS
+ *
+ * @param urlToCheck - The url to check
+ * @returns True if the URL is HTTPS; false otherwise.
+ */
+function urlIsHTTPS(urlToCheck) {
+    return urlToCheck.protocol.toLowerCase() === Constants.HTTPS;
+}
+/**
+ * Encodes an URI.
+ *
+ * @param uri - The URI to be encoded.
+ * @returns The encoded URI.
+ */
+function encodeUri(uri) {
+    return encodeURIComponent(uri)
+        .replace(/!/g, "%21")
+        .replace(/"/g, "%27")
+        .replace(/\(/g, "%28")
+        .replace(/\)/g, "%29")
+        .replace(/\*/g, "%2A");
+}
+/**
+ * Returns a stripped version of the Http Response which only contains body,
+ * headers and the status.
+ *
+ * @param response - The Http Response
+ * @returns The stripped version of Http Response.
+ */
+function stripResponse(response) {
+    var strippedResponse = {};
+    strippedResponse.body = response.bodyAsText;
+    strippedResponse.headers = response.headers;
+    strippedResponse.status = response.status;
+    return strippedResponse;
+}
+/**
+ * Returns a stripped version of the Http Request that does not contain the
+ * Authorization header.
+ *
+ * @param request - The Http Request object
+ * @returns The stripped version of Http Request.
+ */
+function stripRequest(request) {
+    var strippedRequest = request.clone();
+    if (strippedRequest.headers) {
+        strippedRequest.headers.remove("authorization");
+    }
+    return strippedRequest;
+}
+/**
+ * Validates the given uuid as a string
+ *
+ * @param uuid - The uuid as a string that needs to be validated
+ * @returns True if the uuid is valid; false otherwise.
+ */
+function isValidUuid(uuid) {
+    return validUuidRegex.test(uuid);
+}
+/**
+ * Generated UUID
+ *
+ * @returns RFC4122 v4 UUID.
+ */
+function generateUuid() {
+    return (0,v4/* default */.Z)();
+}
+/**
+ * Executes an array of promises sequentially. Inspiration of this method is here:
+ * https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html. An awesome blog on promises!
+ *
+ * @param promiseFactories - An array of promise factories(A function that return a promise)
+ * @param kickstart - Input to the first promise that is used to kickstart the promise chain.
+ * If not provided then the promise chain starts with undefined.
+ * @returns A chain of resolved or rejected promises
+ */
+function executePromisesSequentially(promiseFactories, kickstart) {
+    var result = Promise.resolve(kickstart);
+    promiseFactories.forEach(function (promiseFactory) {
+        result = result.then(promiseFactory);
+    });
+    return result;
+}
+/**
+ * A wrapper for setTimeout that resolves a promise after t milliseconds.
+ * @param t - The number of milliseconds to be delayed.
+ * @param value - The value to be resolved with after a timeout of t milliseconds.
+ * @returns Resolved promise
+ */
+function delay(t, value) {
+    return new Promise(function (resolve) { return setTimeout(function () { return resolve(value); }, t); });
+}
+/**
+ * Converts a Promise to a callback.
+ * @param promise - The Promise to be converted to a callback
+ * @returns A function that takes the callback `(cb: Function) => void`
+ * @deprecated generated code should instead depend on responseToBody
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+function promiseToCallback(promise) {
+    if (typeof promise.then !== "function") {
+        throw new Error("The provided input is not a Promise.");
+    }
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    return function (cb) {
+        promise
+            .then(function (data) {
+            // eslint-disable-next-line promise/no-callback-in-promise
+            return cb(undefined, data);
+        })
+            .catch(function (err) {
+            // eslint-disable-next-line promise/no-callback-in-promise
+            cb(err);
+        });
+    };
+}
+/**
+ * Converts a Promise to a service callback.
+ * @param promise - The Promise of HttpOperationResponse to be converted to a service callback
+ * @returns A function that takes the service callback (cb: ServiceCallback<T>): void
+ */
+function promiseToServiceCallback(promise) {
+    if (typeof promise.then !== "function") {
+        throw new Error("The provided input is not a Promise.");
+    }
+    return function (cb) {
+        promise
+            .then(function (data) {
+            return process.nextTick(cb, undefined, data.parsedBody, data.request, data);
+        })
+            .catch(function (err) {
+            process.nextTick(cb, err);
+        });
+    };
+}
+function prepareXMLRootList(obj, elementName, xmlNamespaceKey, xmlNamespace) {
+    var _a, _b, _c;
+    if (!Array.isArray(obj)) {
+        obj = [obj];
+    }
+    if (!xmlNamespaceKey || !xmlNamespace) {
+        return _a = {}, _a[elementName] = obj, _a;
+    }
+    var result = (_b = {}, _b[elementName] = obj, _b);
+    result[XML_ATTRKEY] = (_c = {}, _c[xmlNamespaceKey] = xmlNamespace, _c);
+    return result;
+}
+/**
+ * Applies the properties on the prototype of sourceCtors to the prototype of targetCtor
+ * @param targetCtor - The target object on which the properties need to be applied.
+ * @param sourceCtors - An array of source objects from which the properties need to be taken.
+ */
+function applyMixins(targetCtorParam, sourceCtors) {
+    var castTargetCtorParam = targetCtorParam;
+    sourceCtors.forEach(function (sourceCtor) {
+        Object.getOwnPropertyNames(sourceCtor.prototype).forEach(function (name) {
+            castTargetCtorParam.prototype[name] = sourceCtor.prototype[name];
+        });
+    });
+}
+var validateISODuration = /^(-|\+)?P(?:([-+]?[0-9,.]*)Y)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)W)?(?:([-+]?[0-9,.]*)D)?(?:T(?:([-+]?[0-9,.]*)H)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)S)?)?$/;
+/**
+ * Indicates whether the given string is in ISO 8601 format.
+ * @param value - The value to be validated for ISO 8601 duration format.
+ * @returns `true` if valid, `false` otherwise.
+ */
+function isDuration(value) {
+    return validateISODuration.test(value);
+}
+/**
+ * Replace all of the instances of searchValue in value with the provided replaceValue.
+ * @param value - The value to search and replace in.
+ * @param searchValue - The value to search for in the value argument.
+ * @param replaceValue - The value to replace searchValue with in the value argument.
+ * @returns The value where each instance of searchValue was replaced with replacedValue.
+ */
+function replaceAll(value, searchValue, replaceValue) {
+    return !value || !searchValue ? value : value.split(searchValue).join(replaceValue || "");
+}
+/**
+ * Determines whether the given entity is a basic/primitive type
+ * (string, number, boolean, null, undefined).
+ * @param value - Any entity
+ * @returns true is it is primitive type, false otherwise.
+ */
+function isPrimitiveType(value) {
+    return (typeof value !== "object" && typeof value !== "function") || value === null;
+}
+function getEnvironmentValue(name) {
+    if (process.env[name]) {
+        return process.env[name];
+    }
+    else if (process.env[name.toLowerCase()]) {
+        return process.env[name.toLowerCase()];
+    }
+    return undefined;
+}
+//# sourceMappingURL=utils.js.map
+;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/url.js
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+
+/**
+ * A class that handles the query portion of a URLBuilder.
+ */
+var URLQuery = /** @class */ (function () {
+    function URLQuery() {
+        this._rawQuery = {};
+    }
+    /**
+     * Get whether or not there any query parameters in this URLQuery.
+     */
+    URLQuery.prototype.any = function () {
+        return Object.keys(this._rawQuery).length > 0;
+    };
+    /**
+     * Get the keys of the query string.
+     */
+    URLQuery.prototype.keys = function () {
+        return Object.keys(this._rawQuery);
+    };
+    /**
+     * Set a query parameter with the provided name and value. If the parameterValue is undefined or
+     * empty, then this will attempt to remove an existing query parameter with the provided
+     * parameterName.
+     */
+    URLQuery.prototype.set = function (parameterName, parameterValue) {
+        var caseParameterValue = parameterValue;
+        if (parameterName) {
+            if (caseParameterValue !== undefined && caseParameterValue !== null) {
+                var newValue = Array.isArray(caseParameterValue)
+                    ? caseParameterValue
+                    : caseParameterValue.toString();
+                this._rawQuery[parameterName] = newValue;
+            }
+            else {
+                delete this._rawQuery[parameterName];
+            }
+        }
+    };
+    /**
+     * Get the value of the query parameter with the provided name. If no parameter exists with the
+     * provided parameter name, then undefined will be returned.
+     */
+    URLQuery.prototype.get = function (parameterName) {
+        return parameterName ? this._rawQuery[parameterName] : undefined;
+    };
+    /**
+     * Get the string representation of this query. The return value will not start with a "?".
+     */
+    URLQuery.prototype.toString = function () {
+        var result = "";
+        for (var parameterName in this._rawQuery) {
+            if (result) {
+                result += "&";
+            }
+            var parameterValue = this._rawQuery[parameterName];
+            if (Array.isArray(parameterValue)) {
+                var parameterStrings = [];
+                for (var _i = 0, parameterValue_1 = parameterValue; _i < parameterValue_1.length; _i++) {
+                    var parameterValueElement = parameterValue_1[_i];
+                    parameterStrings.push(parameterName + "=" + parameterValueElement);
+                }
+                result += parameterStrings.join("&");
+            }
+            else {
+                result += parameterName + "=" + parameterValue;
+            }
+        }
+        return result;
+    };
+    /**
+     * Parse a URLQuery from the provided text.
+     */
+    URLQuery.parse = function (text) {
+        var result = new URLQuery();
+        if (text) {
+            if (text.startsWith("?")) {
+                text = text.substring(1);
+            }
+            var currentState = "ParameterName";
+            var parameterName = "";
+            var parameterValue = "";
+            for (var i = 0; i < text.length; ++i) {
+                var currentCharacter = text[i];
+                switch (currentState) {
+                    case "ParameterName":
+                        switch (currentCharacter) {
+                            case "=":
+                                currentState = "ParameterValue";
+                                break;
+                            case "&":
+                                parameterName = "";
+                                parameterValue = "";
+                                break;
+                            default:
+                                parameterName += currentCharacter;
+                                break;
+                        }
+                        break;
+                    case "ParameterValue":
+                        switch (currentCharacter) {
+                            case "&":
+                                result.set(parameterName, parameterValue);
+                                parameterName = "";
+                                parameterValue = "";
+                                currentState = "ParameterName";
+                                break;
+                            default:
+                                parameterValue += currentCharacter;
+                                break;
+                        }
+                        break;
+                    default:
+                        throw new Error("Unrecognized URLQuery parse state: " + currentState);
+                }
+            }
+            if (currentState === "ParameterValue") {
+                result.set(parameterName, parameterValue);
+            }
+        }
+        return result;
+    };
+    return URLQuery;
+}());
+
+/**
+ * A class that handles creating, modifying, and parsing URLs.
+ */
+var URLBuilder = /** @class */ (function () {
+    function URLBuilder() {
+    }
+    /**
+     * Set the scheme/protocol for this URL. If the provided scheme contains other parts of a URL
+     * (such as a host, port, path, or query), those parts will be added to this URL as well.
+     */
+    URLBuilder.prototype.setScheme = function (scheme) {
+        if (!scheme) {
+            this._scheme = undefined;
+        }
+        else {
+            this.set(scheme, "SCHEME");
+        }
+    };
+    /**
+     * Get the scheme that has been set in this URL.
+     */
+    URLBuilder.prototype.getScheme = function () {
+        return this._scheme;
+    };
+    /**
+     * Set the host for this URL. If the provided host contains other parts of a URL (such as a
+     * port, path, or query), those parts will be added to this URL as well.
+     */
+    URLBuilder.prototype.setHost = function (host) {
+        if (!host) {
+            this._host = undefined;
+        }
+        else {
+            this.set(host, "SCHEME_OR_HOST");
+        }
+    };
+    /**
+     * Get the host that has been set in this URL.
+     */
+    URLBuilder.prototype.getHost = function () {
+        return this._host;
+    };
+    /**
+     * Set the port for this URL. If the provided port contains other parts of a URL (such as a
+     * path or query), those parts will be added to this URL as well.
+     */
+    URLBuilder.prototype.setPort = function (port) {
+        if (port === undefined || port === null || port === "") {
+            this._port = undefined;
+        }
+        else {
+            this.set(port.toString(), "PORT");
+        }
+    };
+    /**
+     * Get the port that has been set in this URL.
+     */
+    URLBuilder.prototype.getPort = function () {
+        return this._port;
+    };
+    /**
+     * Set the path for this URL. If the provided path contains a query, then it will be added to
+     * this URL as well.
+     */
+    URLBuilder.prototype.setPath = function (path) {
+        if (!path) {
+            this._path = undefined;
+        }
+        else {
+            var schemeIndex = path.indexOf("://");
+            if (schemeIndex !== -1) {
+                var schemeStart = path.lastIndexOf("/", schemeIndex);
+                // Make sure to only grab the URL part of the path before setting the state back to SCHEME
+                // this will handle cases such as "/a/b/c/https://microsoft.com" => "https://microsoft.com"
+                this.set(schemeStart === -1 ? path : path.substr(schemeStart + 1), "SCHEME");
+            }
+            else {
+                this.set(path, "PATH");
+            }
+        }
+    };
+    /**
+     * Append the provided path to this URL's existing path. If the provided path contains a query,
+     * then it will be added to this URL as well.
+     */
+    URLBuilder.prototype.appendPath = function (path) {
+        if (path) {
+            var currentPath = this.getPath();
+            if (currentPath) {
+                if (!currentPath.endsWith("/")) {
+                    currentPath += "/";
+                }
+                if (path.startsWith("/")) {
+                    path = path.substring(1);
+                }
+                path = currentPath + path;
+            }
+            this.set(path, "PATH");
+        }
+    };
+    /**
+     * Get the path that has been set in this URL.
+     */
+    URLBuilder.prototype.getPath = function () {
+        return this._path;
+    };
+    /**
+     * Set the query in this URL.
+     */
+    URLBuilder.prototype.setQuery = function (query) {
+        if (!query) {
+            this._query = undefined;
+        }
+        else {
+            this._query = URLQuery.parse(query);
+        }
+    };
+    /**
+     * Set a query parameter with the provided name and value in this URL's query. If the provided
+     * query parameter value is undefined or empty, then the query parameter will be removed if it
+     * existed.
+     */
+    URLBuilder.prototype.setQueryParameter = function (queryParameterName, queryParameterValue) {
+        if (queryParameterName) {
+            if (!this._query) {
+                this._query = new URLQuery();
+            }
+            this._query.set(queryParameterName, queryParameterValue);
+        }
+    };
+    /**
+     * Get the value of the query parameter with the provided query parameter name. If no query
+     * parameter exists with the provided name, then undefined will be returned.
+     */
+    URLBuilder.prototype.getQueryParameterValue = function (queryParameterName) {
+        return this._query ? this._query.get(queryParameterName) : undefined;
+    };
+    /**
+     * Get the query in this URL.
+     */
+    URLBuilder.prototype.getQuery = function () {
+        return this._query ? this._query.toString() : undefined;
+    };
+    /**
+     * Set the parts of this URL by parsing the provided text using the provided startState.
+     */
+    URLBuilder.prototype.set = function (text, startState) {
+        var tokenizer = new URLTokenizer(text, startState);
+        while (tokenizer.next()) {
+            var token = tokenizer.current();
+            var tokenPath = void 0;
+            if (token) {
+                switch (token.type) {
+                    case "SCHEME":
+                        this._scheme = token.text || undefined;
+                        break;
+                    case "HOST":
+                        this._host = token.text || undefined;
+                        break;
+                    case "PORT":
+                        this._port = token.text || undefined;
+                        break;
+                    case "PATH":
+                        tokenPath = token.text || undefined;
+                        if (!this._path || this._path === "/" || tokenPath !== "/") {
+                            this._path = tokenPath;
+                        }
+                        break;
+                    case "QUERY":
+                        this._query = URLQuery.parse(token.text);
+                        break;
+                    default:
+                        throw new Error("Unrecognized URLTokenType: " + token.type);
+                }
+            }
+        }
+    };
+    URLBuilder.prototype.toString = function () {
+        var result = "";
+        if (this._scheme) {
+            result += this._scheme + "://";
+        }
+        if (this._host) {
+            result += this._host;
+        }
+        if (this._port) {
+            result += ":" + this._port;
+        }
+        if (this._path) {
+            if (!this._path.startsWith("/")) {
+                result += "/";
+            }
+            result += this._path;
+        }
+        if (this._query && this._query.any()) {
+            result += "?" + this._query.toString();
+        }
+        return result;
+    };
+    /**
+     * If the provided searchValue is found in this URLBuilder, then replace it with the provided
+     * replaceValue.
+     */
+    URLBuilder.prototype.replaceAll = function (searchValue, replaceValue) {
+        if (searchValue) {
+            this.setScheme(replaceAll(this.getScheme(), searchValue, replaceValue));
+            this.setHost(replaceAll(this.getHost(), searchValue, replaceValue));
+            this.setPort(replaceAll(this.getPort(), searchValue, replaceValue));
+            this.setPath(replaceAll(this.getPath(), searchValue, replaceValue));
+            this.setQuery(replaceAll(this.getQuery(), searchValue, replaceValue));
+        }
+    };
+    URLBuilder.parse = function (text) {
+        var result = new URLBuilder();
+        result.set(text, "SCHEME_OR_HOST");
+        return result;
+    };
+    return URLBuilder;
+}());
+
+var URLToken = /** @class */ (function () {
+    function URLToken(text, type) {
+        this.text = text;
+        this.type = type;
+    }
+    URLToken.scheme = function (text) {
+        return new URLToken(text, "SCHEME");
+    };
+    URLToken.host = function (text) {
+        return new URLToken(text, "HOST");
+    };
+    URLToken.port = function (text) {
+        return new URLToken(text, "PORT");
+    };
+    URLToken.path = function (text) {
+        return new URLToken(text, "PATH");
+    };
+    URLToken.query = function (text) {
+        return new URLToken(text, "QUERY");
+    };
+    return URLToken;
+}());
+
+/**
+ * Get whether or not the provided character (single character string) is an alphanumeric (letter or
+ * digit) character.
+ */
+function isAlphaNumericCharacter(character) {
+    var characterCode = character.charCodeAt(0);
+    return ((48 /* '0' */ <= characterCode && characterCode <= 57) /* '9' */ ||
+        (65 /* 'A' */ <= characterCode && characterCode <= 90) /* 'Z' */ ||
+        (97 /* 'a' */ <= characterCode && characterCode <= 122) /* 'z' */);
+}
+/**
+ * A class that tokenizes URL strings.
+ */
+var URLTokenizer = /** @class */ (function () {
+    function URLTokenizer(_text, state) {
+        this._text = _text;
+        this._textLength = _text ? _text.length : 0;
+        this._currentState = state !== undefined && state !== null ? state : "SCHEME_OR_HOST";
+        this._currentIndex = 0;
+    }
+    /**
+     * Get the current URLToken this URLTokenizer is pointing at, or undefined if the URLTokenizer
+     * hasn't started or has finished tokenizing.
+     */
+    URLTokenizer.prototype.current = function () {
+        return this._currentToken;
+    };
+    /**
+     * Advance to the next URLToken and return whether or not a URLToken was found.
+     */
+    URLTokenizer.prototype.next = function () {
+        if (!hasCurrentCharacter(this)) {
+            this._currentToken = undefined;
+        }
+        else {
+            switch (this._currentState) {
+                case "SCHEME":
+                    nextScheme(this);
+                    break;
+                case "SCHEME_OR_HOST":
+                    nextSchemeOrHost(this);
+                    break;
+                case "HOST":
+                    nextHost(this);
+                    break;
+                case "PORT":
+                    nextPort(this);
+                    break;
+                case "PATH":
+                    nextPath(this);
+                    break;
+                case "QUERY":
+                    nextQuery(this);
+                    break;
+                default:
+                    throw new Error("Unrecognized URLTokenizerState: " + this._currentState);
+            }
+        }
+        return !!this._currentToken;
+    };
+    return URLTokenizer;
+}());
+
+/**
+ * Read the remaining characters from this Tokenizer's character stream.
+ */
+function readRemaining(tokenizer) {
+    var result = "";
+    if (tokenizer._currentIndex < tokenizer._textLength) {
+        result = tokenizer._text.substring(tokenizer._currentIndex);
+        tokenizer._currentIndex = tokenizer._textLength;
+    }
+    return result;
+}
+/**
+ * Whether or not this URLTokenizer has a current character.
+ */
+function hasCurrentCharacter(tokenizer) {
+    return tokenizer._currentIndex < tokenizer._textLength;
+}
+/**
+ * Get the character in the text string at the current index.
+ */
+function getCurrentCharacter(tokenizer) {
+    return tokenizer._text[tokenizer._currentIndex];
+}
+/**
+ * Advance to the character in text that is "step" characters ahead. If no step value is provided,
+ * then step will default to 1.
+ */
+function nextCharacter(tokenizer, step) {
+    if (hasCurrentCharacter(tokenizer)) {
+        if (!step) {
+            step = 1;
+        }
+        tokenizer._currentIndex += step;
+    }
+}
+/**
+ * Starting with the current character, peek "charactersToPeek" number of characters ahead in this
+ * Tokenizer's stream of characters.
+ */
+function peekCharacters(tokenizer, charactersToPeek) {
+    var endIndex = tokenizer._currentIndex + charactersToPeek;
+    if (tokenizer._textLength < endIndex) {
+        endIndex = tokenizer._textLength;
+    }
+    return tokenizer._text.substring(tokenizer._currentIndex, endIndex);
+}
+/**
+ * Read characters from this Tokenizer until the end of the stream or until the provided condition
+ * is false when provided the current character.
+ */
+function readWhile(tokenizer, condition) {
+    var result = "";
+    while (hasCurrentCharacter(tokenizer)) {
+        var currentCharacter = getCurrentCharacter(tokenizer);
+        if (!condition(currentCharacter)) {
+            break;
+        }
+        else {
+            result += currentCharacter;
+            nextCharacter(tokenizer);
+        }
+    }
+    return result;
+}
+/**
+ * Read characters from this Tokenizer until a non-alphanumeric character or the end of the
+ * character stream is reached.
+ */
+function readWhileLetterOrDigit(tokenizer) {
+    return readWhile(tokenizer, function (character) { return isAlphaNumericCharacter(character); });
+}
+/**
+ * Read characters from this Tokenizer until one of the provided terminating characters is read or
+ * the end of the character stream is reached.
+ */
+function readUntilCharacter(tokenizer) {
+    var terminatingCharacters = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        terminatingCharacters[_i - 1] = arguments[_i];
+    }
+    return readWhile(tokenizer, function (character) { return terminatingCharacters.indexOf(character) === -1; });
+}
+function nextScheme(tokenizer) {
+    var scheme = readWhileLetterOrDigit(tokenizer);
+    tokenizer._currentToken = URLToken.scheme(scheme);
+    if (!hasCurrentCharacter(tokenizer)) {
+        tokenizer._currentState = "DONE";
+    }
+    else {
+        tokenizer._currentState = "HOST";
+    }
+}
+function nextSchemeOrHost(tokenizer) {
+    var schemeOrHost = readUntilCharacter(tokenizer, ":", "/", "?");
+    if (!hasCurrentCharacter(tokenizer)) {
+        tokenizer._currentToken = URLToken.host(schemeOrHost);
+        tokenizer._currentState = "DONE";
+    }
+    else if (getCurrentCharacter(tokenizer) === ":") {
+        if (peekCharacters(tokenizer, 3) === "://") {
+            tokenizer._currentToken = URLToken.scheme(schemeOrHost);
+            tokenizer._currentState = "HOST";
+        }
+        else {
+            tokenizer._currentToken = URLToken.host(schemeOrHost);
+            tokenizer._currentState = "PORT";
+        }
+    }
+    else {
+        tokenizer._currentToken = URLToken.host(schemeOrHost);
+        if (getCurrentCharacter(tokenizer) === "/") {
+            tokenizer._currentState = "PATH";
+        }
+        else {
+            tokenizer._currentState = "QUERY";
+        }
+    }
+}
+function nextHost(tokenizer) {
+    if (peekCharacters(tokenizer, 3) === "://") {
+        nextCharacter(tokenizer, 3);
+    }
+    var host = readUntilCharacter(tokenizer, ":", "/", "?");
+    tokenizer._currentToken = URLToken.host(host);
+    if (!hasCurrentCharacter(tokenizer)) {
+        tokenizer._currentState = "DONE";
+    }
+    else if (getCurrentCharacter(tokenizer) === ":") {
+        tokenizer._currentState = "PORT";
+    }
+    else if (getCurrentCharacter(tokenizer) === "/") {
+        tokenizer._currentState = "PATH";
+    }
+    else {
+        tokenizer._currentState = "QUERY";
+    }
+}
+function nextPort(tokenizer) {
+    if (getCurrentCharacter(tokenizer) === ":") {
+        nextCharacter(tokenizer);
+    }
+    var port = readUntilCharacter(tokenizer, "/", "?");
+    tokenizer._currentToken = URLToken.port(port);
+    if (!hasCurrentCharacter(tokenizer)) {
+        tokenizer._currentState = "DONE";
+    }
+    else if (getCurrentCharacter(tokenizer) === "/") {
+        tokenizer._currentState = "PATH";
+    }
+    else {
+        tokenizer._currentState = "QUERY";
+    }
+}
+function nextPath(tokenizer) {
+    var path = readUntilCharacter(tokenizer, "?");
+    tokenizer._currentToken = URLToken.path(path);
+    if (!hasCurrentCharacter(tokenizer)) {
+        tokenizer._currentState = "DONE";
+    }
+    else {
+        tokenizer._currentState = "QUERY";
+    }
+}
+function nextQuery(tokenizer) {
+    if (getCurrentCharacter(tokenizer) === "?") {
+        nextCharacter(tokenizer);
+    }
+    var query = readRemaining(tokenizer);
+    tokenizer._currentToken = URLToken.query(query);
+    tokenizer._currentState = "DONE";
+}
+//# sourceMappingURL=url.js.map
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/util/sanitizer.js
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
@@ -8124,12 +10259,12 @@ var Sanitizer = /** @class */ (function () {
         if (typeof value !== "string" || value === null) {
             return value;
         }
-        var urlBuilder = src_url/* URLBuilder.parse */.UK.parse(value);
+        var urlBuilder = URLBuilder.parse(value);
         var queryString = urlBuilder.getQuery();
         if (!queryString) {
             return value;
         }
-        var query = src_url/* URLQuery.parse */.$4.parse(queryString);
+        var query = URLQuery.parse(queryString);
         for (var _i = 0, _a = query.keys(); _i < _a.length; _i++) {
             var k = _a[_i];
             if (!this.allowedQueryParameters.has(k.toLowerCase())) {
@@ -8227,7 +10362,7 @@ var LogPolicy = /** @class */ (function (_super) {
         return response;
     };
     return LogPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 //# sourceMappingURL=logPolicy.js.map
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/operationParameter.js
@@ -8283,10 +10418,6 @@ function decodeString(value) {
     return Buffer.from(value, "base64");
 }
 //# sourceMappingURL=base64.js.map
-// EXTERNAL MODULE: ./node_modules/@azure/core-http/es/src/util/utils.js
-var utils = __webpack_require__(912);
-// EXTERNAL MODULE: ./node_modules/@azure/core-http/es/src/util/serializer.common.js
-var serializer_common = __webpack_require__(1035);
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/serializer.js
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
@@ -8363,7 +10494,7 @@ var Serializer = /** @class */ (function () {
         var updatedOptions = {
             rootName: (_a = options.rootName) !== null && _a !== void 0 ? _a : "",
             includeRoot: (_b = options.includeRoot) !== null && _b !== void 0 ? _b : false,
-            xmlCharKey: (_c = options.xmlCharKey) !== null && _c !== void 0 ? _c : serializer_common/* XML_CHARKEY */.I
+            xmlCharKey: (_c = options.xmlCharKey) !== null && _c !== void 0 ? _c : XML_CHARKEY
         };
         var payload = {};
         var mapperType = mapper.type.name;
@@ -8447,7 +10578,7 @@ var Serializer = /** @class */ (function () {
         var updatedOptions = {
             rootName: (_a = options.rootName) !== null && _a !== void 0 ? _a : "",
             includeRoot: (_b = options.includeRoot) !== null && _b !== void 0 ? _b : false,
-            xmlCharKey: (_c = options.xmlCharKey) !== null && _c !== void 0 ? _c : serializer_common/* XML_CHARKEY */.I
+            xmlCharKey: (_c = options.xmlCharKey) !== null && _c !== void 0 ? _c : XML_CHARKEY
         };
         if (responseBody == undefined) {
             if (this.isXML && mapper.type.name === "Sequence" && !mapper.xmlIsWrapped) {
@@ -8479,7 +10610,7 @@ var Serializer = /** @class */ (function () {
                  * both header ("$" i.e., XML_ATTRKEY) and body ("#" i.e., XML_CHARKEY) properties,
                  * then just reduce the responseBody value to the body ("#" i.e., XML_CHARKEY) property.
                  */
-                if (castResponseBody[serializer_common/* XML_ATTRKEY */.c] != undefined &&
+                if (castResponseBody[XML_ATTRKEY] != undefined &&
                     castResponseBody[xmlCharKey] != undefined) {
                     responseBody = castResponseBody[xmlCharKey];
                 }
@@ -8611,7 +10742,7 @@ function serializeBasicTypes(typeName, objectName, value) {
             }
         }
         else if (typeName.match(/^Uuid$/i) !== null) {
-            if (!(typeof value.valueOf() === "string" && utils/* isValidUuid */.TP(value))) {
+            if (!(typeof value.valueOf() === "string" && isValidUuid(value))) {
                 throw new Error(objectName + " with value \"" + value + "\" must be of type string and a valid uuid.");
             }
         }
@@ -8703,7 +10834,7 @@ function serializeDateTypes(typeName, value, objectName) {
             value = dateToUnixTime(value);
         }
         else if (typeName.match(/^TimeSpan$/i) !== null) {
-            if (!utils/* isDuration */._9(value)) {
+            if (!isDuration(value)) {
                 throw new Error(objectName + " must be a string in ISO 8601 format. Instead was \"" + value + "\".");
             }
         }
@@ -8729,12 +10860,12 @@ function serializeSequenceType(serializer, mapper, object, objectName, isXml, op
                 : "xmlns";
             if (elementType.type.name === "Composite") {
                 tempArray[i] = (0,tslib_es6/* __assign */.pi)({}, serializedValue);
-                tempArray[i][serializer_common/* XML_ATTRKEY */.c] = (_a = {}, _a[xmlnsKey] = elementType.xmlNamespace, _a);
+                tempArray[i][XML_ATTRKEY] = (_a = {}, _a[xmlnsKey] = elementType.xmlNamespace, _a);
             }
             else {
                 tempArray[i] = {};
                 tempArray[i][options.xmlCharKey] = serializedValue;
-                tempArray[i][serializer_common/* XML_ATTRKEY */.c] = (_b = {}, _b[xmlnsKey] = elementType.xmlNamespace, _b);
+                tempArray[i][XML_ATTRKEY] = (_b = {}, _b[xmlnsKey] = elementType.xmlNamespace, _b);
             }
         }
         else {
@@ -8764,7 +10895,7 @@ function serializeDictionaryType(serializer, mapper, object, objectName, isXml, 
     if (isXml && mapper.xmlNamespace) {
         var xmlnsKey = mapper.xmlNamespacePrefix ? "xmlns:" + mapper.xmlNamespacePrefix : "xmlns";
         var result = tempDictionary;
-        result[serializer_common/* XML_ATTRKEY */.c] = (_a = {}, _a[xmlnsKey] = mapper.xmlNamespace, _a);
+        result[XML_ATTRKEY] = (_a = {}, _a[xmlnsKey] = mapper.xmlNamespace, _a);
         return result;
     }
     return tempDictionary;
@@ -8858,7 +10989,7 @@ function serializeCompositeType(serializer, mapper, object, objectName, isXml, o
                     var xmlnsKey = mapper.xmlNamespacePrefix
                         ? "xmlns:" + mapper.xmlNamespacePrefix
                         : "xmlns";
-                    parentObject[serializer_common/* XML_ATTRKEY */.c] = (0,tslib_es6/* __assign */.pi)((0,tslib_es6/* __assign */.pi)({}, parentObject[serializer_common/* XML_ATTRKEY */.c]), (_a = {}, _a[xmlnsKey] = mapper.xmlNamespace, _a));
+                    parentObject[XML_ATTRKEY] = (0,tslib_es6/* __assign */.pi)((0,tslib_es6/* __assign */.pi)({}, parentObject[XML_ATTRKEY]), (_a = {}, _a[xmlnsKey] = mapper.xmlNamespace, _a));
                 }
                 var propertyObjectName = propertyMapper.serializedName !== ""
                     ? objectName + "." + propertyMapper.serializedName
@@ -8877,8 +11008,8 @@ function serializeCompositeType(serializer, mapper, object, objectName, isXml, o
                         // XML_ATTRKEY, i.e., $ is the key attributes are kept under in xml2js.
                         // This keeps things simple while preventing name collision
                         // with names in user documents.
-                        parentObject[serializer_common/* XML_ATTRKEY */.c] = parentObject[serializer_common/* XML_ATTRKEY */.c] || {};
-                        parentObject[serializer_common/* XML_ATTRKEY */.c][propName] = serializedValue;
+                        parentObject[XML_ATTRKEY] = parentObject[XML_ATTRKEY] || {};
+                        parentObject[XML_ATTRKEY][propName] = serializedValue;
                     }
                     else if (isXml && propertyMapper.xmlIsWrapped) {
                         parentObject[propName] = (_b = {}, _b[propertyMapper.xmlElementName] = value, _b);
@@ -8916,22 +11047,22 @@ function getXmlObjectValue(propertyMapper, serializedValue, isXml, options) {
         : "xmlns";
     var xmlNamespace = (_a = {}, _a[xmlnsKey] = propertyMapper.xmlNamespace, _a);
     if (["Composite"].includes(propertyMapper.type.name)) {
-        if (serializedValue[serializer_common/* XML_ATTRKEY */.c]) {
+        if (serializedValue[XML_ATTRKEY]) {
             return serializedValue;
         }
         else {
             var result_1 = (0,tslib_es6/* __assign */.pi)({}, serializedValue);
-            result_1[serializer_common/* XML_ATTRKEY */.c] = xmlNamespace;
+            result_1[XML_ATTRKEY] = xmlNamespace;
             return result_1;
         }
     }
     var result = {};
     result[options.xmlCharKey] = serializedValue;
-    result[serializer_common/* XML_ATTRKEY */.c] = xmlNamespace;
+    result[XML_ATTRKEY] = xmlNamespace;
     return result;
 }
 function isSpecialXmlProperty(propertyName, options) {
-    return [serializer_common/* XML_ATTRKEY */.c, options.xmlCharKey].includes(propertyName);
+    return [XML_ATTRKEY, options.xmlCharKey].includes(propertyName);
 }
 function deserializeCompositeType(serializer, mapper, responseBody, objectName, options) {
     var _a;
@@ -8964,8 +11095,8 @@ function deserializeCompositeType(serializer, mapper, responseBody, objectName, 
             instance[key] = dictionary;
         }
         else if (serializer.isXML) {
-            if (propertyMapper.xmlIsAttribute && responseBody[serializer_common/* XML_ATTRKEY */.c]) {
-                instance[key] = serializer.deserialize(propertyMapper, responseBody[serializer_common/* XML_ATTRKEY */.c][xmlName], propertyObjectName, options);
+            if (propertyMapper.xmlIsAttribute && responseBody[XML_ATTRKEY]) {
+                instance[key] = serializer.deserialize(propertyMapper, responseBody[XML_ATTRKEY][xmlName], propertyObjectName, options);
             }
             else {
                 var propertyName = xmlElementName || xmlName || serializedName;
@@ -9261,7 +11392,7 @@ var xml2jsDefaultOptionsV2 = {
     trim: false,
     normalize: false,
     normalizeTags: false,
-    attrkey: serializer_common/* XML_ATTRKEY */.c,
+    attrkey: XML_ATTRKEY,
     explicitArray: true,
     ignoreAttrs: false,
     mergeAttrs: false,
@@ -9314,7 +11445,7 @@ function stringifyXML(obj, opts) {
     var _a;
     if (opts === void 0) { opts = {}; }
     xml2jsBuilderSettings.rootName = opts.rootName;
-    xml2jsBuilderSettings.charkey = (_a = opts.xmlCharKey) !== null && _a !== void 0 ? _a : serializer_common/* XML_CHARKEY */.I;
+    xml2jsBuilderSettings.charkey = (_a = opts.xmlCharKey) !== null && _a !== void 0 ? _a : XML_CHARKEY;
     var builder = new xml2js.Builder(xml2jsBuilderSettings);
     return builder.buildObject(obj);
 }
@@ -9327,7 +11458,7 @@ function parseXML(str, opts) {
     var _a;
     if (opts === void 0) { opts = {}; }
     xml2jsParserSettings.explicitRoot = !!opts.includeRoot;
-    xml2jsParserSettings.charkey = (_a = opts.xmlCharKey) !== null && _a !== void 0 ? _a : serializer_common/* XML_CHARKEY */.I;
+    xml2jsParserSettings.charkey = (_a = opts.xmlCharKey) !== null && _a !== void 0 ? _a : XML_CHARKEY;
     var xmlParser = new xml2js.Parser(xml2jsParserSettings);
     return new Promise(function (resolve, reject) {
         if (!str) {
@@ -9388,7 +11519,7 @@ var DeserializationPolicy = /** @class */ (function (_super) {
             (deserializationContentTypes && deserializationContentTypes.json) || defaultJsonContentTypes;
         _this.xmlContentTypes =
             (deserializationContentTypes && deserializationContentTypes.xml) || defaultXmlContentTypes;
-        _this.xmlCharKey = (_a = parsingOptions.xmlCharKey) !== null && _a !== void 0 ? _a : serializer_common/* XML_CHARKEY */.I;
+        _this.xmlCharKey = (_a = parsingOptions.xmlCharKey) !== null && _a !== void 0 ? _a : XML_CHARKEY;
         return _this;
     }
     DeserializationPolicy.prototype.sendRequest = function (request) {
@@ -9404,7 +11535,7 @@ var DeserializationPolicy = /** @class */ (function (_super) {
         });
     };
     return DeserializationPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 function getOperationResponse(parsedResponse) {
     var result;
@@ -9441,7 +11572,7 @@ function deserializeResponseBody(jsonContentTypes, xmlContentTypes, response, op
     var updatedOptions = {
         rootName: (_a = options.rootName) !== null && _a !== void 0 ? _a : "",
         includeRoot: (_b = options.includeRoot) !== null && _b !== void 0 ? _b : false,
-        xmlCharKey: (_c = options.xmlCharKey) !== null && _c !== void 0 ? _c : serializer_common/* XML_CHARKEY */.I
+        xmlCharKey: (_c = options.xmlCharKey) !== null && _c !== void 0 ? _c : XML_CHARKEY
     };
     return parse(jsonContentTypes, xmlContentTypes, response, updatedOptions).then(function (parsedResponse) {
         if (!shouldDeserializeResponse(parsedResponse)) {
@@ -9703,7 +11834,7 @@ var ExponentialRetryPolicy = /** @class */ (function (_super) {
             .catch(function (error) { return retry(_this, request, error.response, undefined, error); });
     };
     return ExponentialRetryPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 function retry(policy, request, response, retryData, requestError) {
     return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function () {
@@ -9732,7 +11863,7 @@ function retry(policy, request, response, retryData, requestError) {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 4, , 5]);
-                    return [4 /*yield*/, utils/* delay */.gw(retryData.retryInterval)];
+                    return [4 /*yield*/, delay(retryData.retryInterval)];
                 case 2:
                     _a.sent();
                     return [4 /*yield*/, policy._nextPolicy.sendRequest(request.clone())];
@@ -9786,7 +11917,7 @@ var GenerateClientRequestIdPolicy = /** @class */ (function (_super) {
         return this._nextPolicy.sendRequest(request);
     };
     return GenerateClientRequestIdPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 //# sourceMappingURL=generateClientRequestIdPolicy.js.map
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/httpHeaders.js
@@ -9930,8 +12061,77 @@ var HttpHeaders = /** @class */ (function () {
 }());
 
 //# sourceMappingURL=httpHeaders.js.map
-// EXTERNAL MODULE: ./node_modules/@azure/core-http/es/src/util/constants.js
-var constants = __webpack_require__(4809);
+;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/util/constants.js
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+var constants_Constants = {
+    /**
+     * The core-http version
+     */
+    coreHttpVersion: "1.2.4",
+    /**
+     * Specifies HTTP.
+     */
+    HTTP: "http:",
+    /**
+     * Specifies HTTPS.
+     */
+    HTTPS: "https:",
+    /**
+     * Specifies HTTP Proxy.
+     */
+    HTTP_PROXY: "HTTP_PROXY",
+    /**
+     * Specifies HTTPS Proxy.
+     */
+    HTTPS_PROXY: "HTTPS_PROXY",
+    /**
+     * Specifies NO Proxy.
+     */
+    NO_PROXY: "NO_PROXY",
+    /**
+     * Specifies ALL Proxy.
+     */
+    ALL_PROXY: "ALL_PROXY",
+    HttpConstants: {
+        /**
+         * Http Verbs
+         */
+        HttpVerbs: {
+            PUT: "PUT",
+            GET: "GET",
+            DELETE: "DELETE",
+            POST: "POST",
+            MERGE: "MERGE",
+            HEAD: "HEAD",
+            PATCH: "PATCH"
+        },
+        StatusCodes: {
+            TooManyRequests: 429
+        }
+    },
+    /**
+     * Defines constants for use with HTTP headers.
+     */
+    HeaderConstants: {
+        /**
+         * The Authorization header.
+         */
+        AUTHORIZATION: "authorization",
+        AUTHORIZATION_SCHEME: "Bearer",
+        /**
+         * The Retry-After response-header field can be used with a 503 (Service
+         * Unavailable) or 349 (Too Many Requests) responses to indicate how long
+         * the service is expected to be unavailable to the requesting client.
+         */
+        RETRY_AFTER: "Retry-After",
+        /**
+         * The UserAgent header.
+         */
+        USER_AGENT: "User-Agent"
+    }
+};
+//# sourceMappingURL=constants.js.map
 // EXTERNAL MODULE: external "os"
 var external_os_ = __webpack_require__(2087);
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/policies/msRestUserAgentPolicy.js
@@ -9940,7 +12140,7 @@ var external_os_ = __webpack_require__(2087);
 
 
 function getDefaultUserAgentKey() {
-    return constants/* Constants.HeaderConstants.USER_AGENT */.g.HeaderConstants.USER_AGENT;
+    return constants_Constants.HeaderConstants.USER_AGENT;
 }
 function getPlatformSpecificData() {
     var runtimeInfo = {
@@ -9965,7 +12165,7 @@ function getPlatformSpecificData() {
 function getRuntimeInfo() {
     var msRestRuntime = {
         key: "core-http",
-        value: constants/* Constants.coreHttpVersion */.g.coreHttpVersion
+        value: constants_Constants.coreHttpVersion
     };
     return [msRestRuntime];
 }
@@ -10022,7 +12222,7 @@ var UserAgentPolicy = /** @class */ (function (_super) {
         }
     };
     return UserAgentPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 //# sourceMappingURL=userAgentPolicy.js.map
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/policies/redirectPolicy.js
@@ -10062,7 +12262,7 @@ var RedirectPolicy = /** @class */ (function (_super) {
             .then(function (response) { return handleRedirect(_this, response, 0); });
     };
     return RedirectPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 function handleRedirect(policy, response, currentRetries) {
     var request = response.request, status = response.status;
@@ -10074,7 +12274,7 @@ function handleRedirect(policy, response, currentRetries) {
             (status === 303 && request.method === "POST") ||
             status === 307) &&
         (!policy.maxRetries || currentRetries < policy.maxRetries)) {
-        var builder = src_url/* URLBuilder.parse */.UK.parse(request.url);
+        var builder = URLBuilder.parse(request.url);
         builder.setPath(locationHeader);
         request.url = builder.toString();
         // POST request with Status code 303 should be converted into a
@@ -10119,7 +12319,7 @@ var RPRegistrationPolicy = /** @class */ (function (_super) {
             .then(function (response) { return registerIfNeeded(_this, request, response); });
     };
     return RPRegistrationPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 function registerIfNeeded(policy, request, response) {
     if (response.status === 409) {
@@ -10135,7 +12335,7 @@ function registerIfNeeded(policy, request, response) {
                 if (registrationStatus) {
                     // Retry the original request. We have to change the x-ms-client-request-id
                     // otherwise Azure endpoint will return the initial 409 (cached) response.
-                    request.headers.set("x-ms-client-request-id", utils/* generateUuid */.Rl());
+                    request.headers.set("x-ms-client-request-id", generateUuid());
                     return policy._nextPolicy.sendRequest(request.clone());
                 }
                 return response;
@@ -10158,7 +12358,7 @@ function getRequestEssentials(originalRequest, reuseUrlToo) {
     }
     // We have to change the x-ms-client-request-id otherwise Azure endpoint
     // will return the initial 409 (cached) response.
-    reqOptions.headers.set("x-ms-client-request-id", utils/* generateUuid */.Rl());
+    reqOptions.headers.set("x-ms-client-request-id", generateUuid());
     // Set content-type to application/json
     reqOptions.headers.set("Content-Type", "application/json; charset=utf-8");
     return reqOptions;
@@ -10249,14 +12449,237 @@ function getRegistrationStatus(policy, url, originalRequest) {
             return true;
         }
         else {
-            return utils/* delay */.gw(policy._retryTimeout * 1000)
+            return delay(policy._retryTimeout * 1000)
                 .then(function () { return getRegistrationStatus(policy, url, originalRequest); });
         }
     });
 }
 //# sourceMappingURL=rpRegistrationPolicy.js.map
-// EXTERNAL MODULE: ./node_modules/@azure/core-http/es/src/policies/bearerTokenAuthenticationPolicy.js
-var bearerTokenAuthenticationPolicy = __webpack_require__(7879);
+;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/policies/bearerTokenAuthenticationPolicy.js
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+
+
+
+// Default options for the cycler if none are provided
+var DEFAULT_CYCLER_OPTIONS = {
+    forcedRefreshWindowInMs: 1000,
+    retryIntervalInMs: 3000,
+    refreshWindowInMs: 1000 * 60 * 2 // Start refreshing 2m before expiry
+};
+/**
+ * Converts an an unreliable access token getter (which may resolve with null)
+ * into an AccessTokenGetter by retrying the unreliable getter in a regular
+ * interval.
+ *
+ * @param getAccessToken - a function that produces a promise of an access
+ * token that may fail by returning null
+ * @param retryIntervalInMs - the time (in milliseconds) to wait between retry
+ * attempts
+ * @param timeoutInMs - the timestamp after which the refresh attempt will fail,
+ * throwing an exception
+ * @returns - a promise that, if it resolves, will resolve with an access token
+ */
+function beginRefresh(getAccessToken, retryIntervalInMs, timeoutInMs) {
+    return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function () {
+        // This wrapper handles exceptions gracefully as long as we haven't exceeded
+        // the timeout.
+        function tryGetAccessToken() {
+            return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function () {
+                var _a, finalToken;
+                return (0,tslib_es6/* __generator */.Jh)(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            if (!(Date.now() < timeoutInMs)) return [3 /*break*/, 5];
+                            _b.label = 1;
+                        case 1:
+                            _b.trys.push([1, 3, , 4]);
+                            return [4 /*yield*/, getAccessToken()];
+                        case 2: return [2 /*return*/, _b.sent()];
+                        case 3:
+                            _a = _b.sent();
+                            return [2 /*return*/, null];
+                        case 4: return [3 /*break*/, 7];
+                        case 5: return [4 /*yield*/, getAccessToken()];
+                        case 6:
+                            finalToken = _b.sent();
+                            // Timeout is up, so throw if it's still null
+                            if (finalToken === null) {
+                                throw new Error("Failed to refresh access token.");
+                            }
+                            return [2 /*return*/, finalToken];
+                        case 7: return [2 /*return*/];
+                    }
+                });
+            });
+        }
+        var token;
+        return (0,tslib_es6/* __generator */.Jh)(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, tryGetAccessToken()];
+                case 1:
+                    token = _a.sent();
+                    _a.label = 2;
+                case 2:
+                    if (!(token === null)) return [3 /*break*/, 5];
+                    return [4 /*yield*/, delay(retryIntervalInMs)];
+                case 3:
+                    _a.sent();
+                    return [4 /*yield*/, tryGetAccessToken()];
+                case 4:
+                    token = _a.sent();
+                    return [3 /*break*/, 2];
+                case 5: return [2 /*return*/, token];
+            }
+        });
+    });
+}
+/**
+ * Creates a token cycler from a credential, scopes, and optional settings.
+ *
+ * A token cycler represents a way to reliably retrieve a valid access token
+ * from a TokenCredential. It will handle initializing the token, refreshing it
+ * when it nears expiration, and synchronizes refresh attempts to avoid
+ * concurrency hazards.
+ *
+ * @param credential - the underlying TokenCredential that provides the access
+ * token
+ * @param scopes - the scopes to request authorization for
+ * @param tokenCyclerOptions - optionally override default settings for the cycler
+ *
+ * @returns - a function that reliably produces a valid access token
+ */
+function createTokenCycler(credential, scopes, tokenCyclerOptions) {
+    var _this = this;
+    var refreshWorker = null;
+    var token = null;
+    var options = (0,tslib_es6/* __assign */.pi)((0,tslib_es6/* __assign */.pi)({}, DEFAULT_CYCLER_OPTIONS), tokenCyclerOptions);
+    /**
+     * This little holder defines several predicates that we use to construct
+     * the rules of refreshing the token.
+     */
+    var cycler = {
+        /**
+         * Produces true if a refresh job is currently in progress.
+         */
+        get isRefreshing() {
+            return refreshWorker !== null;
+        },
+        /**
+         * Produces true if the cycler SHOULD refresh (we are within the refresh
+         * window and not already refreshing)
+         */
+        get shouldRefresh() {
+            var _a;
+            return (!cycler.isRefreshing &&
+                ((_a = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a !== void 0 ? _a : 0) - options.refreshWindowInMs < Date.now());
+        },
+        /**
+         * Produces true if the cycler MUST refresh (null or nearly-expired
+         * token).
+         */
+        get mustRefresh() {
+            return (token === null || token.expiresOnTimestamp - options.forcedRefreshWindowInMs < Date.now());
+        }
+    };
+    /**
+     * Starts a refresh job or returns the existing job if one is already
+     * running.
+     */
+    function refresh(getTokenOptions) {
+        var _a;
+        if (!cycler.isRefreshing) {
+            // We bind `scopes` here to avoid passing it around a lot
+            var tryGetAccessToken = function () {
+                return credential.getToken(scopes, getTokenOptions);
+            };
+            // Take advantage of promise chaining to insert an assignment to `token`
+            // before the refresh can be considered done.
+            refreshWorker = beginRefresh(tryGetAccessToken, options.retryIntervalInMs, 
+            // If we don't have a token, then we should timeout immediately
+            (_a = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a !== void 0 ? _a : Date.now())
+                .then(function (_token) {
+                refreshWorker = null;
+                token = _token;
+                return token;
+            })
+                .catch(function (reason) {
+                // We also should reset the refresher if we enter a failed state.  All
+                // existing awaiters will throw, but subsequent requests will start a
+                // new retry chain.
+                refreshWorker = null;
+                token = null;
+                throw reason;
+            });
+        }
+        return refreshWorker;
+    }
+    return function (tokenOptions) { return (0,tslib_es6/* __awaiter */.mG)(_this, void 0, void 0, function () {
+        return (0,tslib_es6/* __generator */.Jh)(this, function (_a) {
+            //
+            // Simple rules:
+            // - If we MUST refresh, then return the refresh task, blocking
+            //   the pipeline until a token is available.
+            // - If we SHOULD refresh, then run refresh but don't return it
+            //   (we can still use the cached token).
+            // - Return the token, since it's fine if we didn't return in
+            //   step 1.
+            //
+            if (cycler.mustRefresh)
+                return [2 /*return*/, refresh(tokenOptions)];
+            if (cycler.shouldRefresh) {
+                refresh(tokenOptions);
+            }
+            return [2 /*return*/, token];
+        });
+    }); };
+}
+// #endregion
+/**
+ * Creates a new factory for a RequestPolicy that applies a bearer token to
+ * the requests' `Authorization` headers.
+ *
+ * @param credential - The TokenCredential implementation that can supply the bearer token.
+ * @param scopes - The scopes for which the bearer token applies.
+ */
+function bearerTokenAuthenticationPolicy(credential, scopes) {
+    // This simple function encapsulates the entire process of reliably retrieving the token
+    var getToken = createTokenCycler(credential, scopes /* , options */);
+    var BearerTokenAuthenticationPolicy = /** @class */ (function (_super) {
+        (0,tslib_es6/* __extends */.ZT)(BearerTokenAuthenticationPolicy, _super);
+        function BearerTokenAuthenticationPolicy(nextPolicy, options) {
+            return _super.call(this, nextPolicy, options) || this;
+        }
+        BearerTokenAuthenticationPolicy.prototype.sendRequest = function (webResource) {
+            return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function () {
+                var token;
+                return (0,tslib_es6/* __generator */.Jh)(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, getToken({
+                                abortSignal: webResource.abortSignal,
+                                tracingOptions: {
+                                    spanOptions: webResource.spanOptions,
+                                    tracingContext: webResource.tracingContext
+                                }
+                            })];
+                        case 1:
+                            token = (_a.sent()).token;
+                            webResource.headers.set(constants_Constants.HeaderConstants.AUTHORIZATION, "Bearer " + token);
+                            return [2 /*return*/, this._nextPolicy.sendRequest(webResource)];
+                    }
+                });
+            });
+        };
+        return BearerTokenAuthenticationPolicy;
+    }(BaseRequestPolicy));
+    return {
+        create: function (nextPolicy, options) {
+            return new BearerTokenAuthenticationPolicy(nextPolicy, options);
+        }
+    };
+}
+//# sourceMappingURL=bearerTokenAuthenticationPolicy.js.map
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/policies/systemErrorRetryPolicy.js
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
@@ -10298,7 +12721,7 @@ var SystemErrorRetryPolicy = /** @class */ (function (_super) {
             .catch(function (error) { return systemErrorRetryPolicy_retry(_this, request, error.response, error); });
     };
     return SystemErrorRetryPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 function systemErrorRetryPolicy_retry(policy, request, operationResponse, err, retryData) {
     return (0,tslib_es6/* __awaiter */.mG)(this, void 0, void 0, function () {
@@ -10323,7 +12746,7 @@ function systemErrorRetryPolicy_retry(policy, request, operationResponse, err, r
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, utils/* delay */.gw(retryData.retryInterval)];
+                    return [4 /*yield*/, delay(retryData.retryInterval)];
                 case 2:
                     _a.sent();
                     return [2 /*return*/, policy._nextPolicy.sendRequest(request.clone())];
@@ -10403,7 +12826,7 @@ var WebResource = /** @class */ (function () {
         this.proxySettings = proxySettings;
         this.keepAlive = keepAlive;
         this.decompressResponse = decompressResponse;
-        this.requestId = this.headers.get("x-ms-client-request-id") || (0,utils/* generateUuid */.Rl)();
+        this.requestId = this.headers.get("x-ms-client-request-id") || generateUuid();
     }
     /**
      * Validates that the required properties such as method, url, headers["Content-Type"],
@@ -10643,9 +13066,9 @@ function loadEnvironmentProxyValue() {
     if (!process) {
         return undefined;
     }
-    var httpsProxy = (0,utils/* getEnvironmentValue */.v5)(constants/* Constants.HTTPS_PROXY */.g.HTTPS_PROXY);
-    var allProxy = (0,utils/* getEnvironmentValue */.v5)(constants/* Constants.ALL_PROXY */.g.ALL_PROXY);
-    var httpProxy = (0,utils/* getEnvironmentValue */.v5)(constants/* Constants.HTTP_PROXY */.g.HTTP_PROXY);
+    var httpsProxy = getEnvironmentValue(constants_Constants.HTTPS_PROXY);
+    var allProxy = getEnvironmentValue(constants_Constants.ALL_PROXY);
+    var httpProxy = getEnvironmentValue(constants_Constants.HTTP_PROXY);
     return httpsProxy || allProxy || httpProxy;
 }
 // Check whether the host of a given `uri` is in the noProxyList.
@@ -10655,7 +13078,7 @@ function isBypassed(uri) {
     if (noProxyList.length === 0) {
         return false;
     }
-    var host = src_url/* URLBuilder.parse */.UK.parse(uri).getHost();
+    var host = URLBuilder.parse(uri).getHost();
     if (byPassedList.has(host)) {
         return byPassedList.get(host);
     }
@@ -10687,7 +13110,7 @@ function isBypassed(uri) {
  * @internal
  */
 function loadNoProxy() {
-    var noProxy = (0,utils/* getEnvironmentValue */.v5)(constants/* Constants.NO_PROXY */.g.NO_PROXY);
+    var noProxy = getEnvironmentValue(constants_Constants.NO_PROXY);
     if (noProxy) {
         return noProxy
             .split(",")
@@ -10704,7 +13127,7 @@ function getDefaultProxySettings(proxyUrl) {
         }
     }
     var _a = extractAuthFromUrl(proxyUrl), username = _a.username, password = _a.password, urlWithoutAuth = _a.urlWithoutAuth;
-    var parsedUrl = src_url/* URLBuilder.parse */.UK.parse(urlWithoutAuth);
+    var parsedUrl = URLBuilder.parse(urlWithoutAuth);
     var schema = parsedUrl.getScheme() ? parsedUrl.getScheme() + "://" : "";
     return {
         host: schema + parsedUrl.getHost(),
@@ -10756,7 +13179,7 @@ var ProxyPolicy = /** @class */ (function (_super) {
         return this._nextPolicy.sendRequest(request);
     };
     return ProxyPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 //# sourceMappingURL=proxyPolicy.js.map
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/policies/throttlingRetryPolicy.js
@@ -10766,7 +13189,7 @@ var ProxyPolicy = /** @class */ (function (_super) {
 
 
 
-var StatusCodes = constants/* Constants.HttpConstants.StatusCodes */.g.HttpConstants.StatusCodes;
+var StatusCodes = constants_Constants.HttpConstants.StatusCodes;
 function throttlingRetryPolicy() {
     return {
         create: function (nextPolicy, options) {
@@ -10807,11 +13230,11 @@ var ThrottlingRetryPolicy = /** @class */ (function (_super) {
             var retryAfterHeader, delayInMs;
             var _this = this;
             return (0,tslib_es6/* __generator */.Jh)(this, function (_a) {
-                retryAfterHeader = httpResponse.headers.get(constants/* Constants.HeaderConstants.RETRY_AFTER */.g.HeaderConstants.RETRY_AFTER);
+                retryAfterHeader = httpResponse.headers.get(constants_Constants.HeaderConstants.RETRY_AFTER);
                 if (retryAfterHeader) {
                     delayInMs = ThrottlingRetryPolicy.parseRetryAfterHeader(retryAfterHeader);
                     if (delayInMs) {
-                        return [2 /*return*/, (0,utils/* delay */.gw)(delayInMs).then(function (_) { return _this._nextPolicy.sendRequest(httpRequest); })];
+                        return [2 /*return*/, delay(delayInMs).then(function (_) { return _this._nextPolicy.sendRequest(httpRequest); })];
                     }
                 }
                 return [2 /*return*/, httpResponse];
@@ -10839,7 +13262,7 @@ var ThrottlingRetryPolicy = /** @class */ (function (_super) {
         }
     };
     return ThrottlingRetryPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 //# sourceMappingURL=throttlingRetryPolicy.js.map
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/policies/signingPolicy.js
@@ -10871,7 +13294,7 @@ var SigningPolicy = /** @class */ (function (_super) {
         });
     };
     return SigningPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 //# sourceMappingURL=signingPolicy.js.map
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/policies/keepAlivePolicy.js
@@ -10921,7 +13344,7 @@ var KeepAlivePolicy = /** @class */ (function (_super) {
         });
     };
     return KeepAlivePolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 //# sourceMappingURL=keepAlivePolicy.js.map
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/node_modules/@azure/core-tracing/dist-esm/src/tracers/noop/noOpSpan.js
@@ -11358,7 +13781,7 @@ var TracingPolicy = /** @class */ (function (_super) {
                         if (!request.tracingContext) {
                             return [2 /*return*/, this._nextPolicy.sendRequest(request)];
                         }
-                        path = src_url/* URLBuilder.parse */.UK.parse(request.url).getPath() || "/";
+                        path = URLBuilder.parse(request.url).getPath() || "/";
                         span = createSpan(path, {
                             tracingOptions: {
                                 spanOptions: (0,tslib_es6/* __assign */.pi)((0,tslib_es6/* __assign */.pi)({}, request.spanOptions), { kind: SpanKind.CLIENT }),
@@ -11406,7 +13829,7 @@ var TracingPolicy = /** @class */ (function (_super) {
         });
     };
     return TracingPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 //# sourceMappingURL=tracingPolicy.js.map
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/policies/disableResponseDecompressionPolicy.js
@@ -11457,7 +13880,7 @@ var DisableResponseDecompressionPolicy = /** @class */ (function (_super) {
         });
     };
     return DisableResponseDecompressionPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 
 //# sourceMappingURL=disableResponseDecompressionPolicy.js.map
 ;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/policies/ndJsonPolicy.js
@@ -11504,7 +13927,7 @@ var NdJsonPolicy = /** @class */ (function (_super) {
         });
     };
     return NdJsonPolicy;
-}(requestPolicy/* BaseRequestPolicy */.U));
+}(BaseRequestPolicy));
 //# sourceMappingURL=ndJsonPolicy.js.map
 // EXTERNAL MODULE: external "url"
 var external_url_ = __webpack_require__(8835);
@@ -11757,7 +14180,7 @@ var tunnel = __webpack_require__(2131);
 
 
 function createProxyAgent(requestUrl, proxySettings, headers) {
-    var host = src_url/* URLBuilder.parse */.UK.parse(proxySettings.host).getHost();
+    var host = URLBuilder.parse(proxySettings.host).getHost();
     if (!host) {
         throw new Error("Expecting a non-empty host in proxy settings.");
     }
@@ -11783,7 +14206,7 @@ function createProxyAgent(requestUrl, proxySettings, headers) {
     return proxyAgent;
 }
 function isUrlHttps(url) {
-    var urlScheme = src_url/* URLBuilder.parse */.UK.parse(url).getScheme() || "";
+    var urlScheme = URLBuilder.parse(url).getScheme() || "";
     return urlScheme.toLowerCase() === "https";
 }
 function createTunnel(isRequestHttps, isProxyHttps, tunnelOptions) {
@@ -12005,7 +14428,7 @@ var ServiceClient = /** @class */ (function () {
         }
         this._withCredentials = options.withCredentials || false;
         this._httpClient = options.httpClient || getCachedDefaultHttpClient();
-        this._requestPolicyOptions = new requestPolicy/* RequestPolicyOptions */._(options.httpPipelineLogger);
+        this._requestPolicyOptions = new RequestPolicyOptions(options.httpPipelineLogger);
         var requestPolicyFactories;
         if (Array.isArray(options.requestPolicyFactories)) {
             log_logger.info("ServiceClient: using custom request policies");
@@ -12033,7 +14456,7 @@ var ServiceClient = /** @class */ (function () {
                                 throw new Error("When using credential, the ServiceClient must contain a baseUri or a credentialScopes in ServiceClientOptions. Unable to create a bearerTokenAuthenticationPolicy");
                             }
                             if (bearerTokenPolicyFactory === undefined || bearerTokenPolicyFactory === null) {
-                                bearerTokenPolicyFactory = (0,bearerTokenAuthenticationPolicy/* bearerTokenAuthenticationPolicy */.v)(credentials, credentialScopes);
+                                bearerTokenPolicyFactory = bearerTokenAuthenticationPolicy(credentials, credentialScopes);
                             }
                             return bearerTokenPolicyFactory.create(nextPolicy, createOptions);
                         }
@@ -12118,7 +14541,7 @@ var ServiceClient = /** @class */ (function () {
                         }
                         httpRequest.method = operationSpec.httpMethod;
                         httpRequest.operationSpec = operationSpec;
-                        requestUrl = src_url/* URLBuilder.parse */.UK.parse(baseUri);
+                        requestUrl = URLBuilder.parse(baseUri);
                         if (operationSpec.path) {
                             requestUrl.appendPath(operationSpec.path);
                         }
@@ -12293,7 +14716,7 @@ function serializeRequestBody(serviceClient, httpRequest, operationArguments, op
     var updatedOptions = {
         rootName: (_c = serializerOptions.rootName) !== null && _c !== void 0 ? _c : "",
         includeRoot: (_d = serializerOptions.includeRoot) !== null && _d !== void 0 ? _d : false,
-        xmlCharKey: (_e = serializerOptions.xmlCharKey) !== null && _e !== void 0 ? _e : serializer_common/* XML_CHARKEY */.I
+        xmlCharKey: (_e = serializerOptions.xmlCharKey) !== null && _e !== void 0 ? _e : XML_CHARKEY
     };
     var xmlCharKey = serializerOptions.xmlCharKey;
     if (operationSpec.requestBody && operationSpec.requestBody.mapper) {
@@ -12310,7 +14733,7 @@ function serializeRequestBody(serviceClient, httpRequest, operationArguments, op
                     var xmlnsKey = xmlNamespacePrefix ? "xmlns:" + xmlNamespacePrefix : "xmlns";
                     var value = getXmlValueWithNamespace(xmlNamespace, xmlnsKey, typeName, httpRequest.body, updatedOptions);
                     if (typeName === MapperType.Sequence) {
-                        httpRequest.body = stringifyXML(utils/* prepareXMLRootList */.WQ(value, xmlElementName || xmlName || serializedName, xmlnsKey, xmlNamespace), {
+                        httpRequest.body = stringifyXML(prepareXMLRootList(value, xmlElementName || xmlName || serializedName, xmlnsKey, xmlNamespace), {
                             rootName: xmlName || serializedName,
                             xmlCharKey: xmlCharKey
                         });
@@ -12359,7 +14782,7 @@ function getXmlValueWithNamespace(xmlNamespace, xmlnsKey, typeName, serializedVa
     if (xmlNamespace && !["Composite", "Sequence", "Dictionary"].includes(typeName)) {
         var result = {};
         result[options.xmlCharKey] = serializedValue;
-        result[serializer_common/* XML_ATTRKEY */.c] = (_a = {}, _a[xmlnsKey] = xmlNamespace, _a);
+        result[XML_ATTRKEY] = (_a = {}, _a[xmlnsKey] = xmlNamespace, _a);
         return result;
     }
     return serializedValue;
@@ -12398,7 +14821,7 @@ function createDefaultRequestPolicyFactories(authPolicyFactory, options) {
         factories.push(throttlingRetryPolicy());
     }
     factories.push(deserializationPolicy(options.deserializationContentTypes));
-    if (utils/* isNode */.UG) {
+    if (isNode) {
         factories.push(proxyPolicy(options.proxySettings));
     }
     factories.push(logPolicy({ logger: log_logger.info }));
@@ -12424,7 +14847,7 @@ function createPipelineFromOptions(pipelineOptions, authPolicyFactory) {
     var keepAliveOptions = (0,tslib_es6/* __assign */.pi)((0,tslib_es6/* __assign */.pi)({}, DefaultKeepAliveOptions), pipelineOptions.keepAliveOptions);
     var retryOptions = (0,tslib_es6/* __assign */.pi)((0,tslib_es6/* __assign */.pi)({}, DefaultRetryOptions), pipelineOptions.retryOptions);
     var redirectOptions = (0,tslib_es6/* __assign */.pi)((0,tslib_es6/* __assign */.pi)({}, DefaultRedirectOptions), pipelineOptions.redirectOptions);
-    if (utils/* isNode */.UG) {
+    if (isNode) {
         requestPolicyFactories.push(proxyPolicy(pipelineOptions.proxyOptions));
     }
     var deserializationOptions = (0,tslib_es6/* __assign */.pi)((0,tslib_es6/* __assign */.pi)({}, DefaultDeserializationOptions), pipelineOptions.deserializationOptions);
@@ -12437,7 +14860,7 @@ function createPipelineFromOptions(pipelineOptions, authPolicyFactory) {
         requestPolicyFactories.push(authPolicyFactory);
     }
     requestPolicyFactories.push(logPolicy(loggingOptions));
-    if (utils/* isNode */.UG && pipelineOptions.decompressResponse === false) {
+    if (isNode && pipelineOptions.decompressResponse === false) {
         requestPolicyFactories.push(disableResponseDecompressionPolicy());
     }
     return {
@@ -12573,7 +14996,7 @@ function flattenResponse(_response, responseSpec) {
     }
     if (bodyMapper ||
         _response.request.method === "HEAD" ||
-        utils/* isPrimitiveType */.ty(_response.parsedBody)) {
+        isPrimitiveType(_response.parsedBody)) {
         // primitive body types and HEAD booleans
         return addOperationResponse((0,tslib_es6/* __assign */.pi)((0,tslib_es6/* __assign */.pi)({}, parsedHeaders), { body: _response.parsedBody }));
     }
@@ -21877,1300 +24300,6 @@ function isTokenCredential(credential) {
 
 /***/ }),
 
-/***/ 7879:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "v": () => (/* binding */ bearerTokenAuthenticationPolicy)
-/* harmony export */ });
-/* unused harmony export DEFAULT_CYCLER_OPTIONS */
-/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(655);
-/* harmony import */ var _policies_requestPolicy__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(72);
-/* harmony import */ var _util_constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4809);
-/* harmony import */ var _util_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(912);
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
-
-
-
-// Default options for the cycler if none are provided
-var DEFAULT_CYCLER_OPTIONS = {
-    forcedRefreshWindowInMs: 1000,
-    retryIntervalInMs: 3000,
-    refreshWindowInMs: 1000 * 60 * 2 // Start refreshing 2m before expiry
-};
-/**
- * Converts an an unreliable access token getter (which may resolve with null)
- * into an AccessTokenGetter by retrying the unreliable getter in a regular
- * interval.
- *
- * @param getAccessToken - a function that produces a promise of an access
- * token that may fail by returning null
- * @param retryIntervalInMs - the time (in milliseconds) to wait between retry
- * attempts
- * @param timeoutInMs - the timestamp after which the refresh attempt will fail,
- * throwing an exception
- * @returns - a promise that, if it resolves, will resolve with an access token
- */
-function beginRefresh(getAccessToken, retryIntervalInMs, timeoutInMs) {
-    return (0,tslib__WEBPACK_IMPORTED_MODULE_0__/* .__awaiter */ .mG)(this, void 0, void 0, function () {
-        // This wrapper handles exceptions gracefully as long as we haven't exceeded
-        // the timeout.
-        function tryGetAccessToken() {
-            return (0,tslib__WEBPACK_IMPORTED_MODULE_0__/* .__awaiter */ .mG)(this, void 0, void 0, function () {
-                var _a, finalToken;
-                return (0,tslib__WEBPACK_IMPORTED_MODULE_0__/* .__generator */ .Jh)(this, function (_b) {
-                    switch (_b.label) {
-                        case 0:
-                            if (!(Date.now() < timeoutInMs)) return [3 /*break*/, 5];
-                            _b.label = 1;
-                        case 1:
-                            _b.trys.push([1, 3, , 4]);
-                            return [4 /*yield*/, getAccessToken()];
-                        case 2: return [2 /*return*/, _b.sent()];
-                        case 3:
-                            _a = _b.sent();
-                            return [2 /*return*/, null];
-                        case 4: return [3 /*break*/, 7];
-                        case 5: return [4 /*yield*/, getAccessToken()];
-                        case 6:
-                            finalToken = _b.sent();
-                            // Timeout is up, so throw if it's still null
-                            if (finalToken === null) {
-                                throw new Error("Failed to refresh access token.");
-                            }
-                            return [2 /*return*/, finalToken];
-                        case 7: return [2 /*return*/];
-                    }
-                });
-            });
-        }
-        var token;
-        return (0,tslib__WEBPACK_IMPORTED_MODULE_0__/* .__generator */ .Jh)(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, tryGetAccessToken()];
-                case 1:
-                    token = _a.sent();
-                    _a.label = 2;
-                case 2:
-                    if (!(token === null)) return [3 /*break*/, 5];
-                    return [4 /*yield*/, (0,_util_utils__WEBPACK_IMPORTED_MODULE_1__/* .delay */ .gw)(retryIntervalInMs)];
-                case 3:
-                    _a.sent();
-                    return [4 /*yield*/, tryGetAccessToken()];
-                case 4:
-                    token = _a.sent();
-                    return [3 /*break*/, 2];
-                case 5: return [2 /*return*/, token];
-            }
-        });
-    });
-}
-/**
- * Creates a token cycler from a credential, scopes, and optional settings.
- *
- * A token cycler represents a way to reliably retrieve a valid access token
- * from a TokenCredential. It will handle initializing the token, refreshing it
- * when it nears expiration, and synchronizes refresh attempts to avoid
- * concurrency hazards.
- *
- * @param credential - the underlying TokenCredential that provides the access
- * token
- * @param scopes - the scopes to request authorization for
- * @param tokenCyclerOptions - optionally override default settings for the cycler
- *
- * @returns - a function that reliably produces a valid access token
- */
-function createTokenCycler(credential, scopes, tokenCyclerOptions) {
-    var _this = this;
-    var refreshWorker = null;
-    var token = null;
-    var options = (0,tslib__WEBPACK_IMPORTED_MODULE_0__/* .__assign */ .pi)((0,tslib__WEBPACK_IMPORTED_MODULE_0__/* .__assign */ .pi)({}, DEFAULT_CYCLER_OPTIONS), tokenCyclerOptions);
-    /**
-     * This little holder defines several predicates that we use to construct
-     * the rules of refreshing the token.
-     */
-    var cycler = {
-        /**
-         * Produces true if a refresh job is currently in progress.
-         */
-        get isRefreshing() {
-            return refreshWorker !== null;
-        },
-        /**
-         * Produces true if the cycler SHOULD refresh (we are within the refresh
-         * window and not already refreshing)
-         */
-        get shouldRefresh() {
-            var _a;
-            return (!cycler.isRefreshing &&
-                ((_a = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a !== void 0 ? _a : 0) - options.refreshWindowInMs < Date.now());
-        },
-        /**
-         * Produces true if the cycler MUST refresh (null or nearly-expired
-         * token).
-         */
-        get mustRefresh() {
-            return (token === null || token.expiresOnTimestamp - options.forcedRefreshWindowInMs < Date.now());
-        }
-    };
-    /**
-     * Starts a refresh job or returns the existing job if one is already
-     * running.
-     */
-    function refresh(getTokenOptions) {
-        var _a;
-        if (!cycler.isRefreshing) {
-            // We bind `scopes` here to avoid passing it around a lot
-            var tryGetAccessToken = function () {
-                return credential.getToken(scopes, getTokenOptions);
-            };
-            // Take advantage of promise chaining to insert an assignment to `token`
-            // before the refresh can be considered done.
-            refreshWorker = beginRefresh(tryGetAccessToken, options.retryIntervalInMs, 
-            // If we don't have a token, then we should timeout immediately
-            (_a = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a !== void 0 ? _a : Date.now())
-                .then(function (_token) {
-                refreshWorker = null;
-                token = _token;
-                return token;
-            })
-                .catch(function (reason) {
-                // We also should reset the refresher if we enter a failed state.  All
-                // existing awaiters will throw, but subsequent requests will start a
-                // new retry chain.
-                refreshWorker = null;
-                token = null;
-                throw reason;
-            });
-        }
-        return refreshWorker;
-    }
-    return function (tokenOptions) { return (0,tslib__WEBPACK_IMPORTED_MODULE_0__/* .__awaiter */ .mG)(_this, void 0, void 0, function () {
-        return (0,tslib__WEBPACK_IMPORTED_MODULE_0__/* .__generator */ .Jh)(this, function (_a) {
-            //
-            // Simple rules:
-            // - If we MUST refresh, then return the refresh task, blocking
-            //   the pipeline until a token is available.
-            // - If we SHOULD refresh, then run refresh but don't return it
-            //   (we can still use the cached token).
-            // - Return the token, since it's fine if we didn't return in
-            //   step 1.
-            //
-            if (cycler.mustRefresh)
-                return [2 /*return*/, refresh(tokenOptions)];
-            if (cycler.shouldRefresh) {
-                refresh(tokenOptions);
-            }
-            return [2 /*return*/, token];
-        });
-    }); };
-}
-// #endregion
-/**
- * Creates a new factory for a RequestPolicy that applies a bearer token to
- * the requests' `Authorization` headers.
- *
- * @param credential - The TokenCredential implementation that can supply the bearer token.
- * @param scopes - The scopes for which the bearer token applies.
- */
-function bearerTokenAuthenticationPolicy(credential, scopes) {
-    // This simple function encapsulates the entire process of reliably retrieving the token
-    var getToken = createTokenCycler(credential, scopes /* , options */);
-    var BearerTokenAuthenticationPolicy = /** @class */ (function (_super) {
-        (0,tslib__WEBPACK_IMPORTED_MODULE_0__/* .__extends */ .ZT)(BearerTokenAuthenticationPolicy, _super);
-        function BearerTokenAuthenticationPolicy(nextPolicy, options) {
-            return _super.call(this, nextPolicy, options) || this;
-        }
-        BearerTokenAuthenticationPolicy.prototype.sendRequest = function (webResource) {
-            return (0,tslib__WEBPACK_IMPORTED_MODULE_0__/* .__awaiter */ .mG)(this, void 0, void 0, function () {
-                var token;
-                return (0,tslib__WEBPACK_IMPORTED_MODULE_0__/* .__generator */ .Jh)(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, getToken({
-                                abortSignal: webResource.abortSignal,
-                                tracingOptions: {
-                                    spanOptions: webResource.spanOptions,
-                                    tracingContext: webResource.tracingContext
-                                }
-                            })];
-                        case 1:
-                            token = (_a.sent()).token;
-                            webResource.headers.set(_util_constants__WEBPACK_IMPORTED_MODULE_2__/* .Constants.HeaderConstants.AUTHORIZATION */ .g.HeaderConstants.AUTHORIZATION, "Bearer " + token);
-                            return [2 /*return*/, this._nextPolicy.sendRequest(webResource)];
-                    }
-                });
-            });
-        };
-        return BearerTokenAuthenticationPolicy;
-    }(_policies_requestPolicy__WEBPACK_IMPORTED_MODULE_3__/* .BaseRequestPolicy */ .U));
-    return {
-        create: function (nextPolicy, options) {
-            return new BearerTokenAuthenticationPolicy(nextPolicy, options);
-        }
-    };
-}
-//# sourceMappingURL=bearerTokenAuthenticationPolicy.js.map
-
-/***/ }),
-
-/***/ 72:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  "U": () => (/* binding */ BaseRequestPolicy),
-  "_": () => (/* binding */ RequestPolicyOptions)
-});
-
-;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/httpPipelineLogLevel.js
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * The different levels of logs that can be used with the HttpPipelineLogger.
- */
-var HttpPipelineLogLevel;
-(function (HttpPipelineLogLevel) {
-    /**
-     * A log level that indicates that no logs will be logged.
-     */
-    HttpPipelineLogLevel[HttpPipelineLogLevel["OFF"] = 0] = "OFF";
-    /**
-     * An error log.
-     */
-    HttpPipelineLogLevel[HttpPipelineLogLevel["ERROR"] = 1] = "ERROR";
-    /**
-     * A warning log.
-     */
-    HttpPipelineLogLevel[HttpPipelineLogLevel["WARNING"] = 2] = "WARNING";
-    /**
-     * An information log.
-     */
-    HttpPipelineLogLevel[HttpPipelineLogLevel["INFO"] = 3] = "INFO";
-})(HttpPipelineLogLevel || (HttpPipelineLogLevel = {}));
-//# sourceMappingURL=httpPipelineLogLevel.js.map
-;// CONCATENATED MODULE: ./node_modules/@azure/core-http/es/src/policies/requestPolicy.js
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
-var BaseRequestPolicy = /** @class */ (function () {
-    function BaseRequestPolicy(_nextPolicy, _options) {
-        this._nextPolicy = _nextPolicy;
-        this._options = _options;
-    }
-    /**
-     * Get whether or not a log with the provided log level should be logged.
-     * @param logLevel - The log level of the log that will be logged.
-     * @returns Whether or not a log with the provided log level should be logged.
-     */
-    BaseRequestPolicy.prototype.shouldLog = function (logLevel) {
-        return this._options.shouldLog(logLevel);
-    };
-    /**
-     * Attempt to log the provided message to the provided logger. If no logger was provided or if
-     * the log level does not meat the logger's threshold, then nothing will be logged.
-     * @param logLevel - The log level of this log.
-     * @param message - The message of this log.
-     */
-    BaseRequestPolicy.prototype.log = function (logLevel, message) {
-        this._options.log(logLevel, message);
-    };
-    return BaseRequestPolicy;
-}());
-
-/**
- * Optional properties that can be used when creating a RequestPolicy.
- */
-var RequestPolicyOptions = /** @class */ (function () {
-    function RequestPolicyOptions(_logger) {
-        this._logger = _logger;
-    }
-    /**
-     * Get whether or not a log with the provided log level should be logged.
-     * @param logLevel - The log level of the log that will be logged.
-     * @returns Whether or not a log with the provided log level should be logged.
-     */
-    RequestPolicyOptions.prototype.shouldLog = function (logLevel) {
-        return (!!this._logger &&
-            logLevel !== HttpPipelineLogLevel.OFF &&
-            logLevel <= this._logger.minimumLogLevel);
-    };
-    /**
-     * Attempt to log the provided message to the provided logger. If no logger was provided or if
-     * the log level does not meet the logger's threshold, then nothing will be logged.
-     * @param logLevel - The log level of this log.
-     * @param message - The message of this log.
-     */
-    RequestPolicyOptions.prototype.log = function (logLevel, message) {
-        if (this._logger && this.shouldLog(logLevel)) {
-            this._logger.log(logLevel, message);
-        }
-    };
-    return RequestPolicyOptions;
-}());
-
-//# sourceMappingURL=requestPolicy.js.map
-
-/***/ }),
-
-/***/ 7621:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "$4": () => (/* binding */ URLQuery),
-/* harmony export */   "UK": () => (/* binding */ URLBuilder)
-/* harmony export */ });
-/* unused harmony exports URLToken, isAlphaNumericCharacter, URLTokenizer */
-/* harmony import */ var _util_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(912);
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
-
-/**
- * A class that handles the query portion of a URLBuilder.
- */
-var URLQuery = /** @class */ (function () {
-    function URLQuery() {
-        this._rawQuery = {};
-    }
-    /**
-     * Get whether or not there any query parameters in this URLQuery.
-     */
-    URLQuery.prototype.any = function () {
-        return Object.keys(this._rawQuery).length > 0;
-    };
-    /**
-     * Get the keys of the query string.
-     */
-    URLQuery.prototype.keys = function () {
-        return Object.keys(this._rawQuery);
-    };
-    /**
-     * Set a query parameter with the provided name and value. If the parameterValue is undefined or
-     * empty, then this will attempt to remove an existing query parameter with the provided
-     * parameterName.
-     */
-    URLQuery.prototype.set = function (parameterName, parameterValue) {
-        var caseParameterValue = parameterValue;
-        if (parameterName) {
-            if (caseParameterValue !== undefined && caseParameterValue !== null) {
-                var newValue = Array.isArray(caseParameterValue)
-                    ? caseParameterValue
-                    : caseParameterValue.toString();
-                this._rawQuery[parameterName] = newValue;
-            }
-            else {
-                delete this._rawQuery[parameterName];
-            }
-        }
-    };
-    /**
-     * Get the value of the query parameter with the provided name. If no parameter exists with the
-     * provided parameter name, then undefined will be returned.
-     */
-    URLQuery.prototype.get = function (parameterName) {
-        return parameterName ? this._rawQuery[parameterName] : undefined;
-    };
-    /**
-     * Get the string representation of this query. The return value will not start with a "?".
-     */
-    URLQuery.prototype.toString = function () {
-        var result = "";
-        for (var parameterName in this._rawQuery) {
-            if (result) {
-                result += "&";
-            }
-            var parameterValue = this._rawQuery[parameterName];
-            if (Array.isArray(parameterValue)) {
-                var parameterStrings = [];
-                for (var _i = 0, parameterValue_1 = parameterValue; _i < parameterValue_1.length; _i++) {
-                    var parameterValueElement = parameterValue_1[_i];
-                    parameterStrings.push(parameterName + "=" + parameterValueElement);
-                }
-                result += parameterStrings.join("&");
-            }
-            else {
-                result += parameterName + "=" + parameterValue;
-            }
-        }
-        return result;
-    };
-    /**
-     * Parse a URLQuery from the provided text.
-     */
-    URLQuery.parse = function (text) {
-        var result = new URLQuery();
-        if (text) {
-            if (text.startsWith("?")) {
-                text = text.substring(1);
-            }
-            var currentState = "ParameterName";
-            var parameterName = "";
-            var parameterValue = "";
-            for (var i = 0; i < text.length; ++i) {
-                var currentCharacter = text[i];
-                switch (currentState) {
-                    case "ParameterName":
-                        switch (currentCharacter) {
-                            case "=":
-                                currentState = "ParameterValue";
-                                break;
-                            case "&":
-                                parameterName = "";
-                                parameterValue = "";
-                                break;
-                            default:
-                                parameterName += currentCharacter;
-                                break;
-                        }
-                        break;
-                    case "ParameterValue":
-                        switch (currentCharacter) {
-                            case "&":
-                                result.set(parameterName, parameterValue);
-                                parameterName = "";
-                                parameterValue = "";
-                                currentState = "ParameterName";
-                                break;
-                            default:
-                                parameterValue += currentCharacter;
-                                break;
-                        }
-                        break;
-                    default:
-                        throw new Error("Unrecognized URLQuery parse state: " + currentState);
-                }
-            }
-            if (currentState === "ParameterValue") {
-                result.set(parameterName, parameterValue);
-            }
-        }
-        return result;
-    };
-    return URLQuery;
-}());
-
-/**
- * A class that handles creating, modifying, and parsing URLs.
- */
-var URLBuilder = /** @class */ (function () {
-    function URLBuilder() {
-    }
-    /**
-     * Set the scheme/protocol for this URL. If the provided scheme contains other parts of a URL
-     * (such as a host, port, path, or query), those parts will be added to this URL as well.
-     */
-    URLBuilder.prototype.setScheme = function (scheme) {
-        if (!scheme) {
-            this._scheme = undefined;
-        }
-        else {
-            this.set(scheme, "SCHEME");
-        }
-    };
-    /**
-     * Get the scheme that has been set in this URL.
-     */
-    URLBuilder.prototype.getScheme = function () {
-        return this._scheme;
-    };
-    /**
-     * Set the host for this URL. If the provided host contains other parts of a URL (such as a
-     * port, path, or query), those parts will be added to this URL as well.
-     */
-    URLBuilder.prototype.setHost = function (host) {
-        if (!host) {
-            this._host = undefined;
-        }
-        else {
-            this.set(host, "SCHEME_OR_HOST");
-        }
-    };
-    /**
-     * Get the host that has been set in this URL.
-     */
-    URLBuilder.prototype.getHost = function () {
-        return this._host;
-    };
-    /**
-     * Set the port for this URL. If the provided port contains other parts of a URL (such as a
-     * path or query), those parts will be added to this URL as well.
-     */
-    URLBuilder.prototype.setPort = function (port) {
-        if (port === undefined || port === null || port === "") {
-            this._port = undefined;
-        }
-        else {
-            this.set(port.toString(), "PORT");
-        }
-    };
-    /**
-     * Get the port that has been set in this URL.
-     */
-    URLBuilder.prototype.getPort = function () {
-        return this._port;
-    };
-    /**
-     * Set the path for this URL. If the provided path contains a query, then it will be added to
-     * this URL as well.
-     */
-    URLBuilder.prototype.setPath = function (path) {
-        if (!path) {
-            this._path = undefined;
-        }
-        else {
-            var schemeIndex = path.indexOf("://");
-            if (schemeIndex !== -1) {
-                var schemeStart = path.lastIndexOf("/", schemeIndex);
-                // Make sure to only grab the URL part of the path before setting the state back to SCHEME
-                // this will handle cases such as "/a/b/c/https://microsoft.com" => "https://microsoft.com"
-                this.set(schemeStart === -1 ? path : path.substr(schemeStart + 1), "SCHEME");
-            }
-            else {
-                this.set(path, "PATH");
-            }
-        }
-    };
-    /**
-     * Append the provided path to this URL's existing path. If the provided path contains a query,
-     * then it will be added to this URL as well.
-     */
-    URLBuilder.prototype.appendPath = function (path) {
-        if (path) {
-            var currentPath = this.getPath();
-            if (currentPath) {
-                if (!currentPath.endsWith("/")) {
-                    currentPath += "/";
-                }
-                if (path.startsWith("/")) {
-                    path = path.substring(1);
-                }
-                path = currentPath + path;
-            }
-            this.set(path, "PATH");
-        }
-    };
-    /**
-     * Get the path that has been set in this URL.
-     */
-    URLBuilder.prototype.getPath = function () {
-        return this._path;
-    };
-    /**
-     * Set the query in this URL.
-     */
-    URLBuilder.prototype.setQuery = function (query) {
-        if (!query) {
-            this._query = undefined;
-        }
-        else {
-            this._query = URLQuery.parse(query);
-        }
-    };
-    /**
-     * Set a query parameter with the provided name and value in this URL's query. If the provided
-     * query parameter value is undefined or empty, then the query parameter will be removed if it
-     * existed.
-     */
-    URLBuilder.prototype.setQueryParameter = function (queryParameterName, queryParameterValue) {
-        if (queryParameterName) {
-            if (!this._query) {
-                this._query = new URLQuery();
-            }
-            this._query.set(queryParameterName, queryParameterValue);
-        }
-    };
-    /**
-     * Get the value of the query parameter with the provided query parameter name. If no query
-     * parameter exists with the provided name, then undefined will be returned.
-     */
-    URLBuilder.prototype.getQueryParameterValue = function (queryParameterName) {
-        return this._query ? this._query.get(queryParameterName) : undefined;
-    };
-    /**
-     * Get the query in this URL.
-     */
-    URLBuilder.prototype.getQuery = function () {
-        return this._query ? this._query.toString() : undefined;
-    };
-    /**
-     * Set the parts of this URL by parsing the provided text using the provided startState.
-     */
-    URLBuilder.prototype.set = function (text, startState) {
-        var tokenizer = new URLTokenizer(text, startState);
-        while (tokenizer.next()) {
-            var token = tokenizer.current();
-            var tokenPath = void 0;
-            if (token) {
-                switch (token.type) {
-                    case "SCHEME":
-                        this._scheme = token.text || undefined;
-                        break;
-                    case "HOST":
-                        this._host = token.text || undefined;
-                        break;
-                    case "PORT":
-                        this._port = token.text || undefined;
-                        break;
-                    case "PATH":
-                        tokenPath = token.text || undefined;
-                        if (!this._path || this._path === "/" || tokenPath !== "/") {
-                            this._path = tokenPath;
-                        }
-                        break;
-                    case "QUERY":
-                        this._query = URLQuery.parse(token.text);
-                        break;
-                    default:
-                        throw new Error("Unrecognized URLTokenType: " + token.type);
-                }
-            }
-        }
-    };
-    URLBuilder.prototype.toString = function () {
-        var result = "";
-        if (this._scheme) {
-            result += this._scheme + "://";
-        }
-        if (this._host) {
-            result += this._host;
-        }
-        if (this._port) {
-            result += ":" + this._port;
-        }
-        if (this._path) {
-            if (!this._path.startsWith("/")) {
-                result += "/";
-            }
-            result += this._path;
-        }
-        if (this._query && this._query.any()) {
-            result += "?" + this._query.toString();
-        }
-        return result;
-    };
-    /**
-     * If the provided searchValue is found in this URLBuilder, then replace it with the provided
-     * replaceValue.
-     */
-    URLBuilder.prototype.replaceAll = function (searchValue, replaceValue) {
-        if (searchValue) {
-            this.setScheme((0,_util_utils__WEBPACK_IMPORTED_MODULE_0__/* .replaceAll */ .ko)(this.getScheme(), searchValue, replaceValue));
-            this.setHost((0,_util_utils__WEBPACK_IMPORTED_MODULE_0__/* .replaceAll */ .ko)(this.getHost(), searchValue, replaceValue));
-            this.setPort((0,_util_utils__WEBPACK_IMPORTED_MODULE_0__/* .replaceAll */ .ko)(this.getPort(), searchValue, replaceValue));
-            this.setPath((0,_util_utils__WEBPACK_IMPORTED_MODULE_0__/* .replaceAll */ .ko)(this.getPath(), searchValue, replaceValue));
-            this.setQuery((0,_util_utils__WEBPACK_IMPORTED_MODULE_0__/* .replaceAll */ .ko)(this.getQuery(), searchValue, replaceValue));
-        }
-    };
-    URLBuilder.parse = function (text) {
-        var result = new URLBuilder();
-        result.set(text, "SCHEME_OR_HOST");
-        return result;
-    };
-    return URLBuilder;
-}());
-
-var URLToken = /** @class */ (function () {
-    function URLToken(text, type) {
-        this.text = text;
-        this.type = type;
-    }
-    URLToken.scheme = function (text) {
-        return new URLToken(text, "SCHEME");
-    };
-    URLToken.host = function (text) {
-        return new URLToken(text, "HOST");
-    };
-    URLToken.port = function (text) {
-        return new URLToken(text, "PORT");
-    };
-    URLToken.path = function (text) {
-        return new URLToken(text, "PATH");
-    };
-    URLToken.query = function (text) {
-        return new URLToken(text, "QUERY");
-    };
-    return URLToken;
-}());
-
-/**
- * Get whether or not the provided character (single character string) is an alphanumeric (letter or
- * digit) character.
- */
-function isAlphaNumericCharacter(character) {
-    var characterCode = character.charCodeAt(0);
-    return ((48 /* '0' */ <= characterCode && characterCode <= 57) /* '9' */ ||
-        (65 /* 'A' */ <= characterCode && characterCode <= 90) /* 'Z' */ ||
-        (97 /* 'a' */ <= characterCode && characterCode <= 122) /* 'z' */);
-}
-/**
- * A class that tokenizes URL strings.
- */
-var URLTokenizer = /** @class */ (function () {
-    function URLTokenizer(_text, state) {
-        this._text = _text;
-        this._textLength = _text ? _text.length : 0;
-        this._currentState = state !== undefined && state !== null ? state : "SCHEME_OR_HOST";
-        this._currentIndex = 0;
-    }
-    /**
-     * Get the current URLToken this URLTokenizer is pointing at, or undefined if the URLTokenizer
-     * hasn't started or has finished tokenizing.
-     */
-    URLTokenizer.prototype.current = function () {
-        return this._currentToken;
-    };
-    /**
-     * Advance to the next URLToken and return whether or not a URLToken was found.
-     */
-    URLTokenizer.prototype.next = function () {
-        if (!hasCurrentCharacter(this)) {
-            this._currentToken = undefined;
-        }
-        else {
-            switch (this._currentState) {
-                case "SCHEME":
-                    nextScheme(this);
-                    break;
-                case "SCHEME_OR_HOST":
-                    nextSchemeOrHost(this);
-                    break;
-                case "HOST":
-                    nextHost(this);
-                    break;
-                case "PORT":
-                    nextPort(this);
-                    break;
-                case "PATH":
-                    nextPath(this);
-                    break;
-                case "QUERY":
-                    nextQuery(this);
-                    break;
-                default:
-                    throw new Error("Unrecognized URLTokenizerState: " + this._currentState);
-            }
-        }
-        return !!this._currentToken;
-    };
-    return URLTokenizer;
-}());
-
-/**
- * Read the remaining characters from this Tokenizer's character stream.
- */
-function readRemaining(tokenizer) {
-    var result = "";
-    if (tokenizer._currentIndex < tokenizer._textLength) {
-        result = tokenizer._text.substring(tokenizer._currentIndex);
-        tokenizer._currentIndex = tokenizer._textLength;
-    }
-    return result;
-}
-/**
- * Whether or not this URLTokenizer has a current character.
- */
-function hasCurrentCharacter(tokenizer) {
-    return tokenizer._currentIndex < tokenizer._textLength;
-}
-/**
- * Get the character in the text string at the current index.
- */
-function getCurrentCharacter(tokenizer) {
-    return tokenizer._text[tokenizer._currentIndex];
-}
-/**
- * Advance to the character in text that is "step" characters ahead. If no step value is provided,
- * then step will default to 1.
- */
-function nextCharacter(tokenizer, step) {
-    if (hasCurrentCharacter(tokenizer)) {
-        if (!step) {
-            step = 1;
-        }
-        tokenizer._currentIndex += step;
-    }
-}
-/**
- * Starting with the current character, peek "charactersToPeek" number of characters ahead in this
- * Tokenizer's stream of characters.
- */
-function peekCharacters(tokenizer, charactersToPeek) {
-    var endIndex = tokenizer._currentIndex + charactersToPeek;
-    if (tokenizer._textLength < endIndex) {
-        endIndex = tokenizer._textLength;
-    }
-    return tokenizer._text.substring(tokenizer._currentIndex, endIndex);
-}
-/**
- * Read characters from this Tokenizer until the end of the stream or until the provided condition
- * is false when provided the current character.
- */
-function readWhile(tokenizer, condition) {
-    var result = "";
-    while (hasCurrentCharacter(tokenizer)) {
-        var currentCharacter = getCurrentCharacter(tokenizer);
-        if (!condition(currentCharacter)) {
-            break;
-        }
-        else {
-            result += currentCharacter;
-            nextCharacter(tokenizer);
-        }
-    }
-    return result;
-}
-/**
- * Read characters from this Tokenizer until a non-alphanumeric character or the end of the
- * character stream is reached.
- */
-function readWhileLetterOrDigit(tokenizer) {
-    return readWhile(tokenizer, function (character) { return isAlphaNumericCharacter(character); });
-}
-/**
- * Read characters from this Tokenizer until one of the provided terminating characters is read or
- * the end of the character stream is reached.
- */
-function readUntilCharacter(tokenizer) {
-    var terminatingCharacters = [];
-    for (var _i = 1; _i < arguments.length; _i++) {
-        terminatingCharacters[_i - 1] = arguments[_i];
-    }
-    return readWhile(tokenizer, function (character) { return terminatingCharacters.indexOf(character) === -1; });
-}
-function nextScheme(tokenizer) {
-    var scheme = readWhileLetterOrDigit(tokenizer);
-    tokenizer._currentToken = URLToken.scheme(scheme);
-    if (!hasCurrentCharacter(tokenizer)) {
-        tokenizer._currentState = "DONE";
-    }
-    else {
-        tokenizer._currentState = "HOST";
-    }
-}
-function nextSchemeOrHost(tokenizer) {
-    var schemeOrHost = readUntilCharacter(tokenizer, ":", "/", "?");
-    if (!hasCurrentCharacter(tokenizer)) {
-        tokenizer._currentToken = URLToken.host(schemeOrHost);
-        tokenizer._currentState = "DONE";
-    }
-    else if (getCurrentCharacter(tokenizer) === ":") {
-        if (peekCharacters(tokenizer, 3) === "://") {
-            tokenizer._currentToken = URLToken.scheme(schemeOrHost);
-            tokenizer._currentState = "HOST";
-        }
-        else {
-            tokenizer._currentToken = URLToken.host(schemeOrHost);
-            tokenizer._currentState = "PORT";
-        }
-    }
-    else {
-        tokenizer._currentToken = URLToken.host(schemeOrHost);
-        if (getCurrentCharacter(tokenizer) === "/") {
-            tokenizer._currentState = "PATH";
-        }
-        else {
-            tokenizer._currentState = "QUERY";
-        }
-    }
-}
-function nextHost(tokenizer) {
-    if (peekCharacters(tokenizer, 3) === "://") {
-        nextCharacter(tokenizer, 3);
-    }
-    var host = readUntilCharacter(tokenizer, ":", "/", "?");
-    tokenizer._currentToken = URLToken.host(host);
-    if (!hasCurrentCharacter(tokenizer)) {
-        tokenizer._currentState = "DONE";
-    }
-    else if (getCurrentCharacter(tokenizer) === ":") {
-        tokenizer._currentState = "PORT";
-    }
-    else if (getCurrentCharacter(tokenizer) === "/") {
-        tokenizer._currentState = "PATH";
-    }
-    else {
-        tokenizer._currentState = "QUERY";
-    }
-}
-function nextPort(tokenizer) {
-    if (getCurrentCharacter(tokenizer) === ":") {
-        nextCharacter(tokenizer);
-    }
-    var port = readUntilCharacter(tokenizer, "/", "?");
-    tokenizer._currentToken = URLToken.port(port);
-    if (!hasCurrentCharacter(tokenizer)) {
-        tokenizer._currentState = "DONE";
-    }
-    else if (getCurrentCharacter(tokenizer) === "/") {
-        tokenizer._currentState = "PATH";
-    }
-    else {
-        tokenizer._currentState = "QUERY";
-    }
-}
-function nextPath(tokenizer) {
-    var path = readUntilCharacter(tokenizer, "?");
-    tokenizer._currentToken = URLToken.path(path);
-    if (!hasCurrentCharacter(tokenizer)) {
-        tokenizer._currentState = "DONE";
-    }
-    else {
-        tokenizer._currentState = "QUERY";
-    }
-}
-function nextQuery(tokenizer) {
-    if (getCurrentCharacter(tokenizer) === "?") {
-        nextCharacter(tokenizer);
-    }
-    var query = readRemaining(tokenizer);
-    tokenizer._currentToken = URLToken.query(query);
-    tokenizer._currentState = "DONE";
-}
-//# sourceMappingURL=url.js.map
-
-/***/ }),
-
-/***/ 4809:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "g": () => (/* binding */ Constants)
-/* harmony export */ });
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-var Constants = {
-    /**
-     * The core-http version
-     */
-    coreHttpVersion: "1.2.4",
-    /**
-     * Specifies HTTP.
-     */
-    HTTP: "http:",
-    /**
-     * Specifies HTTPS.
-     */
-    HTTPS: "https:",
-    /**
-     * Specifies HTTP Proxy.
-     */
-    HTTP_PROXY: "HTTP_PROXY",
-    /**
-     * Specifies HTTPS Proxy.
-     */
-    HTTPS_PROXY: "HTTPS_PROXY",
-    /**
-     * Specifies NO Proxy.
-     */
-    NO_PROXY: "NO_PROXY",
-    /**
-     * Specifies ALL Proxy.
-     */
-    ALL_PROXY: "ALL_PROXY",
-    HttpConstants: {
-        /**
-         * Http Verbs
-         */
-        HttpVerbs: {
-            PUT: "PUT",
-            GET: "GET",
-            DELETE: "DELETE",
-            POST: "POST",
-            MERGE: "MERGE",
-            HEAD: "HEAD",
-            PATCH: "PATCH"
-        },
-        StatusCodes: {
-            TooManyRequests: 429
-        }
-    },
-    /**
-     * Defines constants for use with HTTP headers.
-     */
-    HeaderConstants: {
-        /**
-         * The Authorization header.
-         */
-        AUTHORIZATION: "authorization",
-        AUTHORIZATION_SCHEME: "Bearer",
-        /**
-         * The Retry-After response-header field can be used with a 503 (Service
-         * Unavailable) or 349 (Too Many Requests) responses to indicate how long
-         * the service is expected to be unavailable to the requesting client.
-         */
-        RETRY_AFTER: "Retry-After",
-        /**
-         * The UserAgent header.
-         */
-        USER_AGENT: "User-Agent"
-    }
-};
-//# sourceMappingURL=constants.js.map
-
-/***/ }),
-
-/***/ 1035:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "c": () => (/* binding */ XML_ATTRKEY),
-/* harmony export */   "I": () => (/* binding */ XML_CHARKEY)
-/* harmony export */ });
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-/**
- * Default key used to access the XML attributes.
- */
-var XML_ATTRKEY = "$";
-/**
- * Default key used to access the XML value content.
- */
-var XML_CHARKEY = "_";
-//# sourceMappingURL=serializer.common.js.map
-
-/***/ }),
-
-/***/ 912:
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "UG": () => (/* binding */ isNode),
-/* harmony export */   "TP": () => (/* binding */ isValidUuid),
-/* harmony export */   "Rl": () => (/* binding */ generateUuid),
-/* harmony export */   "gw": () => (/* binding */ delay),
-/* harmony export */   "WQ": () => (/* binding */ prepareXMLRootList),
-/* harmony export */   "_9": () => (/* binding */ isDuration),
-/* harmony export */   "ko": () => (/* binding */ replaceAll),
-/* harmony export */   "ty": () => (/* binding */ isPrimitiveType),
-/* harmony export */   "v5": () => (/* binding */ getEnvironmentValue)
-/* harmony export */ });
-/* unused harmony exports urlIsHTTPS, encodeUri, stripResponse, stripRequest, executePromisesSequentially, promiseToCallback, promiseToServiceCallback, applyMixins */
-/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2259);
-/* harmony import */ var _serializer_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1035);
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
-
-
-
-var validUuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i;
-/**
- * A constant that indicates whether the environment is node.js or browser based.
- */
-var isNode = typeof process !== "undefined" &&
-    !!process.version &&
-    !!process.versions &&
-    !!process.versions.node;
-/**
- * Checks if a parsed URL is HTTPS
- *
- * @param urlToCheck - The url to check
- * @returns True if the URL is HTTPS; false otherwise.
- */
-function urlIsHTTPS(urlToCheck) {
-    return urlToCheck.protocol.toLowerCase() === Constants.HTTPS;
-}
-/**
- * Encodes an URI.
- *
- * @param uri - The URI to be encoded.
- * @returns The encoded URI.
- */
-function encodeUri(uri) {
-    return encodeURIComponent(uri)
-        .replace(/!/g, "%21")
-        .replace(/"/g, "%27")
-        .replace(/\(/g, "%28")
-        .replace(/\)/g, "%29")
-        .replace(/\*/g, "%2A");
-}
-/**
- * Returns a stripped version of the Http Response which only contains body,
- * headers and the status.
- *
- * @param response - The Http Response
- * @returns The stripped version of Http Response.
- */
-function stripResponse(response) {
-    var strippedResponse = {};
-    strippedResponse.body = response.bodyAsText;
-    strippedResponse.headers = response.headers;
-    strippedResponse.status = response.status;
-    return strippedResponse;
-}
-/**
- * Returns a stripped version of the Http Request that does not contain the
- * Authorization header.
- *
- * @param request - The Http Request object
- * @returns The stripped version of Http Request.
- */
-function stripRequest(request) {
-    var strippedRequest = request.clone();
-    if (strippedRequest.headers) {
-        strippedRequest.headers.remove("authorization");
-    }
-    return strippedRequest;
-}
-/**
- * Validates the given uuid as a string
- *
- * @param uuid - The uuid as a string that needs to be validated
- * @returns True if the uuid is valid; false otherwise.
- */
-function isValidUuid(uuid) {
-    return validUuidRegex.test(uuid);
-}
-/**
- * Generated UUID
- *
- * @returns RFC4122 v4 UUID.
- */
-function generateUuid() {
-    return (0,uuid__WEBPACK_IMPORTED_MODULE_0__/* .default */ .Z)();
-}
-/**
- * Executes an array of promises sequentially. Inspiration of this method is here:
- * https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html. An awesome blog on promises!
- *
- * @param promiseFactories - An array of promise factories(A function that return a promise)
- * @param kickstart - Input to the first promise that is used to kickstart the promise chain.
- * If not provided then the promise chain starts with undefined.
- * @returns A chain of resolved or rejected promises
- */
-function executePromisesSequentially(promiseFactories, kickstart) {
-    var result = Promise.resolve(kickstart);
-    promiseFactories.forEach(function (promiseFactory) {
-        result = result.then(promiseFactory);
-    });
-    return result;
-}
-/**
- * A wrapper for setTimeout that resolves a promise after t milliseconds.
- * @param t - The number of milliseconds to be delayed.
- * @param value - The value to be resolved with after a timeout of t milliseconds.
- * @returns Resolved promise
- */
-function delay(t, value) {
-    return new Promise(function (resolve) { return setTimeout(function () { return resolve(value); }, t); });
-}
-/**
- * Converts a Promise to a callback.
- * @param promise - The Promise to be converted to a callback
- * @returns A function that takes the callback `(cb: Function) => void`
- * @deprecated generated code should instead depend on responseToBody
- */
-// eslint-disable-next-line @typescript-eslint/ban-types
-function promiseToCallback(promise) {
-    if (typeof promise.then !== "function") {
-        throw new Error("The provided input is not a Promise.");
-    }
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    return function (cb) {
-        promise
-            .then(function (data) {
-            // eslint-disable-next-line promise/no-callback-in-promise
-            return cb(undefined, data);
-        })
-            .catch(function (err) {
-            // eslint-disable-next-line promise/no-callback-in-promise
-            cb(err);
-        });
-    };
-}
-/**
- * Converts a Promise to a service callback.
- * @param promise - The Promise of HttpOperationResponse to be converted to a service callback
- * @returns A function that takes the service callback (cb: ServiceCallback<T>): void
- */
-function promiseToServiceCallback(promise) {
-    if (typeof promise.then !== "function") {
-        throw new Error("The provided input is not a Promise.");
-    }
-    return function (cb) {
-        promise
-            .then(function (data) {
-            return process.nextTick(cb, undefined, data.parsedBody, data.request, data);
-        })
-            .catch(function (err) {
-            process.nextTick(cb, err);
-        });
-    };
-}
-function prepareXMLRootList(obj, elementName, xmlNamespaceKey, xmlNamespace) {
-    var _a, _b, _c;
-    if (!Array.isArray(obj)) {
-        obj = [obj];
-    }
-    if (!xmlNamespaceKey || !xmlNamespace) {
-        return _a = {}, _a[elementName] = obj, _a;
-    }
-    var result = (_b = {}, _b[elementName] = obj, _b);
-    result[_serializer_common__WEBPACK_IMPORTED_MODULE_1__/* .XML_ATTRKEY */ .c] = (_c = {}, _c[xmlNamespaceKey] = xmlNamespace, _c);
-    return result;
-}
-/**
- * Applies the properties on the prototype of sourceCtors to the prototype of targetCtor
- * @param targetCtor - The target object on which the properties need to be applied.
- * @param sourceCtors - An array of source objects from which the properties need to be taken.
- */
-function applyMixins(targetCtorParam, sourceCtors) {
-    var castTargetCtorParam = targetCtorParam;
-    sourceCtors.forEach(function (sourceCtor) {
-        Object.getOwnPropertyNames(sourceCtor.prototype).forEach(function (name) {
-            castTargetCtorParam.prototype[name] = sourceCtor.prototype[name];
-        });
-    });
-}
-var validateISODuration = /^(-|\+)?P(?:([-+]?[0-9,.]*)Y)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)W)?(?:([-+]?[0-9,.]*)D)?(?:T(?:([-+]?[0-9,.]*)H)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)S)?)?$/;
-/**
- * Indicates whether the given string is in ISO 8601 format.
- * @param value - The value to be validated for ISO 8601 duration format.
- * @returns `true` if valid, `false` otherwise.
- */
-function isDuration(value) {
-    return validateISODuration.test(value);
-}
-/**
- * Replace all of the instances of searchValue in value with the provided replaceValue.
- * @param value - The value to search and replace in.
- * @param searchValue - The value to search for in the value argument.
- * @param replaceValue - The value to replace searchValue with in the value argument.
- * @returns The value where each instance of searchValue was replaced with replacedValue.
- */
-function replaceAll(value, searchValue, replaceValue) {
-    return !value || !searchValue ? value : value.split(searchValue).join(replaceValue || "");
-}
-/**
- * Determines whether the given entity is a basic/primitive type
- * (string, number, boolean, null, undefined).
- * @param value - Any entity
- * @returns true is it is primitive type, false otherwise.
- */
-function isPrimitiveType(value) {
-    return (typeof value !== "object" && typeof value !== "function") || value === null;
-}
-function getEnvironmentValue(name) {
-    if (process.env[name]) {
-        return process.env[name];
-    }
-    else if (process.env[name.toLowerCase()]) {
-        return process.env[name.toLowerCase()];
-    }
-    return undefined;
-}
-//# sourceMappingURL=utils.js.map
-
-/***/ }),
-
 /***/ 7322:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
@@ -28833,7 +29962,7 @@ function validMime (type) {
 
 /***/ }),
 
-/***/ 8054:
+/***/ 7148:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
@@ -41430,7 +42559,7 @@ const tls_1 = __importDefault(__webpack_require__(4016));
 const url_1 = __importDefault(__webpack_require__(8835));
 const debug_1 = __importDefault(__webpack_require__(6945));
 const once_1 = __importDefault(__webpack_require__(2046));
-const agent_base_1 = __webpack_require__(8054);
+const agent_base_1 = __webpack_require__(7148);
 const debug = debug_1.default('http-proxy-agent');
 function isHTTPS(protocol) {
     return typeof protocol === 'string' ? /^https:?$/i.test(protocol) : false;
@@ -42424,7 +43553,7 @@ formatters.O = function (v) {
 
 /***/ }),
 
-/***/ 9146:
+/***/ 790:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -42447,7 +43576,7 @@ const tls_1 = __importDefault(__webpack_require__(4016));
 const url_1 = __importDefault(__webpack_require__(8835));
 const assert_1 = __importDefault(__webpack_require__(2357));
 const debug_1 = __importDefault(__webpack_require__(7050));
-const agent_base_1 = __webpack_require__(8054);
+const agent_base_1 = __webpack_require__(7148);
 const parse_proxy_response_1 = __importDefault(__webpack_require__(9829));
 const debug = debug_1.default('https-proxy-agent:agent');
 /**
@@ -42619,7 +43748,7 @@ function omit(obj, ...keys) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-const agent_1 = __importDefault(__webpack_require__(9146));
+const agent_1 = __importDefault(__webpack_require__(790));
 function createHttpsProxyAgent(opts) {
     return new agent_1.default(opts);
 }
@@ -60014,7 +61143,7 @@ exports.getEndpoint = getEndpoint;
 // Licensed under the MIT license.
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createUserAndToken = exports.getToken = exports.createUser = void 0;
-const communication_identity_1 = __webpack_require__(1125);
+const communication_identity_1 = __webpack_require__(9146);
 const envHelper_1 = __webpack_require__(6975);
 // lazy init to allow mocks in test
 let identityClient = undefined;
@@ -65755,7 +66884,7 @@ module.exports.implForWrapper = function (wrapper) {
 
   XMLDocument = __webpack_require__(6788);
 
-  XMLElement = __webpack_require__(5929);
+  XMLElement = __webpack_require__(72);
 
   XMLCData = __webpack_require__(6170);
 
@@ -66314,7 +67443,7 @@ module.exports.implForWrapper = function (wrapper) {
 
 /***/ }),
 
-/***/ 5929:
+/***/ 72:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 // Generated by CoffeeScript 1.12.7
@@ -66731,7 +67860,7 @@ module.exports.implForWrapper = function (wrapper) {
       this.children = [];
       this.baseURI = null;
       if (!XMLElement) {
-        XMLElement = __webpack_require__(5929);
+        XMLElement = __webpack_require__(72);
         XMLCData = __webpack_require__(6170);
         XMLComment = __webpack_require__(2096);
         XMLDeclaration = __webpack_require__(9077);
@@ -68177,7 +69306,7 @@ module.exports.implForWrapper = function (wrapper) {
 
   XMLComment = __webpack_require__(2096);
 
-  XMLElement = __webpack_require__(5929);
+  XMLElement = __webpack_require__(72);
 
   XMLRaw = __webpack_require__(9406);
 
