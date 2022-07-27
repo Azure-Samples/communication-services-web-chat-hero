@@ -6,11 +6,12 @@ import {
   AvatarPersonaData,
   ChatAdapter,
   ChatComposite,
-  createAzureCommunicationChatAdapter,
-  fromFlatCommunicationIdentifier
+  fromFlatCommunicationIdentifier,
+  toFlatCommunicationIdentifier,
+  useAzureCommunicationChatAdapter
 } from '@azure/communication-react';
 import { Stack } from '@fluentui/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
 import { ChatHeader } from './ChatHeader';
 import { chatCompositeContainerStyle, chatScreenContainerStyle } from './styles/ChatScreen.styles';
@@ -27,49 +28,50 @@ interface ChatScreenProps {
   endpointUrl: string;
   threadId: string;
   endChatHandler(isParticipantRemoved: boolean): void;
-  errorHandler(): void;
 }
 
 export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
-  const { displayName, endpointUrl, threadId, token, userId, errorHandler, endChatHandler } = props;
+  const { displayName, endpointUrl, threadId, token, userId, endChatHandler } = props;
 
-  const adapterRef = useRef<ChatAdapter>();
-  const [adapter, setAdapter] = useState<ChatAdapter>();
-  const [hideParticipants, setHideParticipants] = useState<boolean>(false);
   const { currentTheme } = useSwitchableFluentTheme();
 
-  useEffect(() => {
-    (async () => {
-      const adapter = await createAzureCommunicationChatAdapter({
-        endpoint: endpointUrl,
-        userId: fromFlatCommunicationIdentifier(userId) as CommunicationUserIdentifier,
-        displayName: displayName,
-        credential: createAutoRefreshingCredential(userId, token),
-        threadId: threadId
-      });
+  const adapterAfterCreate = useCallback(
+    async (adapter: ChatAdapter): Promise<ChatAdapter> => {
       adapter.on('participantsRemoved', (listener) => {
-        // Note: We are receiving ChatParticipant.id from communication-signaling, so of type 'CommunicationIdentifierKind'
-        // while it's supposed to be of type 'CommunicationIdentifier' as defined in communication-chat
-        const removedParticipantIds = listener.participantsRemoved.map(
-          (p) => (p.id as CommunicationUserIdentifier).communicationUserId
-        );
+        const removedParticipantIds = listener.participantsRemoved.map((p) => toFlatCommunicationIdentifier(p.id));
         if (removedParticipantIds.includes(userId)) {
-          const removedBy = (listener.removedBy.id as CommunicationUserIdentifier).communicationUserId;
+          const removedBy = toFlatCommunicationIdentifier(listener.removedBy.id);
           endChatHandler(removedBy !== userId);
         }
       });
       adapter.on('error', (e) => {
         console.error(e);
-        errorHandler();
       });
-      setAdapter(adapter);
-      adapterRef.current = adapter;
-    })();
+      return adapter;
+    },
+    [endChatHandler, userId]
+  );
 
-    return () => {
-      adapterRef?.current?.dispose();
-    };
-  }, [displayName, endpointUrl, threadId, token, userId, errorHandler, endChatHandler]);
+  const adapterArgs = useMemo(
+    () => ({
+      endpoint: endpointUrl,
+      userId: fromFlatCommunicationIdentifier(userId) as CommunicationUserIdentifier,
+      displayName,
+      credential: createAutoRefreshingCredential(userId, token),
+      threadId
+    }),
+
+    [endpointUrl, userId, displayName, token, threadId]
+  );
+
+  const adapter = useAzureCommunicationChatAdapter(adapterArgs, adapterAfterCreate);
+
+  // Dispose of the adapter in the window's before unload event
+  useEffect(() => {
+    const disposeAdapter = (): void => adapter?.dispose();
+    window.addEventListener('beforeunload', disposeAdapter);
+    return () => window.removeEventListener('beforeunload', disposeAdapter);
+  }, [adapter]);
 
   if (adapter) {
     const onFetchAvatarPersonaData = (userId): Promise<AvatarPersonaData> =>
@@ -82,21 +84,18 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
             });
           })
       );
+
     return (
       <Stack className={chatScreenContainerStyle}>
         <Stack.Item className={chatCompositeContainerStyle}>
           <ChatComposite
             adapter={adapter}
             fluentTheme={currentTheme.theme}
-            options={{ topic: false }}
+            options={{ autoFocus: 'sendBoxTextField' }}
             onFetchAvatarPersonaData={onFetchAvatarPersonaData}
           />
         </Stack.Item>
-        <ChatHeader
-          isParticipantsDisplayed={hideParticipants !== true}
-          onEndChat={() => adapter.removeParticipant(userId)}
-          setHideParticipants={setHideParticipants}
-        />
+        <ChatHeader onEndChat={() => adapter.removeParticipant(userId)} />
       </Stack>
     );
   }
