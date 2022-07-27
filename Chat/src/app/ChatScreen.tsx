@@ -33,7 +33,6 @@ interface ChatScreenProps {
 export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
   const { displayName, endpointUrl, threadId, token, userId, endChatHandler } = props;
 
-  const [hideParticipants, setHideParticipants] = useState<boolean>(false);
   const { currentTheme } = useSwitchableFluentTheme();
 
   const adapterAfterCreate = useCallback(
@@ -92,14 +91,12 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
           <ChatComposite
             adapter={adapter}
             fluentTheme={currentTheme.theme}
-            options={{ autoFocus: 'sendBoxTextField', participantPane: !hideParticipants }}
+            options={{ autoFocus: 'sendBoxTextField' }}
             onFetchAvatarPersonaData={onFetchAvatarPersonaData}
           />
         </Stack.Item>
         <ChatHeader
-          isParticipantsDisplayed={hideParticipants !== true}
           onEndChat={() => adapter.removeParticipant(userId)}
-          setHideParticipants={setHideParticipants}
         />
       </Stack>
     );
