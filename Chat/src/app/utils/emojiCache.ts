@@ -8,6 +8,7 @@ const getEmoji = (userId: string): Promise<string> => {
     headers: { 'Content-Type': 'application/json' },
     method: 'GET'
   };
+
   return new Promise<string>((resolve) => {
     fetch('/userConfig/' + userId, getTokenRequestOptions)
       .then((data) => {

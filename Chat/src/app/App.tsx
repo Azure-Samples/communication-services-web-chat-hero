@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { setLogLevel } from '@azure/logger';
 import { initializeIcons, Spinner } from '@fluentui/react';
 import React, { useState } from 'react';
 import { ChatScreen } from './ChatScreen';
@@ -9,14 +10,20 @@ import { EndScreen } from './EndScreen';
 import { ErrorScreen } from './ErrorScreen';
 import HomeScreen from './HomeScreen';
 import { getExistingThreadIdFromURL } from './utils/getExistingThreadIdFromURL';
-import { getBuildTime, getChatSDKVersion } from './utils/utils';
+import { getBuildTime, getChatSDKVersion, getCommnicationReactSDKVersion } from './utils/utils';
+import { initializeFileTypeIcons } from '@fluentui/react-file-type-icons';
 
-console.info(`Thread chat sample using @azure/communication-chat : ${getChatSDKVersion()}`);
+setLogLevel('warning');
+
+console.info(
+  `Thread chat sample using @azure/communication-chat : ${getChatSDKVersion()} and @azure/communication-react : ${getCommnicationReactSDKVersion()}`
+);
+
 console.info(`Build Date : ${getBuildTime()}`);
 
 initializeIcons();
+initializeFileTypeIcons();
 
-const ERROR_PAGE_TITLE_ERROR = 'Oops! You are no longer a participant for the chat thread.';
 const ERROR_PAGE_TITLE_REMOVED = 'You have been removed from the chat.';
 
 const webAppTitle = document.title;
@@ -29,7 +36,7 @@ export default (): JSX.Element => {
   const [threadId, setThreadId] = useState('');
   const [endpointUrl, setEndpointUrl] = useState('');
 
-  const getComponent = (): JSX.Element => {
+  const renderPage = (): JSX.Element => {
     switch (page) {
       case 'home': {
         document.title = `home - ${webAppTitle}`;
@@ -67,9 +74,6 @@ export default (): JSX.Element => {
                   setPage('end');
                 }
               }}
-              errorHandler={() => {
-                setPage('error');
-              }}
             />
           );
         }
@@ -102,17 +106,6 @@ export default (): JSX.Element => {
           />
         );
       }
-      case 'error': {
-        document.title = `error - ${webAppTitle}`;
-        return (
-          <ErrorScreen
-            title={ERROR_PAGE_TITLE_ERROR}
-            homeHandler={() => {
-              window.location.href = window.location.origin;
-            }}
-          />
-        );
-      }
       default:
         document.title = `error - ${webAppTitle}`;
         throw new Error('Page type not recognized');
@@ -123,5 +116,5 @@ export default (): JSX.Element => {
     setPage('configuration');
   }
 
-  return getComponent();
+  return renderPage();
 };
