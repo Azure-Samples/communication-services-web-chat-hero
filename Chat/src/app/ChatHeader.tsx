@@ -16,9 +16,7 @@ import {
 import { useTheme } from '@azure/communication-react';
 
 export type ChatHeaderProps = {
-  isParticipantsDisplayed: boolean;
   onEndChat(): void;
-  setHideParticipants(hideParticipants: boolean): void;
 };
 
 export const ChatHeader = (props: ChatHeaderProps): JSX.Element => {
@@ -39,6 +37,7 @@ export const ChatHeader = (props: ChatHeaderProps): JSX.Element => {
         aria-live={'polite'}
         aria-label={leaveString}
       />
+
       <IconButton
         iconProps={leaveIcon}
         className={mergeStyles(smallLeaveButtonContainerStyle, greyIconButtonStyle, {
