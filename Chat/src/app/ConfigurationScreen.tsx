@@ -82,6 +82,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
   const [configurationScreenState, setConfigurationScreenState] = useState<number>(
     CONFIGURATIONSCREEN_SHOWING_SPINNER_LOADING
   );
+
   const [disableJoinChatButton, setDisableJoinChatButton] = useState<boolean>(false);
   const theme = useTheme();
   const { joinChatHandler, setToken, setUserId, setDisplayName, setThreadId, setEndpointUrl } = props;
@@ -215,6 +216,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
             validateName={validateName}
             isEmpty={emptyWarning}
           />
+
           <PrimaryButton
             disabled={disableJoinChatButton}
             className={buttonStyle}
