@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { AzureCommunicationTokenCredential } from '@azure/communication-common';
+import { AzureCommunicationTokenCredential, CommunicationUserIdentifier } from '@azure/communication-common';
 import { ChatClient, CreateChatThreadOptions, CreateChatThreadRequest } from '@azure/communication-chat';
 import { getEndpoint } from '../envHelper';
 import { threadIdToModeratorCredentialMap } from './threadIdToModeratorTokenMap';
@@ -38,3 +38,19 @@ export const createThread = async (topicName?: string): Promise<string> => {
   threadIdToModeratorCredentialMap.set(threadID, credential);
   return threadID;
 };
+
+export const addThread = async (threadID: string, userId: string) => {
+  const user = {
+    communicationUserId: userId
+  } as CommunicationUserIdentifier;
+
+
+  const credential = new AzureCommunicationTokenCredential({
+    tokenRefresher: async () => (await getToken(user, ['chat', 'voip'])).token,
+    refreshProactively: true
+  });
+
+  threadIdToModeratorCredentialMap.set(threadID, credential);
+  
+  return threadID;
+}

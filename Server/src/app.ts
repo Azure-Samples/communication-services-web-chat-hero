@@ -14,6 +14,7 @@ import getEndpointUrl from './routes/getEndpointUrl';
 import isValidThread from './routes/isValidThread';
 import userConfig from './routes/userConfig';
 import createThread from './routes/createThread';
+import addThread from './routes/addThread';
 import addUser from './routes/addUser';
 
 const app = express();
@@ -29,6 +30,12 @@ app.use(express.static(path.resolve(__dirname, 'build')));
  * purpose: Chat: create a new chat thread
  */
 app.use('/createThread', cors(), createThread);
+
+/**
+ * route: /addThread
+ * purpose: Chat: add existing thread and moderator
+ */
+ app.use('/addThread', cors(), addThread);
 
 /**
  * route: /addUser

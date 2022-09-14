@@ -37,6 +37,7 @@ import { getExistingThreadIdFromURL } from './utils/getExistingThreadIdFromURL';
 import { joinThread } from './utils/joinThread';
 import { getEndpointUrl } from './utils/getEndpointUrl';
 import { checkThreadValid } from './utils/checkThreadValid';
+import { getUserDetailsFromURL } from './utils/getUserDetailsFromURL';
 
 // These props are set by the caller of ConfigurationScreen in the JSX and not found in context
 export interface ConfigurationScreenProps {
@@ -122,8 +123,9 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
   useEffect(() => {
     if (configurationScreenState === CONFIGURATIONSCREEN_SHOWING_SPINNER_LOADING) {
       const setScreenState = async (): Promise<void> => {
+        let threadId = '' as string | null;
         try {
-          const threadId = getExistingThreadIdFromURL();
+          threadId = getExistingThreadIdFromURL();
           if (!(await checkThreadValid(threadId))) {
             throw new Error(ERROR_TEXT_THREAD_NOT_RECORDED);
           }
@@ -131,11 +133,26 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
           setConfigurationScreenState(CONFIGURATIONSCREEN_SHOWING_INVALID_THREAD);
           return;
         }
-        setConfigurationScreenState(CONFIGURATIONSCREEN_SHOWING_JOIN_CHAT);
+
+        const userDetails = getUserDetailsFromURL();
+
+        if (userDetails && threadId) {
+          const endpointUrl = await getEndpointUrl();
+          setToken(userDetails.token);
+          setUserId(userDetails.userId);
+          setDisplayName(userDetails.displayName);
+          setThreadId(threadId);
+          setEndpointUrl(endpointUrl);
+          setDisableJoinChatButton(false);
+          joinChatHandler();
+          return;
+        } else {
+          setConfigurationScreenState(CONFIGURATIONSCREEN_SHOWING_JOIN_CHAT);
+        }
       };
       setScreenState();
     }
-  }, [configurationScreenState]);
+  }, [configurationScreenState, joinChatHandler, setDisplayName, setEndpointUrl, setThreadId, setToken, setUserId]);
 
   const smallAvatarContainerClassName = useCallback(
     (avatar: string) => {
