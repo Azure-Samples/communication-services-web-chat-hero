@@ -11,21 +11,28 @@ import {
   leaveButtonStyle,
   leaveIcon,
   leaveIconStyle,
+  paneButtonContainerStyle,
   smallLeaveButtonContainerStyle
 } from './styles/ChatHeader.styles';
 import { useTheme } from '@azure/communication-react';
 
-export type ChatHeaderProps = {
+export interface ChatHeaderProps {
   onEndChat(): void;
-};
+}
 
 export const ChatHeader = (props: ChatHeaderProps): JSX.Element => {
   const theme = useTheme();
 
   const leaveString = 'Leave';
-
   return (
-    <Stack horizontal={true} verticalAlign={'center'} horizontalAlign="end" className={chatHeaderContainerStyle}>
+    <Stack
+      horizontal={true}
+      verticalAlign={'center'}
+      horizontalAlign="end"
+      className={chatHeaderContainerStyle}
+      role="banner"
+    >
+      <div className={paneButtonContainerStyle}>{}</div>
       <DefaultButton
         className={mergeStyles(largeLeaveButtonContainerStyle, leaveButtonStyle, {
           color: theme.palette.neutralPrimaryAlt

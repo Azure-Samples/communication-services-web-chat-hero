@@ -87,11 +87,13 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
 
     return (
       <Stack className={chatScreenContainerStyle}>
-        <Stack.Item className={chatCompositeContainerStyle}>
+        <Stack.Item className={chatCompositeContainerStyle} role="main">
           <ChatComposite
             adapter={adapter}
             fluentTheme={currentTheme.theme}
-            options={{ autoFocus: 'sendBoxTextField' }}
+            options={{
+              autoFocus: 'sendBoxTextField'
+            }}
             onFetchAvatarPersonaData={onFetchAvatarPersonaData}
           />
         </Stack.Item>
