@@ -11,7 +11,7 @@ import {
   useAzureCommunicationChatAdapter
 } from '@azure/communication-react';
 import { Stack } from '@fluentui/react';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ChatHeader } from './ChatHeader';
 import { chatCompositeContainerStyle, chatScreenContainerStyle } from './styles/ChatScreen.styles';
@@ -87,11 +87,13 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
 
     return (
       <Stack className={chatScreenContainerStyle}>
-        <Stack.Item className={chatCompositeContainerStyle}>
+        <Stack.Item className={chatCompositeContainerStyle} role="main">
           <ChatComposite
             adapter={adapter}
             fluentTheme={currentTheme.theme}
-            options={{ autoFocus: 'sendBoxTextField' }}
+            options={{
+              autoFocus: 'sendBoxTextField'
+            }}
             onFetchAvatarPersonaData={onFetchAvatarPersonaData}
           />
         </Stack.Item>
