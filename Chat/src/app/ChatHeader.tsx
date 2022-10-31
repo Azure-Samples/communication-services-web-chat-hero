@@ -16,7 +16,7 @@ import {
 } from './styles/ChatHeader.styles';
 import { useTheme } from '@azure/communication-react';
 
-export interface ChatHeaderProps extends PeopleButtonProps {
+export interface ChatHeaderProps {
   onEndChat(): void;
 }
 
