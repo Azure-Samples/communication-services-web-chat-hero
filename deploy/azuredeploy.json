@@ -12,15 +12,19 @@
         "description": "The SKU of App Service Plan."
       }
     },
-    "packageUrl": {
+    "adminUserId": {
       "type": "string",
-      "defaultValue": "https://github.com/Azure-Samples/communication-services-web-chat-hero/releases/latest/download/group-chat.zip"
+      "defaultValue": "",
+      "metadata": {
+        "description": "The user id of a user on the server to invite other users into chat threads"
+      }
     }
   },
   "variables": {
     "location": "[resourceGroup().location]",
     "commsName": "[concat('CommunicationServices-', parameters('appName'))]",
-    "appServicePlanPortalName": "[concat('AppServicePlan-', parameters('appName'))]"
+    "appServicePlanPortalName": "[concat('AppServicePlan-', parameters('appName'))]",
+    "packageUrl": "https://github.com/Azure-Samples/communication-services-web-chat-hero/releases/latest/download/group-chat.zip"
   },
   "resources": [
       {
@@ -69,6 +73,7 @@
           "properties": {
             "ResourceConnectionString": "[listkeys(variables('commsName'), '2020-08-20-preview' ).primaryConnectionString]",
             "EndpointUrl": "[substring(listkeys(variables('commsName'), '2020-08-20-preview' ).primaryConnectionString, 9, add(indexOf(listkeys(variables('commsName'), '2020-08-20-preview' ).primaryConnectionString, '.azure.com/'),2))]",
+            "AdminUserId": "[parameters('adminUserId')]",
             "WEBSITE_NODE_DEFAULT_VERSION": "~14"
           }
         },
@@ -79,10 +84,10 @@
             "apiVersion": "2015-08-01",
             "dependsOn": [
               "[resourceId('Microsoft.Web/sites', parameters('appName'))]",
-            "[resourceId('Microsoft.Web/sites/config', parameters('appName'), 'appsettings')]"
+              "[resourceId('Microsoft.Web/sites/config', parameters('appName'), 'appsettings')]"
             ],
             "properties": {
-              "packageUri": "[parameters('packageUrl')]"
+              "packageUri": "[variables('packageUrl')]"
             }
           }
       ]
