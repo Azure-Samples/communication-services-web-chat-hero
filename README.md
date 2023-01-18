@@ -49,14 +49,15 @@ We appreciate your feedback and energy helping us improve our services. [Please 
 2. `git clone https://github.com/Azure-Samples/communication-services-web-chat-hero.git`
 3. Get the `Connection String` from the Azure portal. For more information on connection strings, see [Create an Azure Communication Resources](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/create-communication-resource)
 4. Once you get the `Connection String`, Add the connection string to the **Server/appsettings.json** file found under the Chat folder. Input your connection string in the variable: `ResourceConnectionString`.
-5. Once you get the `Endpoint`, add the endpoint string to the **samples/Server/appsetting.json** file. Input your connection string in the variable: `EndpointUrl`.
+5. Once you get the `Endpoint`, add the endpoint string to the **Server/appsetting.json** file. Input your connection string in the variable: `EndpointUrl`.
 6. Get the `identity` from the Azure portal. Click on `Identities & User Access Tokens` in Azure portal. Generate a user with `Chat` scope.
-7. Once you get the `identity` string, add the identity string to the **samples/Server/appsetting.json** file. Input your identity string in the variable: `AdminUserId`. This is the server user to add new users to the chat thread.
+7. Once you get the `identity` string, add the identity string to the **Server/appsetting.json** file. Input your identity string in the variable: `AdminUserId`. This is the server user to add new users to the chat thread.
 
 ## Local run
 
 1. Set your connection string in `Server/appsettings.json`
 2. Set your endpoint URL string in `Server/appsettings.json`
+3. Set your adminUserId string in `Server/appsettings.json`
 3. `npm run setup` from the root directory
 4. `npm run start` from the root directory
 
