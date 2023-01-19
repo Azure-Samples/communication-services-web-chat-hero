@@ -22,15 +22,13 @@
     "@azure/communication-chat": ">=1.2.0",
     "@azure/communication-common": "2.0.0",
     "@azure/communication-identity": "~1.1.0",
-    "@azure/communication-react": "1.4.0",
+    "@azure/communication-react": "1.5.0",
     "@azure/logger": "1.0.3",
     "@fluentui/react-file-type-icons": "~8.5.8",
     "@fluentui/react-icons": "~1.1.145",
     "@fluentui/react": "~8.98.3",
-    "@types/react-aria-live": "^2.0.0",
     "@types/react-linkify": "^1.0.0",
     "json-stringify-safe": "^5.0.1",
-    "react-aria-live": "^2.0.5",
     "react-dom": "17.0.0",
     "react-linkify": "^1.0.0-alpha",
     "react": "17.0.0",
@@ -39,7 +37,6 @@
   "devDependencies": {
     "@babel/core": "~7.16.0",
     "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react-hooks": "^3.4.2",
     "@types/jest": "~26.0.22",
     "@types/json-stringify-safe": "^5.0.0",
     "@types/react-dom": "17.0.0",
@@ -69,7 +66,6 @@
     "jest": "26.6.0",
     "prettier": "2.3.1",
     "pretty-quick": "^3.1.0",
-    "react-test-renderer": "^16.14.0",
     "rimraf": "^2.6.2",
     "style-loader": "~2.0.0",
     "ts-loader": "^8.0.12",
@@ -77,6 +73,6 @@
     "url-loader": "~4.1.1",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "4.8.1",
-    "webpack": "5.38.1"
+    "webpack": "5.61.0"
   }
 }
