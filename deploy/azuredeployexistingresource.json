@@ -11,6 +11,13 @@
       "metadata": {
         "description": "The SKU of App Service Plan."
       }
+    },
+    "adminUserId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The user id of a user on the server to invite other users into chat threads"
+      }
     }
   },
   "variables": {
@@ -55,6 +62,7 @@
           "properties": {
             "ResourceConnectionString": "[listkeys(variables('communicationServicesResourceId'), '2020-08-20' ).primaryConnectionString]",
             "EndpointUrl": "[substring(listkeys(variables('communicationServicesResourceId'), '2020-08-20' ).primaryConnectionString, 9, add(indexOf(listkeys(variables('communicationServicesResourceId'), '2020-08-20' ).primaryConnectionString, '.azure.com/'),2))]",
+            "AdminUserId": "[parameters('adminUserId')]",
             "WEBSITE_NODE_DEFAULT_VERSION": "~14"
           }
         },
