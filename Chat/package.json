@@ -22,7 +22,7 @@
     "@azure/communication-chat": ">=1.2.0",
     "@azure/communication-common": "2.0.0",
     "@azure/communication-identity": "~1.1.0",
-    "@azure/communication-react": "1.4.1",
+    "@azure/communication-react": "1.5.0",
     "@azure/logger": "1.0.3",
     "@fluentui/react-file-type-icons": "~8.5.8",
     "@fluentui/react-icons": "~1.1.145",
