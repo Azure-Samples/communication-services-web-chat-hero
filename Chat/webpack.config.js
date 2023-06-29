@@ -5,6 +5,6 @@
 
 module.exports = (env) => {
   const babelConfig = require('./.babelrc.js');
-  const commonConfig = require('./common.webpack.config')(__dirname, env, babelConfig);
+  const commonConfig = require('../../common/config/webpack/sampleapp.webpack.config')(__dirname, env, babelConfig);
   return commonConfig;
 };

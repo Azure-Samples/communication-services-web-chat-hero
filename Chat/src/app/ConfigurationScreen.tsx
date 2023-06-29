@@ -33,7 +33,13 @@ import { Chat20Filled } from '@fluentui/react-icons';
 import { DisplayNameField } from './DisplayNameField';
 import { sendEmojiRequest } from './utils/setEmoji';
 import { getToken } from './utils/getToken';
-import { getExistingThreadIdFromURL } from './utils/getExistingThreadIdFromURL';
+import {
+  getExistingDisplayNameFromURL,
+  getExistingEndpointURLFromURL,
+  getExistingThreadIdFromURL,
+  getExistingTokenFromURL,
+  getExistingUserIdFromURL
+} from './utils/getParametersFromURL';
 import { joinThread } from './utils/joinThread';
 import { getEndpointUrl } from './utils/getEndpointUrl';
 
@@ -80,7 +86,6 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
   const [configurationScreenState, setConfigurationScreenState] = useState<number>(
     CONFIGURATIONSCREEN_SHOWING_SPINNER_LOADING
   );
-
   const [disableJoinChatButton, setDisableJoinChatButton] = useState<boolean>(false);
   const theme = useTheme();
   const { joinChatHandler, setToken, setUserId, setDisplayName, setThreadId, setEndpointUrl } = props;
@@ -117,6 +122,21 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
     internalSetupAndJoinChatThread();
   }, [name, joinChatHandler, selectedAvatar, setDisplayName, setEndpointUrl, setThreadId, setToken, setUserId]);
 
+  const joinChatThreadWithExistingUser = useCallback(
+    (token: string, userId: string, displayName: string, threadId: string, endpointUrl: string) => {
+      setToken(token);
+      setUserId(userId);
+      setDisplayName(displayName);
+      setThreadId(threadId);
+      setEndpointUrl(endpointUrl);
+
+      setEmptyWarning(false);
+      setConfigurationScreenState(CONFIGURATIONSCREEN_SHOWING_SPINNER_INITIALIZE_CHAT);
+      joinChatHandler();
+    },
+    [joinChatHandler, setDisplayName, setEndpointUrl, setThreadId, setToken, setUserId]
+  );
+
   useEffect(() => {
     if (configurationScreenState === CONFIGURATIONSCREEN_SHOWING_SPINNER_LOADING) {
       const setScreenState = async (): Promise<void> => {
@@ -129,11 +149,24 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
           setConfigurationScreenState(CONFIGURATIONSCREEN_SHOWING_INVALID_THREAD);
           return;
         }
+        // Check if we have all the required parameters supplied as query search params.
+        const threadId = getExistingThreadIdFromURL();
+        const token = getExistingTokenFromURL();
+        const userId = getExistingUserIdFromURL();
+        const displayName = getExistingDisplayNameFromURL();
+        const endpointUrl = getExistingEndpointURLFromURL();
+
+        if (token && userId && displayName && threadId && endpointUrl) {
+          joinChatThreadWithExistingUser(token, userId, displayName, threadId, endpointUrl);
+          return;
+        }
+
+        // Else show the join chat screen where a user enters there display name and the other args are collected from the server
         setConfigurationScreenState(CONFIGURATIONSCREEN_SHOWING_JOIN_CHAT);
       };
       setScreenState();
     }
-  }, [configurationScreenState]);
+  }, [configurationScreenState, joinChatThreadWithExistingUser]);
 
   const smallAvatarContainerClassName = useCallback(
     (avatar: string) => {
@@ -176,8 +209,8 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
             {PROFILE_LABEL}
           </Text>
           <div className={largeAvatarContainerStyle(selectedAvatar)}>
-            <div aria-label={`${selectedAvatar} avatar`} className={largeAvatarStyle}>
-              {selectedAvatar}
+            <div aria-label={`${selectedAvatar} avatar selected`} aria-live="polite" className={largeAvatarStyle}>
+              <div aria-hidden="true">{selectedAvatar}</div>
             </div>
           </div>
           <Text className={namePreviewStyle(name !== '')}>{name !== '' ? name : NAME_DEFAULT}</Text>
@@ -214,7 +247,6 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
             validateName={validateName}
             isEmpty={emptyWarning}
           />
-
           <PrimaryButton
             disabled={disableJoinChatButton}
             className={buttonStyle}

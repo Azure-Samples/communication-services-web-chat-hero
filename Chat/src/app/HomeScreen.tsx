@@ -37,7 +37,7 @@ import { useTheme } from '@azure/communication-react';
 import { Chat20Filled } from '@fluentui/react-icons';
 import heroSVG from '../assets/hero.svg';
 import heroDarkModeSVG from '../assets/hero_dark.svg';
-import { getExistingThreadIdFromURL } from './utils/getExistingThreadIdFromURL';
+import { getExistingThreadIdFromURL } from './utils/getParametersFromURL';
 import { createThread } from './utils/createThread';
 import { ThemeSelector } from './theming/ThemeSelector';
 import { useSwitchableFluentTheme } from './theming/SwitchableFluentThemeProvider';
@@ -46,7 +46,6 @@ const imageStyleProps: IImageStyles = {
   image: {
     height: '100%'
   },
-
   root: {}
 };
 
@@ -114,7 +113,6 @@ export default (): JSX.Element => {
             </Link>
           </Text>
         );
-
       return (
         <Stack horizontal tokens={listItemStackTokens} className={listItemStyle}>
           <Icon className={mergeStyles(listIconStyle, { color: themePrimary })} iconName={iconName} />
@@ -154,7 +152,6 @@ export default (): JSX.Element => {
               }}
               onRenderIcon={() => <Chat20Filled className={videoCameraIconStyle} />}
             />
-
             <ThemeSelector label="Theme" horizontal={true} />
           </Stack>
         </Stack>

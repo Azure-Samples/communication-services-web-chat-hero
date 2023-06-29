@@ -1,0 +1,32 @@
+{
+  "files": {
+    "samples/Server/.eslintignore": "eb6a420a9e4977fb29cd230fe1c00990085d0748",
+    "samples/Server/.eslintrc.js": "d7f73c1eb84db8cc23c438d4c27139038010aee7",
+    "samples/Server/.vscode/settings.json": "86475acc1c51dafc65b0ed973d2ce398087dad3e",
+    "samples/Server/LICENSE": "ea8fb1516028b6dd2cf3d854855937c733b6fd8e",
+    "samples/Server/appsettings.json": "c3d0b82431e1e1ae492d54a457ba871d54c7a33e",
+    "samples/Server/bin/www.ts": "f4e04207a445edc3e2f3c4a216b8458616191b0b",
+    "samples/Server/dist/web.config": "f15313b2349e7135a380ea17cfe83c1e32cfbc3a",
+    "samples/Server/jest.config.js": "0eb4227ad05e17ca155e1313be0e070281811625",
+    "samples/Server/package.json": "393ed62c75e894a384bac9c53a5d0a28c881bb36",
+    "samples/Server/src/app.test.ts": "f647a0a030ca398497d8ba49de09297786490333",
+    "samples/Server/src/app.ts": "a9fd0c8f6164ed8c5015df5f97d259db29355c2b",
+    "samples/Server/src/lib/chat/moderator.ts": "efad365d46f15e2bd0c84ff75102f4c30d99e61e",
+    "samples/Server/src/lib/chat/userIdToUserConfigMap.ts": "4782c07fa00cb55efb9ca39c2457d5f7510e3479",
+    "samples/Server/src/lib/envHelper.ts": "d0763192f976abd61b847f633c0fe4f9bc180977",
+    "samples/Server/src/lib/identityClient.ts": "bdeee42d6c207982d5de3ffdb158aaa171c1d732",
+    "samples/Server/src/routes/addUser.ts": "be37275d231a5095ef78442075f2c2e0d2beb71b",
+    "samples/Server/src/routes/addUserToRoom.ts": "7a643f8c46d7c0006397ba4f34226c0a213d8e56",
+    "samples/Server/src/routes/createRoom.ts": "346a9ec04040687e60dbd2c01900feb467075207",
+    "samples/Server/src/routes/createThread.ts": "9dac0678154a20a513098f4c72afeae5af50bc06",
+    "samples/Server/src/routes/getEndpointUrl.ts": "7fbe7ee6acc3eb272e6b68255521a7e0838591a4",
+    "samples/Server/src/routes/issueToken.ts": "0a06f0f7f28a11fa9014e78c8065e223d4199fd4",
+    "samples/Server/src/routes/refreshToken.ts": "147d0d48bd91b3afd62a0461acf8c6d4d4aea5af",
+    "samples/Server/src/routes/userConfig.ts": "fc7684499201e3887840469becf36cb2529686b5",
+    "samples/Server/tsconfig.json": "aaca42f98086c258625ae2cdd369390c4477eb45",
+    "samples/Server/web.config": "f15313b2349e7135a380ea17cfe83c1e32cfbc3a",
+    "samples/Server/webpack.config.ts": "5a3ca2ef2428df6fd99ab1671c3215a1aa58e7db",
+    "samples/Server/.rush/temp/shrinkwrap-deps.json": "02bd4f5df243d0a3a4a3f7b44968c03895a6d187"
+  },
+  "arguments": "eslint --max-warnings 0 \"**/*.{js,ts,tsx}\" "
+}
