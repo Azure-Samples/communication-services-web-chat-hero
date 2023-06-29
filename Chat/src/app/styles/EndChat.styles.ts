@@ -14,7 +14,6 @@ export const buttonsStackTokens: IStackTokens = {
 export const upperStackTokens: IStackTokens = {
   childrenGap: '1.5rem'
 };
-
 export const endChatContainerStyle = mergeStyles({
   height: '100%',
   width: '100% ',

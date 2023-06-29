@@ -11,7 +11,7 @@ import {
   useAzureCommunicationChatAdapter
 } from '@azure/communication-react';
 import { Stack } from '@fluentui/react';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ChatHeader } from './ChatHeader';
 import { chatCompositeContainerStyle, chatScreenContainerStyle } from './styles/ChatScreen.styles';
@@ -32,6 +32,15 @@ interface ChatScreenProps {
 
 export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
   const { displayName, endpointUrl, threadId, token, userId, endChatHandler } = props;
+
+  // Disables pull down to refresh. Prevents accidental page refresh when scrolling through chat messages
+  // Another alternative: set body style touch-action to 'none'. Achieves same result.
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'null';
+    };
+  }, []);
 
   const { currentTheme } = useSwitchableFluentTheme();
 
@@ -60,10 +69,8 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
       credential: createAutoRefreshingCredential(userId, token),
       threadId
     }),
-
     [endpointUrl, userId, displayName, token, threadId]
   );
-
   const adapter = useAzureCommunicationChatAdapter(adapterArgs, adapterAfterCreate);
 
   // Dispose of the adapter in the window's before unload event
@@ -80,11 +87,10 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
           new Promise((resolve) => {
             return resolve({
               imageInitials: emoji,
-              initialsColor: getBackgroundColor(emoji)?.backgroundColor
+              initialsColor: emoji ? getBackgroundColor(emoji)?.backgroundColor : undefined
             });
           })
       );
-
     return (
       <Stack className={chatScreenContainerStyle}>
         <Stack.Item className={chatCompositeContainerStyle} role="main">
