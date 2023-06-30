@@ -8,7 +8,6 @@ export const sendEmojiRequest = async (identity: string, emoji: string): Promise
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ Emoji: emoji })
     };
-
     await (
       await fetch('/userConfig/' + identity, postTokenRequestOptions)
     ).json;
