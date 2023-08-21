@@ -12,7 +12,7 @@ import HomeScreen from './HomeScreen';
 import { getExistingThreadIdFromURL } from './utils/getParametersFromURL';
 import { initializeFileTypeIcons } from '@fluentui/react-file-type-icons';
 
-setLogLevel('warning');
+setLogLevel('verbose');
 
 initializeIcons();
 initializeFileTypeIcons();
