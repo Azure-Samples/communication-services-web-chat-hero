@@ -7,7 +7,7 @@
     "setup:chat": "cd Chat && npm install",
     "setup:server": "cd Server && npm install",
     "setup": "npm run setup:chat && npm run setup:server",
-    "start": "cd Chat && npm start",
+    "start": "node startChat.js",
     "build:chat": "cd Chat && npm run build",
     "build:server": "cd Server && npm run build",
     "build": "npm run build:chat && npm run build:server",
