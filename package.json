@@ -4,10 +4,14 @@
   "description": "--- page_type: sample languages: - javascript - nodejs - products: - azure - azure-communication-services ---",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "setup": "cd Server && npm install && cd ../Chat && npm install && cd ..",
-    "start": "cd Chat && npm run start && cd ..",
-    "build": "cd Server && npm run build && cd ../Chat && npm run build && cd ..",
-    "package": "cd Chat && npm run package && cd .."
+    "setup:chat": "cd Chat && npm install",
+    "setup:server": "cd Server && npm install",
+    "setup": "npm run setup:chat && npm run setup:server",
+    "start": "cd Chat && npm start",
+    "build:chat": "cd Chat && npm run build",
+    "build:server": "cd Server && npm run build",
+    "build": "npm run build:chat && npm run build:server",
+    "package": "cd Chat && npm run package"
   },
   "repository": {
     "type": "git",
