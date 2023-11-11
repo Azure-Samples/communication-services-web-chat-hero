@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// Licensed under the MIT license.
 
 export const sendEmojiRequest = async (identity: string, emoji: string): Promise<void> => {
   try {
