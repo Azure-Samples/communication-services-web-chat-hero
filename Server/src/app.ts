@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
+// Licensed under the MIT License.
 
 import express from 'express';
 import cors from 'cors';
@@ -14,11 +14,14 @@ import getEndpointUrl from './routes/getEndpointUrl';
 import userConfig from './routes/userConfig';
 import createThread from './routes/createThread';
 import addUser from './routes/addUser';
+import createRoom from './routes/createRoom';
+import addUserToRoom from './routes/addUserToRoom';
+import uploadToAzureBlobStorage from './routes/uploadToAzureBlobStorage';
 
 const app = express();
 
 app.use(logger('tiny'));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.resolve(__dirname, 'build')));
@@ -58,6 +61,24 @@ app.use('/token', cors(), issueToken);
  * purpose: Chat: to add user details to userconfig for chat thread
  */
 app.use('/userConfig', cors(), userConfig);
+
+/**
+ * route: /createRoom
+ * purpose: Calling: create a new room
+ */
+app.use('/createRoom', cors(), createRoom);
+
+/**
+ * route: /addUserToRoom
+ * purpose: Calling: add user to room with the given role
+ */
+app.use('/addUserToRoom', cors(), addUserToRoom);
+
+/**
+ * route: /getLogUploadData
+ * purpose: Get tokens and endpoints for uploading logs to Azure Blob Storage
+ */
+app.use('/uploadToAzureBlobStorage', cors(), uploadToAzureBlobStorage);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
