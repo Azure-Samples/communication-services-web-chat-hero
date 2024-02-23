@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
+// Licensed under the MIT License.
 
 import { setLogLevel } from '@azure/logger';
 import { initializeIcons, Spinner } from '@fluentui/react';
@@ -10,9 +10,14 @@ import { EndScreen } from './EndScreen';
 import { ErrorScreen } from './ErrorScreen';
 import HomeScreen from './HomeScreen';
 import { getExistingThreadIdFromURL } from './utils/getParametersFromURL';
+import { getBuildTime, getChatSDKVersion, getCommitID, getCommnicationReactSDKVersion } from './utils/utils';
 import { initializeFileTypeIcons } from '@fluentui/react-file-type-icons';
 
-setLogLevel('verbose');
+setLogLevel('error');
+
+console.log(
+  `ACS sample chat app. Last Updated ${getBuildTime()} with CommitID:${getCommitID()} using @azure/communication-chat:${getChatSDKVersion()} and @azure/communication-react:${getCommnicationReactSDKVersion()}`
+);
 
 initializeIcons();
 initializeFileTypeIcons();
