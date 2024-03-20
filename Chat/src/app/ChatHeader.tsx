@@ -44,7 +44,6 @@ export const ChatHeader = (props: ChatHeaderProps): JSX.Element => {
         aria-live={'polite'}
         aria-label={leaveString}
       />
-
       <IconButton
         iconProps={leaveIcon}
         className={mergeStyles(smallLeaveButtonContainerStyle, greyIconButtonStyle, {

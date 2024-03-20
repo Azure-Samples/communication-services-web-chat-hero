@@ -192,7 +192,6 @@ const PromptForShakePermission = (props: { onPermissionGranted: () => void }): J
             });
           }}
         />
-
         <DefaultButton onClick={closePrompt} text="Disable" />
       </DialogFooter>
     </Dialog>
@@ -256,7 +255,6 @@ export const ShakeToSendLogs = (): JSX.Element => {
           }}
         />
       )}
-
       <Dialog hidden={!showDialog} dialogContentProps={dialogContentProps} modalProps={{ onDismissed: reset }}>
         <Spinner hidden={logStatus !== 'sending'} label="Sending logs..." />
         {logStatus === 'unsent' && (
@@ -265,7 +263,6 @@ export const ShakeToSendLogs = (): JSX.Element => {
             <DefaultButton onClick={closeDialog} text="Don't send" />
           </DialogFooter>
         )}
-
         {logStatus === 'sent' && (
           <>
             <Text>
@@ -280,12 +277,10 @@ export const ShakeToSendLogs = (): JSX.Element => {
                 text="Send as email"
                 onClick={() => window.open(`mailto:?body=${encodeURIComponent(blobUrl ?? '')}`)}
               />
-
               <DefaultButton onClick={closeDialog} text="Close" />
             </DialogFooter>
           </>
         )}
-
         {logStatus === 'failed' && (
           <>
             <Text>Failed to send logs.</Text>
