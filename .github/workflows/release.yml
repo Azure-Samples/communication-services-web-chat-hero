@@ -10,14 +10,13 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-    
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
 
-      - name: Setup Node 16
-        uses: actions/setup-node@v2
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: "lts/*"
 
       - name: Build
         shell: bash
