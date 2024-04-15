@@ -84,6 +84,7 @@ export const EndScreen = (props: EndCallProps): JSX.Element => {
             }}
             onRenderIcon={() => <Chat20Filled className={chatIconStyle} />}
           />
+
           <DefaultButton
             className={buttonStyle}
             styles={buttonWithIconStyles}
