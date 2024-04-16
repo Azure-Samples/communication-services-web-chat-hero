@@ -247,6 +247,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
             validateName={validateName}
             isEmpty={emptyWarning}
           />
+
           <PrimaryButton
             disabled={disableJoinChatButton}
             className={buttonStyle}

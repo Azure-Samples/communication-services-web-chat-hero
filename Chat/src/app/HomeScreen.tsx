@@ -113,6 +113,7 @@ export default (): JSX.Element => {
             </Link>
           </Text>
         );
+
       return (
         <Stack horizontal tokens={listItemStackTokens} className={listItemStyle}>
           <Icon className={mergeStyles(listIconStyle, { color: themePrimary })} iconName={iconName} />
@@ -152,6 +153,7 @@ export default (): JSX.Element => {
               }}
               onRenderIcon={() => <Chat20Filled className={videoCameraIconStyle} />}
             />
+
             <ThemeSelector label="Theme" horizontal={true} />
           </Stack>
         </Stack>
