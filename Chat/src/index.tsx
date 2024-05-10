@@ -6,7 +6,7 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './app/App';
 import { SwitchableFluentThemeProvider } from './app/theming/SwitchableFluentThemeProvider';
-import { ShakeToSendLogs } from './app/utils/ShakeToSendLogs';
+
 import { initReactRenderTracker } from './app/utils/utils';
 
 const domNode = document.getElementById('root');
@@ -21,7 +21,6 @@ createRoot(domNode).render(
     <SwitchableFluentThemeProvider scopeId="SampleChatApp">
       <div className="wrapper">
         <App />
-        <ShakeToSendLogs />
       </div>
     </SwitchableFluentThemeProvider>
   </React.StrictMode>
