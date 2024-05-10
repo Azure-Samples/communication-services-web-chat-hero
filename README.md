@@ -57,17 +57,17 @@ We appreciate your feedback and energy helping us improve our services. [If you'
 ## Local run
 
 1. Set your connection string in `Server/appsettings.json`
-2. Set your endpoint URL string in `Server/appsettings.json`
-3. Set your adminUserId string in `Server/appsettings.json`
-3. `npm run setup` from the root directory
-4. `npm run start` from the root directory
+1. Set your endpoint URL string in `Server/appsettings.json`
+1. Set your adminUserId string in `Server/appsettings.json`
+1. `npm run setup` from the root directory
+1. `npm run start` from the root directory
 
 ## Publish to Azure
 
 1. `npm run setup`
-2. `npm run build`
-3. `npm run package`
-4. Use the [Azure extension](https://code.visualstudio.com/docs/azure/extensions) and deploy the `Chat/dist` directory to your app service
+1. `npm run build`
+1. `npm run package`
+1. Use the [Azure extension](https://code.visualstudio.com/docs/azure/extensions) and deploy the `Chat/dist` directory to your app service
 
 ## Additional Reading
 
