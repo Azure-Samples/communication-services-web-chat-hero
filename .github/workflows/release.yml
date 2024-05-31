@@ -34,8 +34,6 @@ jobs:
           rm -r "./Chat/dist"
 
       - name: Publish
-        permissions:
-          contents: write
         uses: softprops/action-gh-release@v1
         with:
           files: "group-chat.zip"
