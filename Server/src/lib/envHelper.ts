@@ -9,13 +9,19 @@ let appSettings: {
   EndpointUrl: string;
   AdminUserId: string;
   AzureBlobStorageConnectionString: string;
+  AzureOpenAIKey: string;
+  AzureOpenAIEndpoint: string;
+  AzureOpenAIDeploymentName: string;
 };
 if (
   !(
     process.env['ResourceConnectionString'] ||
     process.env['EndpointUrl'] ||
     process.env['AdminUserId'] ||
-    process.env['AzureBlobStorageConnectionString']
+    process.env['AzureBlobStorageConnectionString'] ||
+    process.env['AzureOpenAIKey'] ||
+    process.env['AzureOpenAIEndpoint'] ||
+    process.env['AzureOpenAIDeploymentName']
   )
 ) {
   if (!fs.existsSync(appSettingsPath)) {
@@ -65,4 +71,34 @@ export const getAzureBlobStorageConnectionString = (): string => {
   }
 
   return accountName;
+};
+
+export const getAzureOpenAIKey = (): string => {
+  const azureOpenAIKey = process.env['AzureOpenAIKey'] || appSettings.AzureOpenAIKey;
+
+  if (!azureOpenAIKey) {
+    throw new Error('No Azure Open AI key provided');
+  }
+
+  return azureOpenAIKey;
+};
+
+export const getAzureOpenAIEndpoint = (): string => {
+  const azureOpenAIEndpoint = process.env['AzureOpenAIEndpoint'] || appSettings.AzureOpenAIEndpoint;
+
+  if (!azureOpenAIEndpoint) {
+    throw new Error('No Azure Open AI endpoint provided');
+  }
+
+  return azureOpenAIEndpoint;
+};
+
+export const getAzureOpenAIDeploymentName = (): string => {
+  const azureOpenAIDeploymentName = process.env['AzureOpenAIDeploymentName'] || appSettings.AzureOpenAIDeploymentName;
+
+  if (!azureOpenAIDeploymentName) {
+    throw new Error('No Azure Open AI deployment name provided');
+  }
+
+  return azureOpenAIDeploymentName;
 };

@@ -17,6 +17,8 @@ import addUser from './routes/addUser';
 import createRoom from './routes/createRoom';
 import addUserToRoom from './routes/addUserToRoom';
 import uploadToAzureBlobStorage from './routes/uploadToAzureBlobStorage';
+import getSentiment from './routes/getSentiment';
+import getSummary from './routes/getSummary';
 
 const app = express();
 
@@ -79,6 +81,18 @@ app.use('/addUserToRoom', cors(), addUserToRoom);
  * purpose: Get tokens and endpoints for uploading logs to Azure Blob Storage
  */
 app.use('/uploadToAzureBlobStorage', cors(), uploadToAzureBlobStorage);
+
+/**
+ * route: /getSentiment
+ * purpose: Get sentiment for a message
+ */
+app.use('/getSentiment', cors(), getSentiment);
+
+/**
+ * route: /getSummary
+ * purpose: Get summary for a list messages
+ */
+app.use('/getSummary', cors(), getSummary);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

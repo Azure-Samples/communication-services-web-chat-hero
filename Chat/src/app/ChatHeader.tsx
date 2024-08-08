@@ -18,6 +18,7 @@ import { useTheme } from '@azure/communication-react';
 
 export interface ChatHeaderProps {
   onEndChat(): void;
+  onSummarize(): void;
 }
 
 export const ChatHeader = (props: ChatHeaderProps): JSX.Element => {
@@ -33,6 +34,15 @@ export const ChatHeader = (props: ChatHeaderProps): JSX.Element => {
       role="banner"
     >
       <div className={paneButtonContainerStyle}>{}</div>
+      <DefaultButton
+        className={mergeStyles(largeLeaveButtonContainerStyle, leaveButtonStyle, {
+          color: theme.palette.neutralPrimaryAlt
+        })}
+        styles={buttonWithIconStyles}
+        text={'Summarize'}
+        onClick={() => props.onSummarize()}
+        aria-label={'Sumarize'}
+      />
       <DefaultButton
         className={mergeStyles(largeLeaveButtonContainerStyle, leaveButtonStyle, {
           color: theme.palette.neutralPrimaryAlt
