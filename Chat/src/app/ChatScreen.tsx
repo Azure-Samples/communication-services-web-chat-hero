@@ -23,6 +23,7 @@ import { fetchEmojiForUser } from './utils/emojiCache';
 import { getBackgroundColor } from './utils/utils';
 import { getSentiment } from './utils/getSentiment';
 import { getSummary } from './utils/getSummary';
+import { SummaryCard } from './SummaryCard';
 
 import { useSwitchableFluentTheme } from './theming/SwitchableFluentThemeProvider';
 
@@ -39,6 +40,9 @@ interface ChatScreenProps {
 export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
   const { displayName, endpointUrl, threadId, token, userId, endChatHandler } = props;
   const [sentiments, setSentiments] = useState({});
+  const [showSummary, setShowSummary] = useState<boolean>(false);
+  const [showLoadingSummary, setShowLoadingSummary] = useState<boolean>(false);
+  const [summary, setSummary] = useState<string>('');
 
   // Disables pull down to refresh. Prevents accidental page refresh when scrolling through chat messages
   // Another alternative: set body style touch-action to 'none'. Achieves same result.
@@ -85,10 +89,12 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
 
   const summarizationHandler = useCallback(async (adapter: ChatAdapter): Promise<void> => {
     console.log('hi');
+    setShowLoadingSummary(true);
     const messages = Object.values(adapter.getState().thread.chatMessages)
       .filter((m) => m.type === 'html' || m.type === 'text')
       .sort((a, b) => a.createdOn.getTime() - b.createdOn.getTime())
       .map((m) => {
+        // Return the formatted string
         return {
           timestamp: m.createdOn,
           user: m.senderDisplayName,
@@ -96,20 +102,16 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
         };
       });
 
-    const summary = await getSummary(JSON.stringify(messages));
+    console.log(messages);
 
-    // console.log(messages);
-    // console.log(summary);
+    const summaryResponse = await getSummary(JSON.stringify(messages));
 
-    const trimmedHTLPSummary = summary.replace(/^```html\s*|\s*```$/g, '');
-    const newWindow = window.open('', '_blank');
-    if (newWindow) {
-      newWindow.document.open();
-      newWindow.document.write(trimmedHTLPSummary);
-      newWindow.document.close();
-    } else {
-      console.error('Failed to open new window');
-    }
+    console.log(summaryResponse);
+    const trimmedSummary = summaryResponse.replace('```', '');
+
+    setShowLoadingSummary(false);
+    setSummary(trimmedSummary);
+    setShowSummary(true);
   }, []);
 
   const adapterAfterCreate = useCallback(
@@ -168,6 +170,12 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
     return (
       <Stack className={chatScreenContainerStyle}>
         <Stack.Item className={chatCompositeContainerStyle} role="main">
+          <SummaryCard
+            showSummary={showSummary}
+            showLoading={showLoadingSummary}
+            summary={summary}
+            setShowSummary={setShowSummary}
+          />
           <ChatComposite
             adapter={adapter}
             fluentTheme={currentTheme.theme}
@@ -181,6 +189,8 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
         <ChatHeader
           onEndChat={() => adapter.removeParticipant(userId)}
           onSummarize={() => summarizationHandler(adapter)}
+          setShowSummary={setShowSummary}
+          setShowLoadingSummary={setShowLoadingSummary}
         />
       </Stack>
     );

@@ -19,6 +19,8 @@ import { useTheme } from '@azure/communication-react';
 export interface ChatHeaderProps {
   onEndChat(): void;
   onSummarize(): void;
+  setShowLoadingSummary(shouldLoad: boolean): void;
+  setShowSummary(shouldShowNotification: boolean): void;
 }
 
 export const ChatHeader = (props: ChatHeaderProps): JSX.Element => {
