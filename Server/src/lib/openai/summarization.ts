@@ -6,7 +6,7 @@ import { getAzureOpenAIKey, getAzureOpenAIEndpoint, getAzureOpenAIDeploymentName
 
 export const getSummary = async (messages: { timestamp: number; user: string; content: string }[]): Promise<string> => {
   const systemPrompt =
-    'Act like you are a agent specialized in generating summary of a chat conversation, you will be provided with a JSON list of messages of a conversation, generate a summary for the conversation and output it in a HTML format.';
+    'Act like you are a agent specialized in generating summary of a chat conversation, you will be provided with a JSON list of messages of a conversation, generate a summary for the conversation.';
   const chatRequestPrompt = [
     {
       role: 'system',
