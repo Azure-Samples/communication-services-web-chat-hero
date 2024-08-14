@@ -3,6 +3,7 @@
 
 import { CommunicationUserIdentifier } from '@azure/communication-common';
 import { ChatMessage } from '@azure/communication-chat';
+import { Badge } from '@fluentui/react-components';
 import {
   AvatarPersonaData,
   ChatAdapter,
@@ -13,6 +14,7 @@ import {
   MessageProps,
   MessageRenderer
 } from '@azure/communication-react';
+import { SkeletonItem, Skeleton } from '@fluentui/react-components';
 import { Stack } from '@fluentui/react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -71,20 +73,40 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
     (messageProps: MessageProps, defaultOnRender?: MessageRenderer): JSX.Element => {
       if (messageProps.message.messageType === 'chat' && messageProps.message.senderId !== userId) {
         return defaultOnRender ? (
-          <div>
-            <small>
-              {sentiments[messageProps.message.messageId] &&
-                `[${sentiments[messageProps.message.messageId].toUpperCase()}]`}
-            </small>
-            {defaultOnRender(messageProps)}
-          </div>
+          <>
+            {sentiments[messageProps.message.messageId] ? (
+              <Badge
+                appearance="tint"
+                color={
+                  sentiments[messageProps.message.messageId] === 'Negative'
+                    ? 'danger'
+                    : sentiments[messageProps.message.messageId] === 'Neutral'
+                    ? 'important'
+                    : 'success'
+                }
+                style={{ position: 'absolute', zIndex: '10' }}
+              >
+                {`${sentiments[messageProps.message.messageId]}`}
+              </Badge>
+            ) : (
+              <Skeleton
+                animation="pulse"
+                aria-label="Loading Content"
+                style={{ maxWidth: '100px', marginBottom: '-5px', marginTop: '5px' }}
+              >
+                <SkeletonItem size={16} />
+              </Skeleton>
+            )}
+
+            <div style={{ marginTop: '10px' }}>{defaultOnRender(messageProps)}</div>
+          </>
         ) : (
           <></>
         );
       }
       return defaultOnRender ? defaultOnRender(messageProps) : <></>;
     },
-    [userId, sentiments]
+    [sentiments, userId]
   );
 
   const summarizationHandler = useCallback(async (adapter: ChatAdapter): Promise<void> => {
