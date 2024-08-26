@@ -72,6 +72,7 @@ We appreciate your feedback and energy helping us improve our services. [If you'
 ## Additional Reading
 
 - [Azure Communication Services - UI Library](https://azure.github.io/communication-ui-library/) - To learn more about what the `@azure/communication-react` package offers.
-- [Azure Communication Chat SDK](https://docs.microsoft.com/en-us/azure/communication-services/concepts/chat/sdk-features) - To learn more about the chat web sdk
+- [Azure Communication Chat SDK](https://docs.microsoft.com/en-us/azure/communication-services/concepts/chat/sdk-features) - To learn more about the chat web sdk.
+- [Teams Interop Meeting Chat Quickstart](https://github.com/Azure-Samples/communication-services-javascript-quickstarts/tree/main/ui-library-quickstart-teams-interop-meeting-chat) - To try out new beta features such as Rich Text Editor.
 - [FluentUI](https://developer.microsoft.com/en-us/fluentui#/) - Microsoft powered UI library
 - [React](https://reactjs.org/) - Library for building user interfaces
