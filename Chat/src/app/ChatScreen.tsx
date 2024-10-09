@@ -16,7 +16,7 @@ import {
 } from '@azure/communication-react';
 import { SkeletonItem, Skeleton } from '@fluentui/react-components';
 import { Stack } from '@fluentui/react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 
 import { ChatHeader } from './ChatHeader';
 import { chatCompositeContainerStyle, chatScreenContainerStyle } from './styles/ChatScreen.styles';
@@ -25,6 +25,7 @@ import { fetchEmojiForUser } from './utils/emojiCache';
 import { getBackgroundColor } from './utils/utils';
 import { getSentiment } from './utils/getSentiment';
 import { getSummary } from './utils/getSummary';
+import { getTranslation } from './utils/getTranslation';
 import { SummaryCard } from './SummaryCard';
 
 import { useSwitchableFluentTheme } from './theming/SwitchableFluentThemeProvider';
@@ -45,6 +46,8 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
   const [showSummary, setShowSummary] = useState<boolean>(false);
   const [showLoadingSummary, setShowLoadingSummary] = useState<boolean>(false);
   const [summary, setSummary] = useState<string>('');
+  const [translations, setTranslations] = useState({});
+  const translationLanguage = useRef<string>('default');
 
   // Disables pull down to refresh. Prevents accidental page refresh when scrolling through chat messages
   // Another alternative: set body style touch-action to 'none'. Achieves same result.
@@ -62,12 +65,29 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
       return;
     }
     const sentiment = await getSentiment(message);
-    console.log('fetchSentiment for message: ' + message.id + ' sentiment: ' + sentiment);
     setSentiments((sentiments) => ({
       ...sentiments,
       [message.id]: sentiment
     }));
   }, []);
+
+  const setTranslationLanguage = (language: string): void => {
+    translationLanguage.current = language;
+  };
+
+  const fetchTranslation = useCallback(
+    async (message: ChatMessage): Promise<void> => {
+      if (message.type !== 'html' && message.type !== 'text') {
+        return;
+      }
+      const translation = await getTranslation(message, translationLanguage.current);
+      setTranslations((translations) => ({
+        ...translations,
+        [message.id]: translation
+      }));
+    },
+    [translationLanguage]
+  );
 
   const onRenderMessage = useCallback(
     (messageProps: MessageProps, defaultOnRender?: MessageRenderer): JSX.Element => {
@@ -89,16 +109,20 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
                 {`${sentiments[messageProps.message.messageId]}`}
               </Badge>
             ) : (
-              <Skeleton
-                animation="pulse"
-                aria-label="Loading Content"
-                style={{ maxWidth: '100px', marginBottom: '-5px', marginTop: '5px' }}
-              >
-                <SkeletonItem size={16} />
-              </Skeleton>
+              <></>
+              // <Skeleton
+              //   animation="pulse"
+              //   aria-label="Loading Content"
+              //   style={{ maxWidth: '100px', marginBottom: '-5px', marginTop: '5px' }}
+              // >
+              //   <SkeletonItem size={16} />
+              // </Skeleton>
             )}
 
             <div style={{ marginTop: '10px' }}>{defaultOnRender(messageProps)}</div>
+            <small>
+              {translations[messageProps.message.messageId] && `[${translations[messageProps.message.messageId]}]`}
+            </small>
           </>
         ) : (
           <></>
@@ -106,11 +130,10 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
       }
       return defaultOnRender ? defaultOnRender(messageProps) : <></>;
     },
-    [sentiments, userId]
+    [userId, sentiments, translations]
   );
 
   const summarizationHandler = useCallback(async (adapter: ChatAdapter): Promise<void> => {
-    console.log('hi');
     setShowLoadingSummary(true);
     const messages = Object.values(adapter.getState().thread.chatMessages)
       .filter((m) => m.type === 'html' || m.type === 'text')
@@ -124,11 +147,7 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
         };
       });
 
-    console.log(messages);
-
     const summaryResponse = await getSummary(JSON.stringify(messages));
-
-    console.log(summaryResponse);
     const trimmedSummary = summaryResponse.replace('```', '');
 
     setShowLoadingSummary(false);
@@ -140,9 +159,12 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
     async (adapter: ChatAdapter): Promise<ChatAdapter> => {
       adapter?.on('messageReceived', (listener) => {
         fetchSentiment(listener.message);
+        fetchTranslation(listener.message);
+        console.log('receiveMessage event language: ', translationLanguage);
       });
       adapter?.on('messageEdited', (listener) => {
         fetchSentiment(listener.message);
+        fetchTranslation(listener.message);
       });
       adapter.on('participantsRemoved', (listener) => {
         const removedParticipantIds = listener.participantsRemoved.map((p) => toFlatCommunicationIdentifier(p.id));
@@ -156,7 +178,7 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
       });
       return adapter;
     },
-    [endChatHandler, fetchSentiment, userId]
+    [endChatHandler, fetchSentiment, fetchTranslation, translationLanguage, userId]
   );
 
   const adapterArgs = useMemo(
@@ -211,8 +233,7 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
         <ChatHeader
           onEndChat={() => adapter.removeParticipant(userId)}
           onSummarize={() => summarizationHandler(adapter)}
-          setShowSummary={setShowSummary}
-          setShowLoadingSummary={setShowLoadingSummary}
+          setLanguage={setTranslationLanguage}
         />
       </Stack>
     );

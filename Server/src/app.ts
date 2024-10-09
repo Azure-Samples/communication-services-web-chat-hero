@@ -19,6 +19,7 @@ import addUserToRoom from './routes/addUserToRoom';
 import uploadToAzureBlobStorage from './routes/uploadToAzureBlobStorage';
 import getSentiment from './routes/getSentiment';
 import getSummary from './routes/getSummary';
+import getTranslation from './routes/getTranslation';
 
 const app = express();
 
@@ -93,6 +94,12 @@ app.use('/getSentiment', cors(), getSentiment);
  * purpose: Get summary for a list messages
  */
 app.use('/getSummary', cors(), getSummary);
+
+/**
+ * route: /getTranslation
+ * purpose: Get translation for a message
+ */
+app.use('/getTranslation', cors(), getTranslation);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
