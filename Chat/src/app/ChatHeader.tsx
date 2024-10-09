@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { DefaultButton, Icon, IconButton, mergeStyles, Stack, Dropdown, IDropdownOption } from '@fluentui/react';
 import {
   buttonWithIconStyles,
@@ -46,18 +46,6 @@ export const ChatHeader = (props: ChatHeaderProps): JSX.Element => {
 
   const theme = useTheme();
 
-  const onChange = useCallback(
-    (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption, index?: number): void => {
-      if (option) {
-        setSelectedLanguage(option.key as string); // Set the selected language
-        const lang = languageOptions[index ?? 0].text;
-        props.setLanguage(lang);
-        console.log('Selected language code:', option.key, lang);
-      }
-    },
-    [props.setLanguage]
-  );
-
   const leaveString = 'Leave';
   return (
     <Stack
@@ -71,9 +59,14 @@ export const ChatHeader = (props: ChatHeaderProps): JSX.Element => {
       <Dropdown
         placeholder="Select a language"
         options={languageOptions}
-        onChange={onChange}
+        onChange={(event, option, index) => {
+          if (option) {
+            setSelectedLanguage(option.key as string);
+            props.setLanguage(languageOptions[index ?? 0].text);
+          }
+        }}
         selectedKey={selectedLanguage}
-        styles={{ dropdown: { width: 300 } }} // Adjust the width as needed
+        styles={{ dropdown: { width: 150 } }}
       />
       <DefaultButton
         className={mergeStyles(largeLeaveButtonContainerStyle, leaveButtonStyle, {
