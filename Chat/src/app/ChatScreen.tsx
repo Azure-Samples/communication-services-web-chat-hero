@@ -13,7 +13,7 @@ import {
   MessageProps,
   MessageRenderer
 } from '@azure/communication-react';
-import { Stack } from '@fluentui/react';
+import { Stack, Text } from '@fluentui/react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ChatHeader } from './ChatHeader';
@@ -23,6 +23,7 @@ import { fetchEmojiForUser } from './utils/emojiCache';
 import { getBackgroundColor } from './utils/utils';
 import { getSentiment } from './utils/getSentiment';
 import { getSummary } from './utils/getSummary';
+import { getTranslation } from './utils/getTranslation';
 import { SummaryCard } from './SummaryCard';
 
 import { useSwitchableFluentTheme } from './theming/SwitchableFluentThemeProvider';
@@ -40,6 +41,8 @@ interface ChatScreenProps {
 export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
   const { displayName, endpointUrl, threadId, token, userId, endChatHandler } = props;
   const [sentiments, setSentiments] = useState({});
+  const [translations, setTranslations] = useState({});
+  const [translationLanguage, setTranslationLanguage] = useState<string>('default');
   const [showSummary, setShowSummary] = useState<boolean>(false);
   const [showLoadingSummary, setShowLoadingSummary] = useState<boolean>(false);
   const [summary, setSummary] = useState<string>('');
@@ -67,6 +70,31 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
     }));
   }, []);
 
+  useEffect(() => {
+    console.log(translationLanguage);
+  }, [translationLanguage]);
+
+  // const setTranslationLanguageOne = (lang1: string): void => {
+  //   console.log('setting language to: ' + lang1);
+  //   setTranslationLanguage(lang1);
+  //   console.log('after setting: ' + translationLanguage);
+  // };
+
+  const fetchTranslation = useCallback(
+    async (message: ChatMessage): Promise<void> => {
+      if (message.type !== 'html' && message.type !== 'text') {
+        return;
+      }
+      const translation = await getTranslation(message, translationLanguage);
+      console.log('fetchTranslation for message: ' + message.id + translationLanguage + ' translation: ' + translation);
+      setTranslations((translations) => ({
+        ...translations,
+        [message.id]: translation
+      }));
+    },
+    [translationLanguage]
+  );
+
   const onRenderMessage = useCallback(
     (messageProps: MessageProps, defaultOnRender?: MessageRenderer): JSX.Element => {
       if (messageProps.message.messageType === 'chat' && messageProps.message.senderId !== userId) {
@@ -77,6 +105,9 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
                 `[${sentiments[messageProps.message.messageId].toUpperCase()}]`}
             </small>
             {defaultOnRender(messageProps)}
+            <Text>
+              {translations[messageProps.message.messageId] && `[${translations[messageProps.message.messageId]}]`}
+            </Text>
           </div>
         ) : (
           <></>
@@ -84,7 +115,7 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
       }
       return defaultOnRender ? defaultOnRender(messageProps) : <></>;
     },
-    [userId, sentiments]
+    [userId, sentiments, translations]
   );
 
   const summarizationHandler = useCallback(async (adapter: ChatAdapter): Promise<void> => {
@@ -118,9 +149,12 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
     async (adapter: ChatAdapter): Promise<ChatAdapter> => {
       adapter?.on('messageReceived', (listener) => {
         fetchSentiment(listener.message);
+        fetchTranslation(listener.message);
+        console.log('receiveMessage event language: ', translationLanguage);
       });
       adapter?.on('messageEdited', (listener) => {
         fetchSentiment(listener.message);
+        fetchTranslation(listener.message);
       });
       adapter.on('participantsRemoved', (listener) => {
         const removedParticipantIds = listener.participantsRemoved.map((p) => toFlatCommunicationIdentifier(p.id));
@@ -134,7 +168,7 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
       });
       return adapter;
     },
-    [endChatHandler, fetchSentiment, userId]
+    [endChatHandler, fetchSentiment, fetchTranslation, translationLanguage, userId]
   );
 
   const adapterArgs = useMemo(
@@ -189,8 +223,7 @@ export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
         <ChatHeader
           onEndChat={() => adapter.removeParticipant(userId)}
           onSummarize={() => summarizationHandler(adapter)}
-          setShowSummary={setShowSummary}
-          setShowLoadingSummary={setShowLoadingSummary}
+          setLanguage={setTranslationLanguage}
         />
       </Stack>
     );

@@ -93,6 +93,10 @@ const webpackConfig = (sampleAppDir, env, babelConfig) => {
         {
           path: '/getSummary',
           target: 'http://[::1]:8080'
+        },
+        {
+          path: '/getTranslation',
+          target: 'http://[::1]:8080'
         }
       ]
     }
