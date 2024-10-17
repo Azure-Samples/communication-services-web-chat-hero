@@ -12,7 +12,6 @@ import {
 } from '@azure/communication-react';
 import { Stack } from '@fluentui/react';
 import React, { useCallback, useEffect, useMemo } from 'react';
-
 import { ChatHeader } from './ChatHeader';
 import { chatCompositeContainerStyle, chatScreenContainerStyle } from './styles/ChatScreen.styles';
 import { createAutoRefreshingCredential } from './utils/credential';
@@ -31,7 +30,14 @@ interface ChatScreenProps {
 }
 
 export const ChatScreen = (props: ChatScreenProps): JSX.Element => {
-  const { displayName, endpointUrl, threadId, token, userId, endChatHandler } = props;
+  const {
+    displayName,
+    endpointUrl,
+    threadId,
+    token,
+    userId,
+    endChatHandler
+  } = props;
 
   // Disables pull down to refresh. Prevents accidental page refresh when scrolling through chat messages
   // Another alternative: set body style touch-action to 'none'. Achieves same result.
