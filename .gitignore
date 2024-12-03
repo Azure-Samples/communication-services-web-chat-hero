@@ -351,7 +351,6 @@ MigrationBackup/
 Chat/ClientApp/build/
 Chat/build/
 Chat/dist/
-Server/dist/server.js
 
 # Don't accidentally commit sensitive config
 Server/appsettings.json
