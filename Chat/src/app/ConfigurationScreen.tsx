@@ -194,6 +194,10 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
     return <Spinner label={spinnerLabel} ariaLive="assertive" labelPosition="top" />;
   };
 
+  const richTextEditorToggle = (): JSX.Element => {
+    return <></>;
+  };
+
   const displayJoinChatArea = (): JSX.Element => {
     return (
       <Stack
@@ -247,6 +251,8 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
             validateName={validateName}
             isEmpty={emptyWarning}
           />
+
+          {richTextEditorToggle()}
           <PrimaryButton
             disabled={disableJoinChatButton}
             className={buttonStyle}

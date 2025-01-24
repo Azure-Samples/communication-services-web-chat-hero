@@ -25,14 +25,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.resolve(__dirname, 'build')));
 
 /**
- * route: /
- * purpose: default route when the app is started
- */
-app.get('/', (req, res) => {
-  res.send('Welcome to the Home Page');
-});
-
-/**
  * route: /createThread
  * purpose: Chat: create a new chat thread
  */
