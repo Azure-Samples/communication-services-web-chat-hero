@@ -13,8 +13,6 @@ import getEndpointUrl from './routes/getEndpointUrl';
 import userConfig from './routes/userConfig';
 import createThread from './routes/createThread';
 import addUser from './routes/addUser';
-import createRoom from './routes/createRoom';
-import addUserToRoom from './routes/addUserToRoom';
 import uploadToAzureBlobStorage from './routes/uploadToAzureBlobStorage';
 
 const app = express();
@@ -59,18 +57,6 @@ app.use('/token', cors(), issueToken);
  * purpose: Chat: to add user details to userconfig for chat thread
  */
 app.use('/userConfig', cors(), userConfig);
-
-/**
- * route: /createRoom
- * purpose: Calling: create a new room
- */
-app.use('/createRoom', cors(), createRoom);
-
-/**
- * route: /addUserToRoom
- * purpose: Calling: add user to room with the given role
- */
-app.use('/addUserToRoom', cors(), addUserToRoom);
 
 /**
  * route: /getLogUploadData
