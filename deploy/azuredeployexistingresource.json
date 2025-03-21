@@ -63,7 +63,7 @@
             "ResourceConnectionString": "[listkeys(variables('communicationServicesResourceId'), '2020-08-20' ).primaryConnectionString]",
             "EndpointUrl": "[substring(listkeys(variables('communicationServicesResourceId'), '2020-08-20' ).primaryConnectionString, 9, add(indexOf(listkeys(variables('communicationServicesResourceId'), '2020-08-20' ).primaryConnectionString, '.azure.com/'),2))]",
             "AdminUserId": "[parameters('adminUserId')]",
-            "WEBSITE_NODE_DEFAULT_VERSION": "~20"
+            "WEBSITE_NODE_DEFAULT_VERSION": "~22"
           }
         },
         {
