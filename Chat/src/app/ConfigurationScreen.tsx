@@ -42,6 +42,11 @@ import {
 import { joinThread } from './utils/joinThread';
 import { getEndpointUrl } from './utils/getEndpointUrl';
 import { refreshToken } from './utils/refreshToken';
+import {
+  getDisplayNameFromLocalStorage,
+  localStorageAvailable,
+  saveDisplayNameToLocalStorage
+} from './utils/localStorage';
 
 // These props are set by the caller of ConfigurationScreen in the JSX and not found in context
 export interface ConfigurationScreenProps {
@@ -89,6 +94,14 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
   const [disableJoinChatButton, setDisableJoinChatButton] = useState<boolean>(false);
   const theme = useTheme();
   const { joinChatHandler, setToken, setUserId, setDisplayName, setThreadId, setEndpointUrl } = props;
+
+  useEffect(() => {
+    // Get display name from local storage if available
+    const defaultDisplayName = localStorageAvailable ? getDisplayNameFromLocalStorage() : null;
+    if (defaultDisplayName) {
+      setName(defaultDisplayName);
+    }
+  }, []);
 
   // Used when new user is being registered.
   const setupAndJoinChatThreadWithNewUser = useCallback(() => {
@@ -179,6 +192,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
     if (!name) {
       setEmptyWarning(true);
     } else {
+      saveDisplayNameToLocalStorage(name);
       setEmptyWarning(false);
       setDisableJoinChatButton(true);
       setConfigurationScreenState(CONFIGURATIONSCREEN_SHOWING_SPINNER_INITIALIZE_CHAT);
@@ -246,6 +260,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
             </Stack>
           </FocusZone>
           <DisplayNameField
+            defaultName={name}
             setName={setName}
             setEmptyWarning={setEmptyWarning}
             validateName={validateName}
