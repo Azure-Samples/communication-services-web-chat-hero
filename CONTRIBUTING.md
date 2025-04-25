@@ -19,15 +19,13 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
  - [Submission Guidelines](#submit)
 
 ## <a name="purpose"></a>Sample App Purpose
-Sample apps are built to help showcase the capabilities of Azure Communication Services. 
+Sample apps are built to help showcase the capabilities of Azure Communication Services.
 This app uses all best practices and follows limitations related to the service.
 As you contribute make sure to follow service guidelines or your work might not be accepted.
 The app is built on top of the existing Azure Communiation Services SDKs, and will not diverge from the capabilities offered by the SDK.
-This means that if the feature desired is not supported on the SDK, please don't try to hack it into the sample. 
+This means that if the feature desired is not supported on the SDK, please don't try to hack it into the sample.
 
-The sample is continously updated as new features are added to the underlying SDKs and feel free to contribute any features that are supported.
-In the case of the chat app, two samples are available, one on the `main` branch and another on the `public-preview` branch. 
-If the feature you are looking to add is currently in `public preview`, meaning it is only available on `beta` packages, make sure to contribute to the correct branch.
+The sample is continuously updated as new features are added to the stable version of the underlying SDKs and feel free to contribute any features that are supported.
 
 ## <a name="coc"></a> Code of Conduct
 Help us keep this project open and inclusive. Please read and follow our [Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
@@ -63,12 +61,12 @@ chances of your issue being dealt with quickly:
 * **Suggest a Fix** - if you can't fix the bug yourself, perhaps you can point to what might be
   causing the problem (line of code or commit)
 
-You can file new issues by providing the above information at the corresponding repository's issues link: https://github.com/[organization-name]/[repository-name]/issues/new].
+You can file new issues by providing the above information at the corresponding repository's issues link: https://github.com/Azure-Samples/communication-services-web-chat-hero/issues/new.
 
 ### <a name="submit-pr"></a> Submitting a Pull Request (PR)
 Before you submit your Pull Request (PR) consider the following guidelines:
 
-* Search the repository (https://github.com/[organization-name]/[repository-name]/pulls) for an open or closed PR
+* Search the repository (https://github.com/Azure-Samples/communication-services-web-chat-hero/pulls) for an open or closed PR
   that relates to your submission. You don't want to duplicate effort.
 
 * Make your changes in a new git fork:
