@@ -42,6 +42,7 @@ import {
 import { joinThread } from './utils/joinThread';
 import { getEndpointUrl } from './utils/getEndpointUrl';
 import { refreshToken } from './utils/refreshToken';
+
 import {
   getDisplayNameFromLocalStorage,
   localStorageAvailable,
@@ -158,7 +159,7 @@ export default (props: ConfigurationScreenProps): JSX.Element => {
           if (!threadId) {
             throw new Error(ERROR_TEXT_THREAD_NOT_RECORDED);
           }
-        } catch (error) {
+        } catch {
           setConfigurationScreenState(CONFIGURATIONSCREEN_SHOWING_INVALID_THREAD);
           return;
         }

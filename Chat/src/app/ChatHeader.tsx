@@ -53,6 +53,7 @@ export const ChatHeader = (props: ChatHeaderProps): JSX.Element => {
         onClick={() => props.onEndChat()}
         ariaLabel={leaveString}
         aria-live={'polite'}
+        title={leaveString}
       />
     </Stack>
   );
